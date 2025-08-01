@@ -69,11 +69,11 @@ const teacherLogin = async(req, res) => {
     }           
 
     const token = jwt.sign({ id:teacher._id}, process.env.JWT_SECRET, { expiresIn: '1h' });
-  res.cookie("token", token, {
-  httpOnly: true,    
-  secure: false,     
-  sameSite: "Lax",    
-  path: "/",          
+ res.cookie("token", token, {
+  httpOnly: true,
+  secure: true, // required for cross-site cookie
+  sameSite: "None", // must be 'None' for cross-origin
+  path: "/",
 });
 
 res.status(200).json({
