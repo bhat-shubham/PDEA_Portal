@@ -17,7 +17,7 @@ const teacherRoutes = require("./routes/teacherRoutes");
 
 
 app.use(cors({
-  origin: process.env.FRONTEND_URL, // Replace with your client URL
+  origin:"https://pdea-portal.vercel.app", // Replace with your client URL
   credentials: true               
 }));
 app.use(cookieParser());
