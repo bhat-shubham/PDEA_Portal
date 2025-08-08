@@ -1,8 +1,9 @@
 // app/teacher/dashboard/layout.tsx
 "use client";
 import { Sidebar } from "@/components/ui/teachersidebar"
+import withAuth from "../../lib/withAuth";
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-screen">
       <div className="fixed inset-0 w-full h-screen">
@@ -29,3 +30,5 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     </div>
   );
 }
+
+export default withAuth(DashboardLayout);

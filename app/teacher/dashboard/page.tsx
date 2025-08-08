@@ -14,9 +14,7 @@ import {
   TooltipTrigger,
   TooltipProvider
 } from "@/components/ui/tooltip"
-import withAuth from "../../lib/withAuth";
-
-function Dashboard() {
+export default function Dashboard() {
   const [selectedClass, setSelectedClass] = useState<string | null>(null);
   const [attendance, setAttendance] = useState<{[key: string]: boolean}>({});
   const [showAddClass, setShowAddClass] = useState(false);
@@ -346,5 +344,3 @@ function Dashboard() {
     </div>
   )
 }
-
-export default withAuth(Dashboard);
