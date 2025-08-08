@@ -110,6 +110,7 @@ export function Header() {
             email: "",
             branch: "",
       })
+      localStorage.removeItem("token");
       toast.success("Logged Out Successfully!", {
         description: "Redirecting to Login Page...",
       });

@@ -1,8 +1,9 @@
 // app/teacher/dashboard/layout.tsx
 "use client";
-import { AdminSidebar } from "@/components/ui/adminsidebar"
+import { AdminSidebar } from "@/components/ui/adminsidebar";
+import withAuth from "@/app/lib/withAuth";
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-screen overflow-hidden">
       <div className="fixed inset-0 w-screen h-screen">
@@ -38,3 +39,4 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     </div>
   );
 }
+export default withAuth(DashboardLayout);

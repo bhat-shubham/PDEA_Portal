@@ -14,7 +14,6 @@ import {
   TooltipTrigger,
   TooltipProvider
 } from "@/components/ui/tooltip"
-
 export default function Dashboard() {
   const [selectedClass, setSelectedClass] = useState<string | null>(null);
   const [attendance, setAttendance] = useState<{[key: string]: boolean}>({});
