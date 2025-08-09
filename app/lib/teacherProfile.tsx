@@ -4,21 +4,28 @@ export const teacherProfile = async () => {
   const NEXT_PUBLIC_SEVELLA_API = process.env.NEXT_PUBLIC_SEVELLA_API;
 
   try {
+    const token = localStorage.getItem("token");
+
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+    };
+
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
     // https://pdeaportal-4qhff.sevalla.app/teacher/getTeacher
-    const response = await fetch(`${NEXT_PUBLIC_SEVELLA_API}/teacher/profile`, {
+    const response = await fetch(`${NEXT_PUBLIC_SEVELLA_API}/teacher/info`, {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: headers,
       credentials: "include", // Includes cookies (e.g., auth session)
     });
 
     if (!response.ok) {
       throw new Error("Failed to fetch teacher profile");
     }
-
     const data = await response.json();
-    console.log("Teacher profile data:", data);
+    // console.log("Teacher profile data:", data);
 
     return data;
   } catch (error) {

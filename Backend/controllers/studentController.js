@@ -52,7 +52,7 @@ const studentRegistration = async (req,res)=>{
 
 const studentLogin = async (req, res) => {
     const {email, password} = req.body;
-    console.log({email, password});
+    // console.log({email, password});
     // Check if the student exists
     const student = await Student.findOne({email:email});
     if(!student){

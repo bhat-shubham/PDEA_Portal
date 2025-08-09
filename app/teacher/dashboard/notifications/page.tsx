@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Header } from "@/components/ui/adminheader"
+import { Header } from "@/components/ui/teacherheader"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/app/dashboard/ui/card";
 import Link  from "next/link";
 import { Button

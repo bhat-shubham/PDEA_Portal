@@ -1,9 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { Header } from "@/components/ui/teacherheader"
+import { AdminHeader } from "@/components/ui/adminheader"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/app/dashboard/ui/card";
 import Link  from "next/link";
+import { Button } from '@/components/ui/button';
+import { BookPlus } from 'lucide-react';
 interface Notification {
     id: number;
     type: 'Notice' | 'Circular';
@@ -44,10 +46,24 @@ export default function noticesPage() {
     return (
         
         <div className="">
-        <Header />
+        <AdminHeader />
         <div className='p-6'>
-
+            <div className='flex align-middle justify-between'>
             <h1 className="text-2xl font-bold mb-8 text-gray-100">Notices and Circulars</h1>
+            <div>
+                <Button
+                variant="secondary"
+                // onClick={handleNewNotice}
+                className="w-full dark:bg-green-500 justify-start"
+                asChild
+              >
+                <Link href="/admin/dashboard/notices">
+                  <BookPlus className="mr- h-5 w-5" />
+                  Publish New
+                </Link>
+              </Button>
+            </div>
+            </div>
             <div className=" md:grid-cols-2 lg:grid-cols-3 gap-2 mb-3">
                 {notices.map((notification) => (
                     <Link key={notification.id} href={`/notices/${notification.id}`}>

@@ -1,6 +1,6 @@
 "use client"
 
-import { Header } from "@/components/ui/adminheader"
+import { Header } from "@/components/ui/teacherheader"
 import { CiCirclePlus } from "react-icons/ci";
 import { useState } from "react";
 import {Checkbox } from "../../dashboard/ui/checkbox";
@@ -14,7 +14,6 @@ import {
   TooltipTrigger,
   TooltipProvider
 } from "@/components/ui/tooltip"
-
 export default function Dashboard() {
   const [selectedClass, setSelectedClass] = useState<string | null>(null);
   const [attendance, setAttendance] = useState<{[key: string]: boolean}>({});

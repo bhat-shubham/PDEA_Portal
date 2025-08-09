@@ -17,11 +17,9 @@ export default function SignupFormDemo() {
     const { id, value } = e.target;
     setFormData({ ...formData, [id]: value });
   };
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+ const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log(formData);
-  };
   return (
     <div className="w-full rounded-none md:rounded-2xl flex flex-col items-center md:p-8 shadow-input z-10 ">
       <h2 className="font-figtree z-10 text-lg md:text-3xl text-white text-center">

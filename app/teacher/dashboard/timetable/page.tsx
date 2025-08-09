@@ -14,7 +14,7 @@ import {
 import { Calendar } from "@/components/ui/calendar"
 import { Check, Clock, CalendarIcon, Badge,MapPin,Users,Book } from 'lucide-react'
 import { format } from 'date-fns'
-import { Header } from "@/components/ui/adminheader"
+import { Header } from "@/components/ui/teacherheader"
 
 export default function TeacherTimetable() {
     const [date, setDate] = useState<Date>(new Date())

@@ -9,45 +9,17 @@ import {
   CardDescription,
 } from "@/app/dashboard/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Header } from "@/components/ui/teacherheader";
+import { AdminHeader } from "@/components/ui/adminheader";
 import { Button } from "@/app/dashboard/ui/button";
-import { Input } from "@/app/dashboard/ui/input";
-import { Label } from "@/app/dashboard/ui/label";
-import { Textarea } from "@/app/dashboard/ui/textarea";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Camera,
-  Pencil,
-  Save,
-  Upload,
   UserCircle,
   Mail,
-  BookOpen,
-  GraduationCap,
-  Clock,
   Phone,
   MapPin,
   Cpu,
   LockKeyhole,
 } from "lucide-react";
-
 import { teacherProfile } from "@/app/lib/teacherProfile";
-
-import { add } from "date-fns";
-import { profile } from "console";
 
 export default function TeacherProfile() {
   // const [isEditing, setIsEditing] = useState(false);
@@ -56,28 +28,7 @@ export default function TeacherProfile() {
     name: "John Smith",
     email: "john.smith@education.com",
     phone: "+91 1234567890",
-    subjects: ["Mathematics", "Physics"],
-    experience: "8 years",
-    education: [
-      {
-        degree: "M.Ed. in Education",
-        university: "University of Delhi",
-        year: "2015",
-      },
-      { degree: "B.Ed.", university: "Mumbai University", year: "2013" },
-    ],
     address: "Mumbai, Maharashtra",
-    bio: "Passionate educator with expertise in advanced mathematics and project-based learning.",
-    achievements: [
-      "Best Teacher Award 2024",
-      "Published research paper on innovative teaching methods",
-      "Conducted 5 workshops on STEM education",
-    ],
-    preferences: {
-      theme: "dark",
-      notifications: true,
-      language: "English",
-    },
   });
 
   const [profileData, setProfileData] = useState({
@@ -112,7 +63,7 @@ export default function TeacherProfile() {
 
   return (
     <div className="min-h-screen text-white">
-      <Header />
+      <AdminHeader />
       <div className="mx-auto lg:w-1/2 md:w-3/4  w-full p-6">
         <div className="">
           {/*Basic Info */}
@@ -150,7 +101,7 @@ export default function TeacherProfile() {
                   </div>
                   <div className="flex items-center gap-3">
                     <Phone className="w-5 h-5 text-gray-400" />
-                    <span>{teacherData.phone}</span>
+                    <span>{`${profileData.phone}`}</span>
                   </div>
                     <div className="flex items-center gap-3">
                     <Cpu className="w-5 h-5 text-gray-400" />

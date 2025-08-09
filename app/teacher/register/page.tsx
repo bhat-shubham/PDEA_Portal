@@ -16,6 +16,7 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
 type FormData = {
@@ -26,6 +27,7 @@ type FormData = {
 };
 
 export default function Home() {
+  const router = useRouter();
   const { register, handleSubmit } = useForm<FormData>();
   const [Branch, setBranch] = React.useState("Branch");
 
@@ -34,7 +36,7 @@ export default function Home() {
       const fullData = { ...data, branch: Branch };
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API}/teacher/register`,
+        `${process.env.NEXT_PUBLIC_SEVELLA_API}/teacher/register`,
         {
           method: "POST",
           headers: {
@@ -52,7 +54,8 @@ export default function Home() {
       }
 
       alert(resData.message || "Registration successful");
-      window.location.href = "/teacher/login";
+      router.push("/teacher/login")
+      // window.location.href = "/teacher/login";
     } catch (error) {
       console.error("Error during registration:", error);
       alert("Something went wrong. Please try again.");

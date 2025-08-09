@@ -1,6 +1,5 @@
 import {
   Home,
-  Calendar,
   Megaphone,
   Bell,
   User,
@@ -8,6 +7,7 @@ import {
   X,
   LogOut,
   PanelsTopLeft,
+  GraduationCap,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "./button";
@@ -15,9 +15,11 @@ import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { logoutUser } from "@/lib/logout";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 import { PagesProgressProvider as ProgressProvider } from "@bprogress/next";
 
-export function Sidebar() {
+export function AdminSidebar() {
+  const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -47,7 +49,8 @@ export function Sidebar() {
       });
 
       setTimeout(() => {
-        window.location.href = "/teacher/login";
+        // window.location.href = "/teacher/login";
+        router.push("/teacher/login");
       }, 1500);
     } else {
       toast.error("Logout failed");
@@ -76,7 +79,7 @@ export function Sidebar() {
 
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-40 w-64 h-full border-r bg-background/10 backdrop-blur-lg p-6 transition-transform duration-200 ease-in-out",
+          "fixed inset-y-0 left-0 z-[60] w-64 h-full border-r bg-background/10 backdrop-blur-lg p-6 transition-transform duration-200 ease-in-out",
           isMobile && !isMobileMenuOpen ? "-translate-x-full" : "translate-x-0",
           "lg:translate-x-0 lg:static"
         )}
@@ -97,7 +100,7 @@ export function Sidebar() {
                 className="w-full justify-start"
                 asChild
               >
-                <Link href="/teacher/dashboard">
+                <Link href="/admin/dashboard">
                   <Home className="mr-3 h-5 w-5" />
                   Dashboard
                 </Link>
@@ -108,9 +111,9 @@ export function Sidebar() {
                 className="w-full justify-start"
                 asChild
               >
-                <Link href="/teacher/dashboard/timetable">
-                  <Calendar className="mr-3 h-5 w-5" />
-                  Timetable
+                <Link href="/admin/dashboard/teachers">
+                  <GraduationCap className="mr-3 h-5 w-5" />
+                  Teachers
                 </Link>
               </Button>
               <Button
@@ -119,7 +122,7 @@ export function Sidebar() {
                 className="w-full justify-start"
                 asChild
               >
-                <Link href="/teacher/dashboard/notices">
+                <Link href="/admin/dashboard/notices">
                   <Megaphone className="mr-3 h-5 w-5" />
                   Notices
                 </Link>
@@ -131,31 +134,31 @@ export function Sidebar() {
               Account
             </h3>
             <div className="space-y-2">
-              <Button
+              {/* <Button
                 variant="ghost"
                 onClick={handleLinkClick}
                 className="w-full justify-start"
                 asChild
               >
-                <Link href="/teacher/dashboard/notifications">
+                <Link href="/admin/dashboard/notifications">
                   <Bell className="mr-3 h-5 w-5" />
                   Notifications
                 </Link>
-              </Button>
+              </Button> */}
               <Button
                 variant="ghost"
                 className="w-full justify-start"
-                onClick={() => setShowProfile(true)}
+                onClick={() => { setShowProfile(true); handleLinkClick(); }}
                 asChild
               >
-                <Link href="/teacher/dashboard/profile">
+                <Link href="/admin/dashboard/profile">
                   <User className="mr-3 h-5 w-5" />
                   Profile
                 </Link>
               </Button>
               <Button
                 variant="ghost"
-                onClick={handleLogout}
+                onClick={() => { handleLogout(); handleLinkClick(); }}
                 className="w-full justify-start"
               >
                 {/* <Link href="/teacher/dashboard/profile"> */}

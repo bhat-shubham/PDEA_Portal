@@ -9,7 +9,7 @@ export function Providers({children}:{
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <ProgressProvider 
       height="4px"
-      color="#0F131F"
+      color="#61C7CA"
       options={{ showSpinner: false }}
     //   shallowRouting
     >
