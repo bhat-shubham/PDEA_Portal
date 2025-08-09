@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "./ui/button";
 import { ModeToggle } from "./mode-toggle";
 import { teacherLogout } from "../lib/teacherLogout";
+import { useRouter } from "next/navigation";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,12 +14,14 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 export function Header() {
+  const router = useRouter();
   const handleLogout = async () => {
     const response = await teacherLogout();
     if (response.message === "Logout Successful") {
       alert("Logout Successful");
       localStorage.removeItem("token");
-      window.location.href = "/teacher/login"; // Manual redirect
+      router.push("/teacher/login");
+      // window.location.href = "/teacher/login"; // Manual redirect
     } else {
       console.error("Logout failed");
     }

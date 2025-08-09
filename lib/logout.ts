@@ -1,5 +1,7 @@
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 export const logoutUser = async (): Promise<boolean> => {
+  const router = useRouter();
     const response = await fetch("http://localhost:3001/teacher/logout", {
       method: "POST",
       headers: {
@@ -20,7 +22,8 @@ export const logoutUser = async (): Promise<boolean> => {
       // alert("Logout Successful");
       
       setTimeout(() => {
-      window.location.href = "/teacher/login";},3000); // Manual redirect
+      // window.location.href = "/teacher/login";
+      router.push("/teacher/login");},3000);
     } else {
       console.error("Logout failed");
       toast.error("Logout failed", {

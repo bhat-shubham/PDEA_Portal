@@ -11,7 +11,7 @@ dotenv.config();
 
 const teacherRegisration = async (req, res) => {
   const { firstname, lastname, email, password, branch } = req.body;
-  console.log("Registration data:", email, password, branch);
+  // console.log("Registration data:", email, password, branch);
 
   const existingTeacher = await Teacher.findOne({
     email: email,
@@ -43,72 +43,90 @@ const teacherRegisration = async (req, res) => {
   });
 };
 
+
 const teacherLogin = async (req, res) => {
   const { email, password } = req.body;
 
-  const teacher = await Teacher.findOne({ email });
+  try {
+    const teacher = await Teacher.findOne({ email });
 
-  if (!teacher) {
-    return res.status(404).json({ message: "Teacher not found" });
+    if (!teacher) {
+      return res.status(404).json({ message: "Teacher not found with this email." });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, teacher.password);
+
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: "Invalid password." });
+    }
+
+    const token = jwt.sign({ id: teacher._id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+    // console.log("token",token)
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Lax",
+      path: "/",
+      maxAge: 60 * 60 * 1000,
+    });
+
+    res.status(200).json({
+      message: "Login successful.",
+      token,
+      teacher: {
+        id: teacher._id,
+        firstname: teacher.firstname,
+        lastname: teacher.lastname,
+        email: teacher.email,
+        branch: teacher.branch,
+      },
+    });
+  } catch (error) {
+    console.error("[LOGIN ERROR]", error);
+    res.status(500).json({ message: "Internal server error." });
   }
-
-  const isMatch = await bcrypt.compare(password, teacher.password);
-  if (!isMatch) {
-    return res.status(401).json({ message: "Invalid credentials" });
-  }
-
-  const token = jwt.sign(
-    { id: teacher._id },
-    process.env.JWT_SECRET,
-
-  );
-
-  res.cookie("token", token, {
-    httpOnly: true,
-    secure: true,
-    sameSite: "None",
-    path: "/",
-  });
-
-  return res.status(200).json({
-    message: "Teacher logged in successfully",
-    token,
-    teacher: {
-      id: teacher._id,
-      email: teacher.email,
-      branch: teacher.branch,
-      name: `${teacher.firstname} ${teacher.lastname}`,
-    },
-  });
 };
 
 
 const teacherLogout = (req, res) => {
-  res.clearCookie("token", {
-    httpOnly: true,
-    secure: false, // set to true only in production HTTPS
-    sameSite: "Lax", // 'Lax' is more forgiving than 'Strict'
-    path: "/", // MUST match the original cookie path
-  });
-  res.status(200).json({ message: "Teacher logged out successfully" });
-};
-
-const teacherDetails = async (req, res) => {
-  const teacherId = req.user.id; // Assuming the user ID is stored in req.user.id
-  const teacher = await Teacher.findById(teacherId).select("-password"); // Exclude password from the response
-  if (!teacher) {
-    return res.status(404).json({ message: "Teacher not found" });
+  try {
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: true, 
+      sameSite: "Lax",
+      path: "/", 
+    });
+    res.status(200).json({ message: "Teacher logged out successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Logout failed" , error});
   }
-  res.status(200).json({
-    message: "Teacher details fetched successfully",
-    teacher: {
-      id: teacher._id,
-      firstname: teacher.firstname,
-      lastname: teacher.lastname,
-      email: teacher.email,
-      branch: teacher.branch,
-    },
-  });
+};
+const teacherDetails = async (req, res) => {
+  try {
+    const teacherId = req.user._id;
+    const teacher = await Teacher.findById(teacherId).select("-password");
+    // console.log(teacher);
+    if (!teacher) {
+      return res.status(404).json({ message: "Teacher not found." });
+    }
+
+    res.status(200).json({
+      message: "Teacher profile fetched successfully.",
+      teacher: {
+        id: teacher._id,
+        firstname: teacher.firstname,
+        lastname: teacher.lastname,
+        email: teacher.email,
+        branch: teacher.branch,
+      },
+    });
+  } catch (error) {
+    console.error("[PROFILE ERROR]", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
 };
 
 module.exports = {

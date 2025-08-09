@@ -5,8 +5,7 @@ import Aurora from "@/components/ui/aurorabg";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { teacherLogin } from "@/app/lib/teacherLogin";
-import { useRouter } from "next/navigation";
-
+import { useRouter } from 'next/navigation'
 import ImageGallery from "@/components/ui/image-gallery";
 import { useForm } from "react-hook-form";
 
@@ -21,10 +20,10 @@ export default function Home() {
   const onSubmit = async (data: FormData) => {
     try {
       const result = await teacherLogin(data.email, data.password); // result is already the parsed JSON
-      console.log("Login response data:", result);
+      // console.log("Login response data:", result);
 
       // Check success using your API's response structure
-      if (result.message === "Teacher logged in successfully") {
+      if (result.message === "Login successful.") {
         alert("Login Successful");
         // window.location.href = "/teacher/dashboard";
         router.push("/teacher/dashboard");
@@ -95,8 +94,9 @@ export default function Home() {
                 type="submit"
                 value="Login"
               />
-              <div className="text-center text-lg text-blue-500 font-figtree">
-                <Link href="/">Click Here For Student Login</Link>
+              <div className="text-center flex mt-5 flex-col gap-2 text-lg text-blue-500 font-figtree">
+                <Link href="/">Click Here To Go Back To Student Login</Link>
+                <Link href="/admin/login">Click Here For Admin Login</Link>
               </div>
             </form>
           </div>
