@@ -28,6 +28,7 @@ export default function Home() {
     console.log("Login response data:", res);
 
     if (res.message === "Admin logged in successfully") {
+      localStorage.setItem("token", res.token);
       alert("Login Successful");
       router.push("/admin/dashboard");
     }
