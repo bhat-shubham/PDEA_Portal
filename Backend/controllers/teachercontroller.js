@@ -101,7 +101,7 @@ const teacherLogout = (req, res) => {
     });
     res.status(200).json({ message: "Teacher logged out successfully" });
   } catch (error) {
-    res.status(500).json({ message: "Logout failed" });
+    res.status(500).json({ message: "Logout failed" , error});
   }
 };
 const teacherDetails = async (req, res) => {

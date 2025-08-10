@@ -27,7 +27,7 @@ export default function Home() {
         alert("Login Successful");
         // window.location.href = "/teacher/dashboard";
         router.push("/teacher/dashboard");
-        console.log(process.env.TEST_API); // Use this if you want to navigate without reloading the page
+      // Use this if you want to navigate without reloading the page
       } else {
         alert("Login Failed: " + result.message);
       }
