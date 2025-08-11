@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
-const { Teacher } = require("../models/studentSchema");
+
 
 dotenv.config();
 
@@ -23,11 +24,8 @@ const auth = async (req, res, next) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    const teacher = await Teacher.findById(decoded.id || decoded._id);
-    if (!teacher) {
-      return res.status(404).json({ message: "Teacher not found." });
-    }
-    req.user = teacher;
+    return req.user = decoded,
+  
     next();
   } catch (error) {
     console.error("[VERIFY TOKEN ERROR]", error.message);

@@ -19,7 +19,7 @@ import {
   Cpu,
   LockKeyhole,
 } from "lucide-react";
-import { teacherProfile } from "@/app/lib/teacherProfile";
+import { adminProfile } from "@/app/lib/adminProfile";
 
 export default function TeacherProfile() {
   // const [isEditing, setIsEditing] = useState(false);
@@ -46,8 +46,9 @@ export default function TeacherProfile() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const data = await teacherProfile();
-        setProfileData(data.teacher);
+        const data = await adminProfile();
+        console.log("Fetched profile data:", data);
+        setProfileData(data.admin);
       } catch (err) {
         console.error("Error fetching profile:", err);
       }
@@ -55,11 +56,6 @@ export default function TeacherProfile() {
 
     fetchProfile();
   }, []);
-
-  // const handleSave = () => {
-  //   setIsEditing(false);
-  //   console.log("Saving profile:", teacherData);
-  // };
 
   return (
     <div className="min-h-screen text-white">
@@ -91,23 +87,20 @@ export default function TeacherProfile() {
 
                 <div className="w-full flex justify-evenly items-center text-lg mt-6 space-y-5">
                   <div className="space-y-5">
-                  <div className="flex items-center gap-3">
-                    <UserCircle className="w-5 h-5 text-gray-400" />
-                    <span>{`${profileData.firstname} ${profileData.lastname}`}</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Mail className="w-5 h-5 text-gray-400" />
-                    <span>{profileData.email}</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Phone className="w-5 h-5 text-gray-400" />
-                    <span>{`${profileData.phone}`}</span>
-                  </div>
                     <div className="flex items-center gap-3">
-                    <Cpu className="w-5 h-5 text-gray-400" />
-                    <span>{`${profileData.branch}`}</span>
-                  </div>
-                                      <Button
+                      <UserCircle className="w-5 h-5 text-gray-400" />
+                      <span>{`${profileData.firstname} ${profileData.lastname}`}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Mail className="w-5 h-5 text-gray-400" />
+                      <span>{profileData.email}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Phone className="w-5 h-5 text-gray-400" />
+                      <span>{`${profileData.phone}`}</span>
+                    </div>
+
+                    <Button
                       variant="outline"
                       className="w-full justify-center bg-[#334166] hover:bg-[#334188] text-white"
                       onClick={() => {
@@ -122,8 +115,6 @@ export default function TeacherProfile() {
               </div>
             </CardContent>
           </Card>
-
-          
         </div>
       </div>
     </div>
