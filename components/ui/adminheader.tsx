@@ -1,9 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
-import {
-  User,
-  LogOut,
-  UserCircle,
-} from "lucide-react";
+import { User, LogOut, UserCircle } from "lucide-react";
 
 import { Button } from "./button";
 import { ModeToggle } from "../../app/dashboard/mode-toggle";
@@ -20,7 +17,9 @@ import {
   DropdownMenuTrigger,
 } from "../../app/dashboard/ui/dropdown-menu";
 import { toast } from "sonner";
-import {useRouter} from "next/navigation";
+import { useRouter } from "next/navigation";
+import { adminProfile } from "@/app/lib/adminProfile";
+import { da } from "date-fns/locale";
 
 export function AdminHeader() {
   const router = useRouter();
@@ -36,13 +35,12 @@ export function AdminHeader() {
     notificationId: null,
     studentName: "",
   });
-    const [teacher, setTeacher] = useState({
+  const [teacher, setTeacher] = useState({
     firstname: "",
     lastname: "",
     email: "",
     branch: "",
   });
-
 
   const handleLogout = async () => {
     const success = await teacherLogout();
@@ -57,7 +55,7 @@ export function AdminHeader() {
         description: "Redirecting to Login Page...",
       });
       setTimeout(() => {
-        router.push("/teacher/login")
+        router.push("/teacher/login");
         // window.location.href = "/teacher/login";
         router.push("/teacher/login");
       }, 1500);
@@ -66,81 +64,17 @@ export function AdminHeader() {
     }
   };
 
-  // const handleLogout = async () => {
-  //   const response = await fetch("http://localhost:3001/teacher/logout", {
-  //     method: "POST",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //     },
-  //   });
-  //   if (response.ok) {
-  //     // <Toaster position="top-center" />
-  //     toast.success("Logged Out Successfully!", {
-  //         description: "Redirecting to login page...",
-  //         // position: "top-center",
-  //         // action: {
-  //         //   label: "Cancel",
-  //         //   // position: "top-center",
-  //         //   onClick: () => console.log("Cancel"),
-  //         // },
-  //       })
-  //     // alert("Logout Successful");
-
-  //     setTimeout(() => {
-  //     window.location.href = "/teacher/login";},3000); // Manual redirect
-  //   } else {
-  //     console.error("Logout failed");
-  //     toast.error("Logout failed", {
-  //       description: "Please try again",
-  //     });
-  //   }
-  // };
-
-
   useEffect(() => {
-    const fetcheTeacher = async () => {
-      const data = await teacherProfile();
+    const fetchAdmin = async () => {
+      const data = await adminProfile();
       if (data) {
-        setTeacher({
-          firstname: data.teacher.firstname,
-          lastname: data.teacher.lastname,
-          email: data.teacher.email,
-          branch: data.teacher.branch,
-        });
+        setTeacher(data.admin);
       } else {
         console.error("Failed to fetch teacher profile");
       }
     };
 
-    fetcheTeacher();
-
-    // const fetchTeacher = async () => {
-    //   try {
-
-    //     const response = await fetch(`${process.env.NEXT_PUBLIC_API}/teacher/getTeacher`, {
-    //       method: "GET",
-    //       headers: {
-    //         "Content-Type": "application/json",
-    //       },
-    //       credentials: "include",
-    //     });
-
-    //     if (!response.ok) {
-    //       const errorData = await response.json();
-
-    //       console.error("Fetch failed:", errorData);
-    //       return;
-    //     }
-
-    //     const data = await response.json();
-    //     setTeacher(data.teacher);
-
-    //   } catch (error) {
-    //     console.error("Unhandled error in fetchTeacher:", error);
-    //   }
-    // };
-
-    // fetchTeacher();
+    fetchAdmin();
   }, []);
 
   return (
@@ -163,7 +97,6 @@ export function AdminHeader() {
         </h1>
       </div>
       <div className="hidden lg:flex items-center gap-4 sm:gap-8 lg:gap-14 w-full sm:w-auto justify-end">
-
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button

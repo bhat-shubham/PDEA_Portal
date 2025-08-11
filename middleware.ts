@@ -1,49 +1,59 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// Protected and public routes
-const protectedRoutes = ["admin/dashboard"];
-const publicRoutes = ["/login", "/signup", "/"];
+const roleRoutes = {
+  admin: ["/admin", "/dashboard"],
+  teacher: ["/teacher", "/dashboard"],
+  student: ["/student", "/dashboard"],
+};
+
+const publicRoutes = ["/admin/login", "/admin/signup", "/"];
 
 export default async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
-  const isProtectedRoute = protectedRoutes.includes(path);
-  const isPublicRoute = publicRoutes.includes(path);
-  console.log(`Middleware triggered for path: ${path}`);
+  let user: { email: string; role: string; exp?: number } | null = null;
 
-  // Get token from cookies (or headers if you store it there)
+  console.log(`Current path: ${path}`);
+
+  const isPublicRoute = publicRoutes.some((route) => path.startsWith(route));
+
   const token = req.cookies.get("token")?.value;
-
-  let isAuthorized = false;
 
   if (token) {
     try {
-      // Call backend to verify token
       const verifyRes = await fetch(`${process.env.TEST_API}/admin/verify`, {
-        method: "POST", // since you asked about POST
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       });
 
-      const data = await verifyRes.json();
-        console.log("Token verification response:", data);
-      if (data.message === "authorized") {
-        isAuthorized = true;
+      if (verifyRes.ok) {
+        user = await verifyRes.json();
+      } else {
+        console.warn("Token verification failed:", await verifyRes.text());
       }
     } catch (err) {
       console.error("Error verifying token in middleware:", err);
     }
   }
 
-  // If route is protected but not authorized → go to login
-  if (isProtectedRoute && !isAuthorized) {
-    return NextResponse.redirect(new URL("/login", req.nextUrl));
+  // ✅ If public route & logged in → redirect to dashboard
+  if (isPublicRoute && user?.role) {
+    return NextResponse.redirect(new URL(`/${user.role}/dashboard`, req.url));
   }
 
-  // If route is public but already authorized → go to dashboard
-  if (isPublicRoute && isAuthorized && !path.startsWith("/dashboard")) {
-    return NextResponse.redirect(new URL("/dashboard", req.nextUrl));
+  // ✅ If private route & not logged in → redirect to login
+  if (!isPublicRoute && !user?.role) {
+    return NextResponse.redirect(new URL("/", req.url));
+  }
+
+  // ✅ Role-based access check
+  const allowedRoutes = roleRoutes[user?.role as keyof typeof roleRoutes] || [];
+  const isAllowed = allowedRoutes.some((route) => path.startsWith(route));
+
+  if (!isPublicRoute && user?.role && !isAllowed) {
+    return NextResponse.redirect(new URL(`/${user.role}/dashboard`, req.url));
   }
 
   return NextResponse.next();

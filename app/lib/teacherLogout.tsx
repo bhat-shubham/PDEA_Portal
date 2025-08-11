@@ -4,7 +4,7 @@ export const teacherLogout = async () => {
   const NEXT_PUBLIC_SEVELLA_API = process.env.NEXT_PUBLIC_SEVELLA_API;
 
   try {
-    const response = await fetch(`${NEXT_PUBLIC_SEVELLA_API}/teacher/logout`, {
+    const response = await fetch(`${TEST_API}/teacher/logout`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

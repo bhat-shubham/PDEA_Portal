@@ -6,6 +6,7 @@ const {
   adminLogin,
   adminLogout,
   teacherlist,
+  adminProfile,
 } = require("../controllers/adminController");
 const auth = require("../middleware/auth");
 const protectRoute = require("../controllers/protectRoute");
@@ -13,7 +14,8 @@ const protectRoute = require("../controllers/protectRoute");
 route.post("/register", adminRegistration);
 route.post("/login", adminLogin);
 route.post("/logout", adminLogout); // Admin logout route
-route.get("/teacherlist", auth, teacherlist);
-route.post("/verify", protectRoute); // Route to get the list of teachers
+route.get("/teacherlist", teacherlist);
+route.post("/verify", protectRoute);
+route.get("/profile",auth, adminProfile);
 
 module.exports = route;
