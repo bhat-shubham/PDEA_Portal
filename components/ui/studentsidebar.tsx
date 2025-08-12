@@ -11,7 +11,7 @@ import {
   GraduationCap,
 } from "lucide-react";
 import Link from "next/link";
-import { Button } from "./ui/button";
+import { Button } from "../../app/student/dashboard/ui/button";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { logoutUser } from "@/lib/logout";
@@ -19,7 +19,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { PagesProgressProvider as ProgressProvider } from "@bprogress/next";
 
-export function AdminSidebar() {
+export function StudentSidebar() {
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);

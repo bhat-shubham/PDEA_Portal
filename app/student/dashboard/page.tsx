@@ -1,5 +1,5 @@
-import { Sidebar } from "./sidebar"
-import { Header } from "./header"
+import { StudentSidebar } from "@/components/ui/studentsidebar"
+import { StudentHeader } from "@/components/ui/studentheader"
 import { SubjectAttendance } from "./subject-attendence"
 import { Notifications } from "./notifications"
 import { Timetable } from "./timetable"
@@ -22,9 +22,9 @@ export default function Dashboard() {
     }}
   />
     <div className="flex z-[999] h-screen">
-      <Sidebar />
+      <StudentSidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Header />
+        <StudentHeader />
         <main className="flex-1 h-full overflow-x-hidden overflow-y-auto p-6">
           <div className="flex justify- gap-3 w-full h-full">
             <div className="w-1/2 h-full">
