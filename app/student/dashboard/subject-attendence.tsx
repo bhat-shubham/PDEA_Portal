@@ -1,6 +1,6 @@
 "use client"
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip"
+import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/card"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../../../components/ui/tooltip"
 import { motion } from "framer-motion";
 export const calculateAttendance = (attended: number, total: number) => {
   return Math.round((attended / total) * 100)

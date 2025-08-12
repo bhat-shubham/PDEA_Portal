@@ -3,10 +3,10 @@
 import { Header } from "@/components/ui/teacherheader"
 import { CiCirclePlus } from "react-icons/ci";
 import { useState } from "react";
-import {Checkbox } from "../../dashboard/ui/checkbox";
+import {Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/app/dashboard/ui/input";
-import { Label } from "@/app/dashboard/ui/label";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Clipboard, Check,CircleAlert,ChevronsRight, ChevronsLeft   } from 'lucide-react';
 import {
   Tooltip,

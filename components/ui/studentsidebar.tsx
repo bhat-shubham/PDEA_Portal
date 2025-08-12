@@ -11,7 +11,7 @@ import {
   GraduationCap,
 } from "lucide-react";
 import Link from "next/link";
-import { Button } from "../../app/student/dashboard/ui/button";
+import { Button } from "./button";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { logoutUser } from "@/lib/logout";

@@ -3,7 +3,7 @@
 import { User, LogOut, UserCircle } from "lucide-react";
 
 import { Button } from "./button";
-import { ModeToggle } from "../../app/student/dashboard/mode-toggle";
+import { ModeToggle } from "./mode-toggle";
 import { teacherProfile } from "@/app/lib/teacherProfile";
 import { useEffect, useState } from "react";
 import { teacherLogout } from "@/app/lib/teacherLogout";
@@ -15,7 +15,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../../app/student/dashboard/ui/dropdown-menu";
+} from "./dropdown-menu";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { adminProfile } from "@/app/lib/adminProfile";

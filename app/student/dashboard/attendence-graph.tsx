@@ -1,15 +1,15 @@
 "use client";
-import { Button, buttonVariants } from "./ui/button";
+import { Button, buttonVariants } from "../../../components/ui/button";
 import * as React from "react";
 import { Label, Pie, PieChart } from "recharts";
 import { Bot, Loader } from "lucide-react";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../../../components/ui/card";
 import { 
   ChartConfig, 
   ChartContainer, 
   ChartTooltip, 
   ChartTooltipContent 
-} from "./ui/chart";
+} from "../../../components/ui/chart";
 import { subjects, calculateAttendance } from "./subject-attendence";
 import { HfInference } from "@huggingface/inference";
 
