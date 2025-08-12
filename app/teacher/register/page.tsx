@@ -34,17 +34,14 @@ export default function Home() {
   const onSubmit = async (data: FormData) => {
     try {
       const fullData = { ...data, branch: Branch };
-
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_SEVELLA_API}/teacher/register`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(fullData),
-        }
-      );
+      // const TEST_API = process.env.TEST_API;
+      const response = await fetch(`http://localhost:3001/teacher/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(fullData),
+      });
 
       const resData = await response.json();
 
@@ -54,7 +51,7 @@ export default function Home() {
       }
 
       alert(resData.message || "Registration successful");
-      router.push("/teacher/login")
+      router.push("/teacher/login");
       // window.location.href = "/teacher/login";
     } catch (error) {
       console.error("Error during registration:", error);
@@ -169,7 +166,7 @@ export default function Home() {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-                <div className="bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent my-1 h-[1px] w-full" />
+              <div className="bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent my-1 h-[1px] w-full" />
 
               <input
                 className="bg-[#443379] text-lg text-white rounded-lg cursor-pointer hover:bg-black transition w-full h-10"
