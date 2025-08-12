@@ -1,6 +1,7 @@
+"use client"
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip"
-
+import { motion } from "framer-motion";
 export const calculateAttendance = (attended: number, total: number) => {
   return Math.round((attended / total) * 100)
 }
@@ -60,7 +61,12 @@ function CustomProgressBar({ value, attended, total }: { value: number; attended
       <Tooltip>
         <TooltipTrigger asChild>
           <div className="w-full bg-secondary h-3 rounded-full overflow-hidden">
-            <div className={`h-full ${getAttendanceColor(value)}`} style={{ width: `${value}%` }} />
+            <motion.div 
+              className={`h-full ${getAttendanceColor(value)}`} 
+              initial={{ width: 0 }}
+              animate={{ width: `${value}%` }}
+              transition={{ duration: 1, ease: "easeOut" }}
+            />
           </div>
         </TooltipTrigger>
         <TooltipContent>
