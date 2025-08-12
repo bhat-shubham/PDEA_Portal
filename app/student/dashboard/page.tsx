@@ -26,11 +26,11 @@ export default function Dashboard() {
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
         <main className="flex-1 h-full overflow-x-hidden overflow-y-auto p-6">
-          <div className="flex gap-5 h-full">
-            <div className="w-2/4 h-full">
+          <div className="flex justify- gap-3 w-full h-full">
+            <div className="w-1/2 h-full">
               <AttendanceGraph />
             </div>
-            <div>
+            <div className="h-3/5 w-2/3">
               <SubjectAttendance />
             </div>
             {/* <div className="lg:col-span-2">
