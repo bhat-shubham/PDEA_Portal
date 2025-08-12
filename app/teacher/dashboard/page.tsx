@@ -7,13 +7,15 @@ import {Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Clipboard, Check,CircleAlert,ChevronsRight, ChevronsLeft   } from 'lucide-react';
+import { Clipboard, Check,CircleAlert,ChevronsRight, ChevronsLeft, EllipsisVertical, PencilLine, Trash2   } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
   TooltipProvider
 } from "@/components/ui/tooltip"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 export default function Dashboard() {
   const [selectedClass, setSelectedClass] = useState<string | null>(null);
   const [attendance, setAttendance] = useState<{[key: string]: boolean}>({});
@@ -102,6 +104,29 @@ export default function Dashboard() {
                       'hover:border-blue-500/30'
                     }`}
                 >
+          <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              className="dark:bg-transparent absolute top-3 right-3 border-none"
+              variant="outline"
+            >
+                <p className="">
+                  <EllipsisVertical className="" />
+                </p>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-50">
+            <DropdownMenuItem>
+              <PencilLine className="mr-2 h-5 w-5" />
+              <span className="text-md">Edit Class</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Trash2 className="mr-2 h-5 w-5" />
+              <span className="text-md">Delete Class</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+                  
                   <p className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">{cls.name}</p>
                   <div className="space-y-2 text-center">
                     <p className="text-sm md:text-base text-gray-300">
@@ -116,6 +141,7 @@ export default function Dashboard() {
                       <span className="sr-only">Room Number:</span>
                       Room: <span className="text-white">{cls.room}</span>
                     </p>
+                    
                   </div>
                 </div>
               ))}
