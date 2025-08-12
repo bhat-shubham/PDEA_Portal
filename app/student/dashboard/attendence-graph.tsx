@@ -163,7 +163,7 @@ export function AttendanceGraph() {
   };
 
   return (
-    <Card className="flex flex-col relative">
+    <Card className="flex h-full flex-col dark:bg-white/10 relative">
       <CardHeader className="flex-row items-center justify-between space-y-0">
         <div>
           <CardTitle>Attendance Overview</CardTitle>
@@ -186,19 +186,19 @@ export function AttendanceGraph() {
         
       </CardHeader>
       
-      <CardContent className="flex-1 pb-0">
+      <CardContent className="flex-1 items-center justify-center align-middle pb-0">
         <ChartContainer
           config={chartConfig}
-          className="mx-auto aspect-square max-h-[250px]"
+          className="mx-auto aspect-square max-h-[400px]"
         >
           <PieChart>
-            <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+            <ChartTooltip cursor={true} content={<ChartTooltipContent hideLabel />} />
             <Pie
               data={subjectAttendance}
               dataKey="attendance"
               nameKey="subject"
-              innerRadius={60}
-              strokeWidth={5}
+              innerRadius={80}
+              strokeWidth={10}
             >
               <Label
                 content={({ viewBox }) => {

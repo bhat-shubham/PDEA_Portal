@@ -1,7 +1,7 @@
 // app/teacher/dashboard/layout.tsx
 "use client";
 import { Sidebar } from "@/components/ui/teachersidebar"
-import withAuth from "../../lib/withAuth";
+// import withAuth from "../../lib/withAuth";
 
 function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -30,5 +30,3 @@ function DashboardLayout({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
-
-export default withAuth(DashboardLayout);

@@ -8,19 +8,32 @@ import { AttendanceGraph } from "./attendence-graph"
 
 export default function Dashboard() {
   return (
+    <div className="min-h-screen w-full relative">
+  {/* Cosmic Aurora */}
+  <div
+    className="absolute inset-0 z-0"
+    style={{
+      backgroundImage: `
+        radial-gradient(ellipse at 20% 30%, rgba(56, 189, 248, 0.4) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 70%, rgba(139, 92, 246, 0.3) 0%, transparent 70%),
+        radial-gradient(ellipse at 60% 20%, rgba(236, 72, 153, 0.25) 0%, transparent 50%),
+        radial-gradient(ellipse at 40% 80%, rgba(34, 197, 94, 0.2) 0%, transparent 65%)
+      `,
+    }}
+  />
     <div className="flex h-screen bg-background">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
-        <main className="flex-1 overflow-x-hidden overflow-y-auto p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
+        <main className="flex-1 h-full overflow-x-hidden overflow-y-auto p-6">
+          <div className="flex gap-5 h-full">
+            <div className="w-2/4 h-full">
               <AttendanceGraph />
             </div>
             <div>
               <SubjectAttendance />
             </div>
-            <div className="lg:col-span-2">
+            {/* <div className="lg:col-span-2">
               <Timetable />
             </div>
             <div>
@@ -28,11 +41,13 @@ export default function Dashboard() {
             </div>
             <div className="lg:col-span-3">
               <LatestResults />
-            </div>
+            </div> */}
           </div>
         </main>
       </div>
     </div>
+    </div>
   )
 }
+
 

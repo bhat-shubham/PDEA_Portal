@@ -3,7 +3,7 @@ import { Bell, Search, User, LogOut, UserCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "./ui/button";
 import { ModeToggle } from "./mode-toggle";
-import { teacherLogout } from "../lib/teacherLogout";
+// import { teacherLogout } from "../lib/teacherLogout";
 import { useRouter } from "next/navigation";
 import {
   DropdownMenu,
@@ -16,15 +16,15 @@ import {
 export function Header() {
   const router = useRouter();
   const handleLogout = async () => {
-    const response = await teacherLogout();
-    if (response.message === "Logout Successful") {
-      alert("Logout Successful");
-      localStorage.removeItem("token");
-      router.push("/teacher/login");
-      // window.location.href = "/teacher/login"; // Manual redirect
-    } else {
-      console.error("Logout failed");
-    }
+    // const response = await teacherLogout();
+    // if (response.message === "Logout Successful") {
+    //   alert("Logout Successful");
+    //   localStorage.removeItem("token");
+    //   router.push("/teacher/login");
+    //   // window.location.href = "/teacher/login"; // Manual redirect
+    // } else {
+    //   console.error("Logout failed");
+    // }
   };
   return (
     <header className="border-b bg-background p-4 flex items-center justify-between">
