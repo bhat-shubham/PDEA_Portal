@@ -9,7 +9,7 @@ const notifications = [
 
 export function Notifications() {
   return (
-    <Card className="relative dark:bg-white/10">
+    <Card className="relative h-full items-center dark:bg-white/10">
       <CardHeader>
         <CardTitle className="flex items-center">
           <Bell className="mr-2 h-5 w-5" />
@@ -20,8 +20,8 @@ export function Notifications() {
         <ul className="space-y-4">
           {notifications.map((notification) => (
             <li key={notification.id} className="flex justify-between items-start">
-              <span className="text-sm">{notification.message}</span>
-              <span className="text-xs text-muted-foreground">{notification.time}</span>
+              <span className="text-md">{notification.message}</span>
+              <span className="text-sm text-muted-foreground">{notification.time}</span>
             </li>
           ))}
         </ul>

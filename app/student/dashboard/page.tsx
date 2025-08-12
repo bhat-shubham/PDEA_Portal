@@ -34,7 +34,7 @@ export default function Dashboard() {
             <div className="h-3/5">
               <SubjectAttendance />
             </div>
-            <div>
+            <div className="h-full">
               <Notifications/>
             </div>
             </div>
