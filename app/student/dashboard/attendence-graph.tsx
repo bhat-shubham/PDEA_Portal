@@ -206,7 +206,7 @@ export function AttendanceGraph() {
                     const attendanceColor = getAttendanceColor(totalAttendance);
                     return (
                       <text x={viewBox.cx} y={viewBox.cy} textAnchor="middle" dominantBaseline="middle">
-                        <tspan x={viewBox.cx} y={viewBox.cy} fill={attendanceColor} className="text-3xl font-bold">
+                        <tspan x={viewBox.cx} y={viewBox.cy} fill={attendanceColor} className="text-4xl font-bold">
                           {totalAttendance}%
                         </tspan>
                         <tspan x={viewBox.cx} y={(viewBox.cy || 0) + 24} className="fill-muted-foreground">
