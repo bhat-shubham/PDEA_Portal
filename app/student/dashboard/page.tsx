@@ -11,7 +11,7 @@ export default function Dashboard() {
     <div className="min-h-screen w-full relative">
   {/* Cosmic Aurora */}
   <div
-    className="absolute inset-0 z-0"
+    className="absolute inset-0"
     style={{
       backgroundImage: `
         radial-gradient(ellipse at 20% 30%, rgba(56, 189, 248, 0.4) 0%, transparent 60%),
@@ -21,7 +21,7 @@ export default function Dashboard() {
       `,
     }}
   />
-    <div className="flex h-screen bg-background">
+    <div className="flex z-[999] h-screen">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
@@ -30,8 +30,13 @@ export default function Dashboard() {
             <div className="w-1/2 h-full">
               <AttendanceGraph />
             </div>
-            <div className="h-3/5 w-2/3">
+            <div className="w-1/2 flex flex-col gap-5">
+            <div className="h-3/5">
               <SubjectAttendance />
+            </div>
+            <div>
+              <Notifications/>
+            </div>
             </div>
             {/* <div className="lg:col-span-2">
               <Timetable />

@@ -59,7 +59,7 @@ function CustomProgressBar({ value, attended, total }: { value: number; attended
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <div className="w-full bg-secondary h-2 rounded-full overflow-hidden">
+          <div className="w-full bg-secondary h-3 rounded-full overflow-hidden">
             <div className={`h-full ${getAttendanceColor(value)}`} style={{ width: `${value}%` }} />
           </div>
         </TooltipTrigger>
@@ -75,7 +75,7 @@ function CustomProgressBar({ value, attended, total }: { value: number; attended
 
 export function SubjectAttendance() {
   return (
-    <Card className="h-full w-full">
+    <Card className="h-full w-full relative dark:bg-white/10">
       <CardHeader>
         <CardTitle>Subject-wise Attendance</CardTitle>
       </CardHeader>
@@ -83,7 +83,7 @@ export function SubjectAttendance() {
         <div className="space-y-4">
           {subjects.map((subject) => (
             <div key={subject.name} className="space-y-2">
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between text-md">
                 <span>{subject.name}</span>
                 <span className="text-muted-foreground">
                   {subject.attendance}% ({subject.attended}/{subject.total})
