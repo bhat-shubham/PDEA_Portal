@@ -5,22 +5,19 @@ const bcrypt = require("bcrypt");
 
 const dotenv = require("dotenv");
 const jwt = require("jsonwebtoken");
-const { Teacher } = require("../models/studentSchema");
+const { Teacher } = require("../models/teacherSchema");
+const Class = require("../models/classSchema.js");
 
 dotenv.config();
 
 const teacherRegisration = async (req, res) => {
   const { firstname, lastname, email, password, branch } = req.body;
-  // console.log("Registration data:", email, password, branch);
 
-  const existingTeacher = await Teacher.findOne({
-    email: email,
-  });
-
+  const existingTeacher = await Teacher.findOne({ email });
   if (existingTeacher) {
-    return res.status(400).json({
-      message: "Teacher already exists with this email",
-    });
+    return res
+      .status(400)
+      .json({ message: "Teacher already exists with this email" });
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -33,25 +30,29 @@ const teacherRegisration = async (req, res) => {
   });
 
   await newTeacher.save();
+
   res.status(200).json({
     message: "Teacher registered successfully",
     teacher: {
-      name: `${firstname} ${lastname}`,
-      email: email,
-      branch: branch,
+      name: `${newTeacher.firstname} ${newTeacher.lastname}`,
+      email: newTeacher.email,
+      branch: newTeacher.branch,
+      role: newTeacher.role, // ✅ read from saved document
     },
   });
 };
 
-
 const teacherLogin = async (req, res) => {
   const { email, password } = req.body;
+  console.log("Login data:", email, password);
 
   try {
     const teacher = await Teacher.findOne({ email });
 
     if (!teacher) {
-      return res.status(404).json({ message: "Teacher not found with this email." });
+      return res
+        .status(404)
+        .json({ message: "Teacher not found with this email." });
     }
 
     const isPasswordValid = await bcrypt.compare(password, teacher.password);
@@ -60,9 +61,13 @@ const teacherLogin = async (req, res) => {
       return res.status(401).json({ message: "Invalid password." });
     }
 
-    const token = jwt.sign({ id: teacher._id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    const token = jwt.sign(
+      { email: email, role: teacher.role, id: teacher._id },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1h",
+      }
+    );
     // console.log("token",token)
 
     res.cookie("token", token, {
@@ -90,24 +95,24 @@ const teacherLogin = async (req, res) => {
   }
 };
 
-
 const teacherLogout = (req, res) => {
   try {
     res.clearCookie("token", {
       httpOnly: true,
-      secure: true, 
+      secure: true,
       sameSite: "Lax",
-      path: "/", 
+      path: "/",
     });
     res.status(200).json({ message: "Teacher logged out successfully" });
   } catch (error) {
-    res.status(500).json({ message: "Logout failed" , error});
+    res.status(500).json({ message: "Logout failed", error });
   }
 };
 const teacherDetails = async (req, res) => {
   try {
-    const teacherId = req.user._id;
-    const teacher = await Teacher.findById(teacherId).select("-password");
+    const email = req.user.email;
+    console.log("Fetching teacher details for email:", email);
+    const teacher = await Teacher.findOne({ email: email }).select("-password");
     // console.log(teacher);
     if (!teacher) {
       return res.status(404).json({ message: "Teacher not found." });
@@ -129,9 +134,47 @@ const teacherDetails = async (req, res) => {
   }
 };
 
+const createClass = async (req, res) => {
+  const { name, subject } = req.body;
+  const teacherId = req.user.id;
+  console.log("Creating class with data:", name, subject, teacherId);
+
+  const newClass = new Class({
+    name,
+    subject,
+
+    teacher: teacherId,
+  });
+
+  await newClass.save();
+  res.status(201).json({ message: "Class created", class: newClass });
+};
+
+const getClasses = async (req, res) => {
+  try {
+    const classes = await Class.find({ teacher: req.user.id });
+    if (!classes || classes.length === 0) {
+      return res.status(404).json({ message: "No classes found." });
+    }
+    res.status(200).json({
+      message: "Classes fetched successfully.",
+      classes: classes.map((cls) => ({
+        id: cls._id,
+        name: cls.name,   
+        subject: cls.subject, 
+      })),
+  })}
+   catch (error) {
+    console.error("[GET CLASSES ERROR]", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+};
+
 module.exports = {
   teacherLogin,
   teacherRegisration,
   teacherLogout,
   teacherDetails,
+  createClass,
+  getClasses
 };

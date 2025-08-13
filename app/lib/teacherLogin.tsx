@@ -3,7 +3,7 @@ export const teacherLogin = async (email: string, password: string) => {
   const TEST_API = process.env.TEST_API || "http://localhost:3001";
   const NEXT_PUBLIC_SEVELLA_API = process.env.NEXT_PUBLIC_SEVELLA_API;
   try {
-    const response = await fetch(`${NEXT_PUBLIC_SEVELLA_API}/teacher/login`, {
+    const response = await fetch(`${TEST_API}/teacher/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

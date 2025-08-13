@@ -13,14 +13,6 @@ const studentSchema = new mongoose.Schema({
 });
 const Student = mongoose.model("Student", studentSchema);
 
-const teacherSchema = new mongoose.Schema({
-  firstname: String,
-  lastname: String,
-  email: String,
-  password: String,
-  branch: String,
-});
 
-const Teacher = mongoose.model("teacher", teacherSchema);
 
-module.exports = { Student, Teacher };
+module.exports = { Student };

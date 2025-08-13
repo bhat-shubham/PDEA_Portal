@@ -1,28 +1,41 @@
-"use client"
+"use client";
 
-import { Header } from "@/components/ui/teacherheader"
+import { Header } from "@/components/ui/teacherheader";
 import { CiCirclePlus } from "react-icons/ci";
-import { useState } from "react";
-import {Checkbox } from "@/components/ui/checkbox";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useEffect, useState } from "react";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Clipboard, Check,CircleAlert,ChevronsRight, ChevronsLeft, EllipsisVertical, PencilLine, Trash2   } from 'lucide-react';
+import {
+  Clipboard,
+  Check,
+  CircleAlert,
+  ChevronsRight,
+  ChevronsLeft, EllipsisVertical, PencilLine, Trash2,
+} from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-  TooltipProvider
-} from "@/components/ui/tooltip"
+  TooltipProvider,
+} from "@/components/ui/tooltip";
+import { teacherClass } from "@/app/lib/teacherClass";
+import React from "react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 export default function Dashboard() {
   const [selectedClass, setSelectedClass] = useState<string | null>(null);
-  const [attendance, setAttendance] = useState<{[key: string]: boolean}>({});
+  const [attendance, setAttendance] = useState<{ [key: string]: boolean }>({});
   const [showAddClass, setShowAddClass] = useState(false);
   const [newClass, setNewClass] = useState({
-    className: '',
-    subject: ''
+    className: "",
+    subject: "",
   });
   const [classCode, setClassCode] = useState<string | null>(null);
   const [isCopied, setIsCopied] = useState(false);
@@ -43,10 +56,10 @@ export default function Dashboard() {
     newClassName: ''
   });
 
-  const [classes, setClasses] = useState([
-    { id: "SE_IT", name: "SE IT", students: 30, attendance: "80%", room: "101" },
-    { id: "BE_IT", name: "BE IT", students: 28, attendance: "90%", room: "103" },
-  ]);
+  // const [classes, setClasses] = useState([
+  //   { id: "SE_IT", name: "SE IT", students: 30, attendance: "80%", room: "101" },
+  //   { id: "BE_IT", name: "BE IT", students: 28, attendance: "90%", room: "103" },
+  // ]);
 
   const handleEditClick = (classId: string, className: string) => {
     setConfirmationDialog({
@@ -109,9 +122,9 @@ export default function Dashboard() {
   };
 
   const handleAddClass = () => {
-    console.log('New class:', { ...newClass, code: classCode });
+    console.log("New class:", { ...newClass, code: classCode });
     setShowAddClass(false);
-    setNewClass({ className: '', subject: '' });
+    setNewClass({ className: "", subject: "" });
     setClassCode(null);
   };
 
@@ -128,9 +141,9 @@ export default function Dashboard() {
   };
 
   const handleAttendanceChange = (rollNo: string, value: boolean) => {
-    setAttendance(prev => ({
+    setAttendance((prev) => ({
       ...prev,
-      [rollNo]: value
+      [rollNo]: value,
     }));
   };
 
@@ -138,7 +151,7 @@ export default function Dashboard() {
     const count = Object.values(attendance).filter(Boolean).length;
     setPresentCount(count);
     setShowConfirmation(true);
-    console.log('Submitting attendance:', attendance);
+    console.log("Submitting attendance:", attendance);
     // send to backend
   };
 
@@ -146,6 +159,32 @@ export default function Dashboard() {
   //   { id: "SE_IT", name: "SE IT", students: 30, attendance: "80%", room: "101" },
   //   { id: "BE_IT", name: "BE IT", students: 28, attendance: "90%", room: "103" },
   // ];
+
+  type ClassType = {
+    id: string;
+    name: string;
+    subject: number;
+    count: string;
+    room: string;
+  };
+
+  const [classes, setClasses] = useState<ClassType[]>([]);
+
+  useEffect(() => {
+    console.log("Fetching classes from server...");
+    const fetchClasses = async () => {
+      const data = await teacherClass("GET", "getClass");
+
+      if (data && data.classes) {
+        console.log("Fetched classes:", data.classes);
+        setClasses(data.classes);
+      } else {
+        console.warn("No classes found");
+        setClasses([]);
+      }
+    };
+    fetchClasses();
+  }, []);
 
   return (
     <div className="flex font-figtree h-screen">
@@ -156,25 +195,26 @@ export default function Dashboard() {
             <h1 className="text-2xl font-bold">Your Classes</h1>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 p-4 md:p-5">
               {classes.map((cls) => (
-                <div 
+                <div
                   key={cls.id}
                   onClick={() => handleClassClick(cls.id)}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+                    if (e.key === "Enter" || e.key === " ") {
                       handleClassClick(cls.id);
                     }
                   }}
                   role="button"
                   tabIndex={0}
                   aria-pressed={selectedClass === cls.id}
-                  aria-label={`${cls.name} class with ${cls.students} students, ${cls.attendance} attendance in room ${cls.room}`}
+                  aria-label={`${cls.name} class with ${cls.subject} students, ${cls.count} attendance in room ${cls.room}`}
                   className={`cursor-pointer flex-col gap-3 rounded-xl flex items-center justify-center text-white text-lg font-semibold p-4 md:p-6
                     border border-white/10 backdrop-blur-xl bg-black/20
                     transition-all duration-300 ease-out
                     hover:shadow-[0_0_25px_rgba(100,149,237,0.4)]
-                    ${selectedClass === cls.id ? 
-                      'border-white/90 shadow-[0_0_30px_rgba(100,149,237,0.5)]' : 
-                      'hover:border-blue-500/30'
+                    ${
+                      selectedClass === cls.id
+                        ? "border-white/90 shadow-[0_0_30px_rgba(100,149,237,0.5)]"
+                        : "hover:border-blue-500/30"
                     }`}
                 >
                   <DropdownMenu>
@@ -219,12 +259,12 @@ export default function Dashboard() {
                   <p className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">{cls.name}</p>
                   <div className="space-y-2 text-center">
                     <p className="text-sm md:text-base text-gray-300">
-                      <span className="sr-only">Total Number of Students:</span>
-                      Students: <span className="text-white">{cls.students}</span>
+                      <span className="sr-only">Subject</span>
+                      Subject: <span className="text-white">{cls.subject}</span>
                     </p>
                     <p className="text-sm md:text-base text-gray-300">
                       <span className="sr-only">Aggregate Attendance:</span>
-                      Attendance: <span className="text-white">{cls.attendance}</span>
+                      Strength <span className="text-white">{cls.count}</span>
                     </p>
                     <p className="text-sm md:text-base text-gray-300">
                       <span className="sr-only">Room Number:</span>
@@ -234,10 +274,10 @@ export default function Dashboard() {
                   </div>
                 </div>
               ))}
-              <div 
+              <div
                 onClick={() => setShowAddClass(true)}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
+                  if (e.key === "Enter" || e.key === " ") {
                     setShowAddClass(true);
                   }
                 }}
@@ -248,9 +288,12 @@ export default function Dashboard() {
                 border border-green-500/30 backdrop-blur-md bg-white/5 focus:outline-none focus:ring-2 focus:ring-green-500
                 transition-all duration-300 ease-out
                 hover:scale-[1.02] hover:bg-white/10
-                hover:border-green-400 hover:shadow-[0_0_20px_rgba(74,222,128,0.2)]">
+                hover:border-green-400 hover:shadow-[0_0_20px_rgba(74,222,128,0.2)]"
+              >
                 <p className="text-xl">Add Class</p>
-                <p className="text-sm text-center">Create a new class for your students</p>
+                <p className="text-sm text-center">
+                  Create a new class for your students
+                </p>
                 <CiCirclePlus className="w-16 h-16 text-white cursor-pointer hover:text-green-500 transition-colors" />
               </div>
             </div>
@@ -258,26 +301,36 @@ export default function Dashboard() {
             <Dialog open={showAddClass} onOpenChange={setShowAddClass}>
               <DialogContent className="sm:max-w-[425px] bg-[#1a1a1a] text-white border-gray-800">
                 <DialogHeader>
-                  <DialogTitle className="text-xl font-semibold text-white">Add New Class</DialogTitle>
+                  <DialogTitle className="text-xl font-semibold text-white">
+                    Add New Class
+                  </DialogTitle>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
                   <div className="space-y-2">
-                    <Label htmlFor="className" className="text-white">Class Name</Label>
+                    <Label htmlFor="className" className="text-white">
+                      Class Name
+                    </Label>
                     <Input
                       id="className"
                       placeholder="Enter class name"
                       value={newClass.className}
-                      onChange={(e) => setNewClass({ ...newClass, className: e.target.value })}
+                      onChange={(e) =>
+                        setNewClass({ ...newClass, className: e.target.value })
+                      }
                       className="bg-[#2a2a2a] border-gray-700 text-white"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="subject" className="text-white">Subject</Label>
+                    <Label htmlFor="subject" className="text-white">
+                      Subject
+                    </Label>
                     <Input
                       id="subject"
                       placeholder="Enter subject name"
                       value={newClass.subject}
-                      onChange={(e) => setNewClass({ ...newClass, subject: e.target.value })}
+                      onChange={(e) =>
+                        setNewClass({ ...newClass, subject: e.target.value })
+                      }
                       className="bg-[#2a2a2a] border-gray-700 text-white"
                     />
                   </div>
@@ -286,9 +339,9 @@ export default function Dashboard() {
                       onClick={generateClassCode}
                       disabled={!newClass.className || !newClass.subject}
                       className={`mt-2 w-full px-4 py-2 text-white rounded-lg transition-colors ${
-                        !newClass.className || !newClass.subject 
-                          ? 'bg-gray-600 cursor-not-allowed opacity-50' 
-                          : 'bg-green-600 hover:bg-green-700'
+                        !newClass.className || !newClass.subject
+                          ? "bg-gray-600 cursor-not-allowed opacity-50"
+                          : "bg-green-600 hover:bg-green-700"
                       }`}
                     >
                       Generate Class Code
@@ -312,9 +365,9 @@ export default function Dashboard() {
                                 className="top-21 h-fit cursor-default bottom-30 right-6 absolute p-1 text-sm rounded transition-colors"
                               >
                                 {isCopied ? (
-                                  <Check className="h-7 p-1 mt-1 w-7 mb-11 cursor-pointer text-green-500"/>
+                                  <Check className="h-7 p-1 mt-1 w-7 mb-11 cursor-pointer text-green-500" />
                                 ) : (
-                                  <Clipboard className="h-7 p-1 mt-1 w-7 mb-11 cursor-pointer text-slate-400 hover:bg-zinc-600 rounded-lg hover:text-green-500"/>
+                                  <Clipboard className="h-7 p-1 mt-1 w-7 mb-11 cursor-pointer text-slate-400 hover:bg-zinc-600 rounded-lg hover:text-green-500" />
                                 )}
                               </button>
                             </TooltipTrigger>
@@ -323,7 +376,6 @@ export default function Dashboard() {
                             </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
-
                       </div>
                       <div className="flex justify-between items-center">
                         <p className="text-sm text-gray-400">
@@ -336,7 +388,7 @@ export default function Dashboard() {
                     <button
                       onClick={() => {
                         setShowAddClass(false);
-                        setNewClass({ className: '', subject: '' });
+                        setNewClass({ className: "", subject: "" });
                         setClassCode(null);
                       }}
                       className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
@@ -363,11 +415,12 @@ export default function Dashboard() {
                     <CircleAlert className="mr-2" />
                     Submit Attendance?
                   </DialogTitle>
-                  
                 </DialogHeader>
                 <div className="py-4">
                   <p className="text-white text-lg">
-                    You have marked <span className="font-bold">{presentCount}</span> students as present.
+                    You have marked{" "}
+                    <span className="font-bold">{presentCount}</span> students
+                    as present.
                   </p>
                 </div>
                 <div className="flex justify-between mt-4">
@@ -375,14 +428,15 @@ export default function Dashboard() {
                     onClick={() => setShowConfirmation(false)}
                     className="px-4 py-2 flex bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
                   >
-                    <ChevronsLeft className="inline-block mr-1" />Close 
+                    <ChevronsLeft className="inline-block mr-1" />
+                    Close
                   </button>
                   <button
-                        onClick={handleSubmitAttendance}
-                        className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg flex transition-colors"
-                      >
-                        Submit <ChevronsRight className="inline-block ml-1" />
-                      </button>
+                    onClick={handleSubmitAttendance}
+                    className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg flex transition-colors"
+                  >
+                    Submit <ChevronsRight className="inline-block ml-1" />
+                  </button>
                 </div>
               </DialogContent>
             </Dialog>
@@ -440,7 +494,10 @@ export default function Dashboard() {
               {selectedClass ? (
                 <div className="h-full flex flex-col">
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
-                    <h2 className="text-lg md:text-xl font-semibold text-white">Today&apos;s Attendance - {classes.find(c => c.id === selectedClass)?.name}</h2>
+                    <h2 className="text-lg md:text-xl font-semibold text-white">
+                      Today&apos;s Attendance -{" "}
+                      {classes.find((c) => c.id === selectedClass)?.name}
+                    </h2>
                     <button
                       onClick={handleClearAttendance}
                       aria-label="Clear all attendance records"
@@ -471,13 +528,26 @@ export default function Dashboard() {
                           { roll: "9", name: "Kunal Shah" },
                           { roll: "10", name: "Meera Kapoor" },
                         ].map((student) => (
-                          <tr key={student.roll} className="border-b border-gray-700 hover:bg-gray-800">
+                          <tr
+                            key={student.roll}
+                            className="border-b border-gray-700 hover:bg-gray-800"
+                          >
                             <td className="py-3 px-4">{student.roll}</td>
                             <td className="py-3 px-4">{student.name}</td>
                             <td className="py-3 px-4">
                               <label className="flex items-center space-x-2">
-                                <Checkbox checked={attendance[student.roll] || false} onCheckedChange={(checked) => handleAttendanceChange(student.roll, checked === true)} />
-                                <span className="text-sm text-gray-300">Present</span>
+                                <Checkbox
+                                  checked={attendance[student.roll] || false}
+                                  onCheckedChange={(checked) =>
+                                    handleAttendanceChange(
+                                      student.roll,
+                                      checked === true
+                                    )
+                                  }
+                                />
+                                <span className="text-sm text-gray-300">
+                                  Present
+                                </span>
                               </label>
                             </td>
                           </tr>
@@ -506,5 +576,5 @@ export default function Dashboard() {
         </main>
       </div>
     </div>
-  )
+  );
 }
