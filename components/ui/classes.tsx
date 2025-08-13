@@ -121,12 +121,12 @@ export default function AllClasses() {
           )}
         </div>
         <div className="lg:col-span-3 bg-black/20 backdrop-blur-lg rounded-xl border border-white/10 min-h-[300px] p-4 md:p-6 flex justify-center flex-col">
-          {selectedClass ? (
+          { (
             <div className="h-full flex flex-col">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
                 <h2 className="text-lg md:text-xl font-semibold text-white">
                   Today&apos;s Attendance -{" "}
-                  {classes.find((c) => c.id === selectedClass)?.name}
+                 
                 </h2>
                 <button
                   //   onClick={handleClearAttendance}
@@ -188,7 +188,7 @@ export default function AllClasses() {
                 </div>
               </div>
             </div>
-          ) : (
+          ) :(
             <div className="flex items-center align-middle h-full justify-center">
               <p className="text-gray-100 text-lg text-center" role="alert">
                 Select a class to view students attendance
