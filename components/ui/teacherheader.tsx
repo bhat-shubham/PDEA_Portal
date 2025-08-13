@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "./button";
-import { ModeToggle } from "../../app/dashboard/mode-toggle";
+import { ModeToggle } from "./mode-toggle";
 import { teacherProfile } from "@/app/lib/teacherProfile";
 import { useEffect, useState } from "react";
 import {
@@ -31,7 +31,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../../app/dashboard/ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 

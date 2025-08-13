@@ -1,38 +1,48 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { teacherClass } from "@/app/lib/teacherClass";
-// const classesRaw = [
-//   { id: "SE_IT", name: "SE IT", students: 30, attendance: "80%", room: "101" },
-//   { id: "BE_IT", name: "BE IT", students: 28, attendance: "90%", room: "103" },
-//   { id: "TE_IT", name: "TE IT", students: 28, attendance: "90%", room: "103" },
-//   { id: "FE_IT", name: "FE IT", students: 28, attendance: "90%", room: "103" },
-//   { id: "FE_IT", name: "FE IT", students: 28, attendance: "90%", room: "103" },
-//   { id: "FE_IT", name: "FE IT", students: 28, attendance: "90%", room: "103" },
-// ];
-// const classes = Array.from(
-//   new Map(classesRaw.map((cls) => [cls.id, cls])).values()
-// );
+const classesRaw = [
+  { id: "SE_IT", name: "SE IT", students: 30, attendance: "80%", room: "101" },
+  { id: "BE_IT", name: "BE IT", students: 28, attendance: "90%", room: "103" },
+  { id: "TE_IT", name: "TE IT", students: 28, attendance: "90%", room: "103" },
+  { id: "FE_IT", name: "FE IT", students: 28, attendance: "90%", room: "103" },
+  { id: "FE_IT", name: "FE IT", students: 28, attendance: "90%", room: "103" },
+  { id: "FE_IT", name: "FE IT", students: 28, attendance: "90%", room: "103" },
+];
+const classes = Array.from(
+  new Map(classesRaw.map((cls) => [cls.id, cls])).values()
+);
 
 export default function AllClasses() {
-  const [classes, setClasses] = useState<unknown[]>([]);
+  const handleClassClick = (classId: string) => {
+    if (selectedClass === classId) {
+      setSelectedClass(null);
+    } else {
+      setSelectedClass(classId);
+    }
+  };
+  const [selectedClass, setSelectedClass] = useState<string | null>(null);
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
 
-  useEffect(() => {
-    console.log("Fetching classes from server...");
-    const fetchClasses = async () => {
-      const data = await teacherClass("GET", "getClass");
-
-      if (data && data.classes) {
-        console.log("Fetched classes:", data.classes);
-        setClasses(data.classes);
-      } else {
-        console.warn("No classes found");
-        setClasses([]);
-      }
-    };
-    fetchClasses();
-  }, []);
+  const filteredClasses = React.useMemo(() => {
+    const query = searchValue.trim().toLowerCase();
+    if (!query) return classes;
+    let filtered = classes.filter((cls) =>
+      cls.name.toLowerCase().includes(query)
+    );
+    filtered = filtered.sort((a, b) => {
+      const aName = a.name.toLowerCase();
+      const bName = b.name.toLowerCase();
+      if (aName === query && bName !== query) return -1;
+      if (bName === query && aName !== query) return 1;
+      if (aName.startsWith(query) && !bName.startsWith(query)) return -1;
+      if (bName.startsWith(query) && !aName.startsWith(query)) return 1;
+      return aName.localeCompare(bName);
+    });
+    return filtered;
+  }, [searchValue, classes]);
 
   return (
     <div className="w-full">
@@ -50,8 +60,8 @@ export default function AllClasses() {
                 <Search className="text-muted-foreground" />
               </button>
               <div
-                className={`transition-all duration-300 ease-in-out flex  ${
-                  showSearch ? "w-40 px-" : "w-0 px-0"
+                className={`transition-all duration-300 ease-in-out flex ${
+                  showSearch ? "w-40 px-1" : "w-0 px-0"
                 } overflow-hidden md:w-64 md:px-1 md:block`}
               >
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hidden md:block" />
@@ -121,12 +131,11 @@ export default function AllClasses() {
           )}
         </div>
         <div className="lg:col-span-3 bg-black/20 backdrop-blur-lg rounded-xl border border-white/10 min-h-[300px] p-4 md:p-6 flex justify-center flex-col">
-          { (
+          {selectedClass ? (
             <div className="h-full flex flex-col">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
                 <h2 className="text-lg md:text-xl font-semibold text-white">
                   Today&apos;s Attendance -{" "}
-                 
                 </h2>
                 <button
                   //   onClick={handleClearAttendance}
@@ -188,7 +197,7 @@ export default function AllClasses() {
                 </div>
               </div>
             </div>
-          ) :(
+          ) : (
             <div className="flex items-center align-middle h-full justify-center">
               <p className="text-gray-100 text-lg text-center" role="alert">
                 Select a class to view students attendance

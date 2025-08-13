@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { AdminHeader } from "@/components/ui/adminheader"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/app/dashboard/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import Link  from "next/link";
 import { Button } from '@/components/ui/button';
 import { BookPlus } from 'lucide-react';

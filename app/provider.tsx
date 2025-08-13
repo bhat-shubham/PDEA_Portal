@@ -11,7 +11,7 @@ export function Providers({children}:{
       height="4px"
       color="#61C7CA"
       options={{ showSpinner: false }}
-    //   shallowRouting
+      shallowRouting
     >
       {children}
     </ProgressProvider>
