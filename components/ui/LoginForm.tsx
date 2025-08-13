@@ -28,11 +28,11 @@ export default function SignupFormDemo() {
         Login to PDEA&apos;s Portal
       </h2>
       <div className="bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent my-5 h-[1px] w-full" />
-      <p className="text-center mb-10 text-white font-figtree text-md max-w-sm mt-2">
+      <p className="text-center md:mb-10 text-white font-figtree text-md max-w-sm mt-2">
         Enter Your Credentials to view your Profile and Latest Notifications
       </p>
 
-      <form className="" onSubmit={handleSubmit}>
+      <form className="w-full md:p-0 p-5" onSubmit={handleSubmit}>
         <div className="flex flex-col md:flex-row space-y-5 md:space-y-0 md:space-x-2 mb-4">
           <LabelInputContainer>
             <Label htmlFor="firstname">First name</Label>
