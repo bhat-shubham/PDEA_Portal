@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import ImageGallery from "@/components/ui/image-gallery";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import { User  } from "lucide-react";
+import { PiStudent } from "react-icons/pi";
 import { GrUserAdmin } from "react-icons/gr";
 type FormData = {
   email: string;
@@ -102,7 +102,7 @@ export default function Home() {
                       variant="outline"
                       className="w-full justify-center bg-[#443379] text-white"
                     >
-                      <User className="mr-1 h-4 w-4" />
+                      <PiStudent className="mr-1 h-4 w-4" />
                       Student Login
                     </Button>
                     </Link>
