@@ -46,7 +46,7 @@ export default function Home() {
         amplitude={1.5}
         speed={0.5}
       />
-      <div className="font-figtree absolute w-3/4 z-20 backdrop-blur-md flex p-5 h-4/5 align-middle items-center rounded-3xl bg-[#6a69691e] overflow-hidden">
+      <div className="font-figtree absolute md:w-3/4 w-5/6 z-20 backdrop-blur-md flex md:p-5 md:h-4/5 md:py-0 py-10 align-middle items-center rounded-3xl bg-[#6a69691e] overflow-hidden">
         <div className="w-1/2 hidden md:flex overflow-hidden rounded-3xl items-center justify-center h-full">
           <ImageGallery />
         </div>
