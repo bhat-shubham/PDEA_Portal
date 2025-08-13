@@ -34,11 +34,11 @@ export default function Dashboard() {
   const [attendance, setAttendance] = useState<{ [key: string]: boolean }>({});
   const [showAddClass, setShowAddClass] = useState(false);
   const [newClass, setNewClass] = useState({
-    className: "",
+    name: "",
     subject: "",
   });
-  const [classCode, setClassCode] = useState<string | null>(null);
-  const [isCopied, setIsCopied] = useState(false);
+  // const [classCode, setClassCode] = useState<string | null>(null);
+  // const [isCopied, setIsCopied] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [presentCount, setPresentCount] = useState(0);
   
@@ -115,17 +115,18 @@ export default function Dashboard() {
     }));
   };
 
-  const generateClassCode = () => {
-    // random 6-digit code
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-    setClassCode(code);
-  };
-
   const handleAddClass = () => {
-    console.log("New class:", { ...newClass, code: classCode });
-    setShowAddClass(false);
-    setNewClass({ className: "", subject: "" });
-    setClassCode(null);
+    console.log("Adding new class:", newClass);
+    const createClass = async () => {
+      const data = await teacherClass("POST", "class", newClass);
+      if (data && data.message === "Class created") {
+        console.log("Class created successfully:", data.class);
+        setClasses((prev) => [...prev, data.class]);
+        setShowAddClass(false);
+        setNewClass({ name: "", subject: "" });
+      }
+    };
+    createClass();
   };
 
   const handleClassClick = (classId: string) => {
@@ -155,17 +156,12 @@ export default function Dashboard() {
     // send to backend
   };
 
-  // const classes = [
-  //   { id: "SE_IT", name: "SE IT", students: 30, attendance: "80%", room: "101" },
-  //   { id: "BE_IT", name: "BE IT", students: 28, attendance: "90%", room: "103" },
-  // ];
-
   type ClassType = {
     id: string;
     name: string;
     subject: number;
     count: string;
-    room: string;
+    class_code: string;
   };
 
   const [classes, setClasses] = useState<ClassType[]>([]);
@@ -206,7 +202,7 @@ export default function Dashboard() {
                   role="button"
                   tabIndex={0}
                   aria-pressed={selectedClass === cls.id}
-                  aria-label={`${cls.name} class with ${cls.subject} students, ${cls.count} attendance in room ${cls.room}`}
+                  aria-label={`${cls.name} class with ${cls.subject} students, ${cls.count} attendance in room ${cls.class_code}`}
                   className={`cursor-pointer flex-col gap-3 rounded-xl flex items-center justify-center text-white text-lg font-semibold p-4 md:p-6
                     border border-white/10 backdrop-blur-xl bg-black/20
                     transition-all duration-300 ease-out
@@ -267,8 +263,9 @@ export default function Dashboard() {
                       Strength <span className="text-white">{cls.count}</span>
                     </p>
                     <p className="text-sm md:text-base text-gray-300">
-                      <span className="sr-only">Room Number:</span>
-                      Room: <span className="text-white">{cls.room}</span>
+                      <span className="sr-only">class_code:</span>
+                      class_code:
+                       <span className="text-white">{cls.class_code}</span>
                     </p>
                     
                   </div>
@@ -313,9 +310,9 @@ export default function Dashboard() {
                     <Input
                       id="className"
                       placeholder="Enter class name"
-                      value={newClass.className}
+                      value={newClass.name}
                       onChange={(e) =>
-                        setNewClass({ ...newClass, className: e.target.value })
+                        setNewClass({ ...newClass, name: e.target.value })
                       }
                       className="bg-[#2a2a2a] border-gray-700 text-white"
                     />
@@ -334,7 +331,7 @@ export default function Dashboard() {
                       className="bg-[#2a2a2a] border-gray-700 text-white"
                     />
                   </div>
-                  {!classCode ? (
+                  {/* {!classCode ? (
                     <button
                       onClick={generateClassCode}
                       disabled={!newClass.className || !newClass.subject}
@@ -383,26 +380,24 @@ export default function Dashboard() {
                         </p>
                       </div>
                     </div>
-                  )}
+                  )} */}
                   <div className="flex justify-between gap-3 mt-4">
                     <button
                       onClick={() => {
                         setShowAddClass(false);
-                        setNewClass({ className: "", subject: "" });
-                        setClassCode(null);
+                        setNewClass({ name: "", subject: "" });
                       }}
                       className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
                     >
                       Cancel
                     </button>
-                    {classCode && (
-                      <button
-                        onClick={handleAddClass}
-                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-                      >
-                        Create Class
-                      </button>
-                    )}
+
+                    <button
+                      onClick={handleAddClass}
+                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                    >
+                      Create Class
+                    </button>
                   </div>
                 </div>
               </DialogContent>

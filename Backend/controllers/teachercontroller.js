@@ -139,10 +139,17 @@ const createClass = async (req, res) => {
   const teacherId = req.user.id;
   console.log("Creating class with data:", name, subject, teacherId);
 
+  const codeLength = 6;
+  var codeString = "";
+  for (let i = 0; i < codeLength; i++) {
+    codeString += Math.floor(Math.random() * 10).toString();
+  }
+  console.log("Generated class code:", codeString);
+
   const newClass = new Class({
     name,
     subject,
-
+    class_code: codeString,
     teacher: teacherId,
   });
 
@@ -160,11 +167,11 @@ const getClasses = async (req, res) => {
       message: "Classes fetched successfully.",
       classes: classes.map((cls) => ({
         id: cls._id,
-        name: cls.name,   
-        subject: cls.subject, 
+        name: cls.name,
+        subject: cls.subject,
       })),
-  })}
-   catch (error) {
+    });
+  } catch (error) {
     console.error("[GET CLASSES ERROR]", error);
     res.status(500).json({ message: "Internal server error." });
   }
@@ -176,5 +183,5 @@ module.exports = {
   teacherLogout,
   teacherDetails,
   createClass,
-  getClasses
+  getClasses,
 };

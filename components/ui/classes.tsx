@@ -101,6 +101,42 @@ export default function AllClasses() {
                       'ring-blue-400/50 border-blue-400/70' : 
                       'hover:border-blue-400/70'
                     }`}
+
+              >
+                <p className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                  {cls.name}
+                </p>
+                <div className="space-y-2 text-center">
+                  <p className="text-sm md:text-base text-gray-300">
+                    <span className="sr-only">Total Number of Students:</span>
+                    Students: <span className="text-white">{cls.students}</span>
+                  </p>
+                  <p className="text-sm md:text-base text-gray-300">
+                    <span className="sr-only">Aggregate Attendance:</span>
+                    Attendance:{" "}
+                    <span className="text-white">{cls.attendance}</span>
+                  </p>
+                  <p className="text-sm md:text-base text-gray-300">
+                    <span className="sr-only">Room Number:</span>
+                    Room: <span className="text-white">{cls.room}</span>
+                  </p>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+        <div className="lg:col-span-3 bg-black/20 backdrop-blur-lg rounded-xl border border-white/10 min-h-[300px] p-4 md:p-6 flex justify-center flex-col">
+          { (
+            <div className="h-full flex flex-col">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+                <h2 className="text-lg md:text-xl font-semibold text-white">
+                  Today&apos;s Attendance -{" "}
+                 
+                </h2>
+                <button
+                  //   onClick={handleClearAttendance}
+                  aria-label="Clear all attendance records"
+
                 >
                   <p className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">{cls.name}</p>
                   <div className="space-y-2 text-center">
@@ -190,6 +226,13 @@ export default function AllClasses() {
               )}
             </div>
             </div>
+
+          ) :(
+            <div className="flex items-center align-middle h-full justify-center">
+              <p className="text-gray-100 text-lg text-center" role="alert">
+                Select a class to view students attendance
+              </p>
+
             </div>
   );
 }
