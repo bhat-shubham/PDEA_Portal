@@ -3,21 +3,21 @@
 import { Header } from "@/components/ui/teacherheader";
 import { CiCirclePlus } from "react-icons/ci";
 import { useEffect, useState } from "react";
-import { Checkbox } from "../../dashboard/ui/checkbox";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/app/dashboard/ui/input";
-import { Label } from "@/app/dashboard/ui/label";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Clipboard,
   Check,
   CircleAlert,
   ChevronsRight,
-  ChevronsLeft,
+  ChevronsLeft, EllipsisVertical, PencilLine, Trash2,
 } from "lucide-react";
 import {
   Tooltip,
@@ -27,6 +27,8 @@ import {
 } from "@/components/ui/tooltip";
 import { teacherClass } from "@/app/lib/teacherClass";
 import React from "react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 export default function Dashboard() {
   const [selectedClass, setSelectedClass] = useState<string | null>(null);
   const [attendance, setAttendance] = useState<{ [key: string]: boolean }>({});
@@ -39,6 +41,79 @@ export default function Dashboard() {
   // const [isCopied, setIsCopied] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [presentCount, setPresentCount] = useState(0);
+  
+  const [confirmationDialog, setConfirmationDialog] = useState<{
+    isOpen: boolean;
+    type: 'edit' | 'delete' | null;
+    classId: string | null;
+    className: string;
+    newClassName: string;
+  }>({
+    isOpen: false,
+    type: null,
+    classId: null,
+    className: '',
+    newClassName: ''
+  });
+
+  // const [classes, setClasses] = useState([
+  //   { id: "SE_IT", name: "SE IT", students: 30, attendance: "80%", room: "101" },
+  //   { id: "BE_IT", name: "BE IT", students: 28, attendance: "90%", room: "103" },
+  // ]);
+
+  const handleEditClick = (classId: string, className: string) => {
+    setConfirmationDialog({
+      isOpen: true,
+      type: 'edit',
+      classId,
+      className,
+      newClassName: className
+    });
+  };
+
+  const handleDeleteClick = (classId: string, className: string) => {
+    setConfirmationDialog({
+      isOpen: true,
+      type: 'delete',
+      classId,
+      className,
+      newClassName: ''
+    });
+  };
+
+  const handleDialogConfirm = () => {
+    if (confirmationDialog.type === 'edit' && confirmationDialog.classId) {
+      setClasses(prevClasses => 
+        prevClasses.map(cls => 
+          cls.id === confirmationDialog.classId 
+            ? { ...cls, name: confirmationDialog.newClassName }
+            : cls
+        )
+      );
+    } else if (confirmationDialog.type === 'delete' && confirmationDialog.classId) {
+      setClasses(prevClasses => 
+        prevClasses.filter(cls => cls.id !== confirmationDialog.classId)
+      );
+      if (selectedClass === confirmationDialog.classId) {
+        setSelectedClass(null);
+      }
+    }
+    
+    setConfirmationDialog({
+      isOpen: false,
+      type: null,
+      classId: null,
+      className: '',
+      newClassName: ''
+    });
+  };
+  
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setConfirmationDialog(prev => ({
+      ...prev,
+      newClassName: e.target.value
+    }));
+  };
 
   const handleAddClass = () => {
     console.log("Adding new class:", newClass);
@@ -138,9 +213,46 @@ export default function Dashboard() {
                         : "hover:border-blue-500/30"
                     }`}
                 >
-                  <p className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                    {cls.name}
-                  </p>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        className="dark:bg-transparent absolute top-3 right-3 border-none"
+                        variant="outline"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <EllipsisVertical className="h-5 w-5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent 
+                      align="end" 
+                      className="w-50" 
+                      onPointerDownOutside={(e) => e.preventDefault()}
+                    >
+                      <DropdownMenuItem 
+                        onPointerDown={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEditClick(cls.id, cls.name);
+                        }}
+                      >
+                        <PencilLine className="mr-2 h-5 w-5" />
+                        <span className="text-md">Edit Class</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-900/20"
+                        onPointerDown={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteClick(cls.id, cls.name);
+                        }}
+                      >
+                        <Trash2 className="mr-2 h-5 w-5" />
+                        <span className="text-md">Delete Class</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  
+                  <p className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">{cls.name}</p>
                   <div className="space-y-2 text-center">
                     <p className="text-sm md:text-base text-gray-300">
                       <span className="sr-only">Subject</span>
@@ -155,6 +267,7 @@ export default function Dashboard() {
                       class_code:
                        <span className="text-white">{cls.class_code}</span>
                     </p>
+                    
                   </div>
                 </div>
               ))}
@@ -319,6 +432,55 @@ export default function Dashboard() {
                   >
                     Submit <ChevronsRight className="inline-block ml-1" />
                   </button>
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            {/* Edit/Delete Confirmation Dialog */}
+            <Dialog open={confirmationDialog.isOpen} onOpenChange={(isOpen) => setConfirmationDialog(prev => ({ ...prev, isOpen }))}>
+              <DialogContent className="sm:max-w-[425px] bg-[#1a1a1a] text-white border-gray-800">
+                <DialogHeader>
+                  <DialogTitle className="text-xl flex items-center font-semibold">
+                    <CircleAlert className="mr-2 h-5 w-5" />
+                    {confirmationDialog.type === 'edit' ? 'Edit Class' : 'Delete Class'}
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="py-4 space-y-4">
+                  {confirmationDialog.type === 'edit' ? (
+                    <div className="space-y-2">
+                      <Label htmlFor="className" className="text-white">New Class Name</Label>
+                      <Input
+                        id="className"
+                        value={confirmationDialog.newClassName}
+                        onChange={handleInputChange}
+                        className="bg-[#2a2a2a] border-gray-700 text-white"
+                        placeholder="Enter new class name"
+                        autoFocus
+                      />
+                    </div>
+                  ) : (
+                    <p className="text-white">
+                      Are you sure you want to delete "{confirmationDialog.className}"? This action cannot be undone.
+                    </p>
+                  )}
+                </div>
+                <div className="flex justify-end gap-3 mt-4">
+                  <Button
+                    variant="outline"
+                    onClick={() => setConfirmationDialog(prev => ({
+                      ...prev,
+                      isOpen: false
+                    }))}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    variant={confirmationDialog.type === 'delete' ? 'destructive' : 'default'}
+                    onClick={handleDialogConfirm}
+                    disabled={confirmationDialog.type === 'edit' && !confirmationDialog.newClassName.trim()}
+                  >
+                    {confirmationDialog.type === 'edit' ? 'Save Changes' : 'Delete'}
+                  </Button>
                 </div>
               </DialogContent>
             </Dialog>

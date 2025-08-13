@@ -1,8 +1,8 @@
 'use client'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/app/dashboard/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Input } from "@/app/dashboard/ui/input"
-import { Label } from "@/app/dashboard/ui/label"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { useState } from "react"
 import {
     Select,

@@ -7,13 +7,13 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
-} from "@/app/dashboard/ui/card";
+} from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Header } from "@/components/ui/teacherheader";
-import { Button } from "@/app/dashboard/ui/button";
-import { Input } from "@/app/dashboard/ui/input";
-import { Label } from "@/app/dashboard/ui/label";
-import { Textarea } from "@/app/dashboard/ui/textarea";
+import { Button } from "@/components/ui/button";
+// import { Input } from "@/app/dashboard/ui/input";
+// import { Label } from "@/app/dashboard/ui/label";
+// import { Textarea } from "@/app/dashboard/ui/textarea";
 import {
   Dialog,
   DialogContent,

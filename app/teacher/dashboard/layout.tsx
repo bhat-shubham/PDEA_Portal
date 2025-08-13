@@ -3,7 +3,7 @@
 import { Sidebar } from "@/components/ui/teachersidebar"
 // import withAuth from "../../lib/withAuth";
 
-function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-screen">
       <div className="fixed inset-0 w-full h-screen">
@@ -30,5 +30,3 @@ function DashboardLayout({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
-
-export default (DashboardLayout);

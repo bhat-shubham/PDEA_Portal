@@ -1,15 +1,15 @@
 "use client";
-import { Button, buttonVariants } from "./ui/button";
+import { Button, buttonVariants } from "../../../components/ui/button";
 import * as React from "react";
 import { Label, Pie, PieChart } from "recharts";
 import { Bot, Loader } from "lucide-react";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../../../components/ui/card";
 import { 
   ChartConfig, 
   ChartContainer, 
   ChartTooltip, 
   ChartTooltipContent 
-} from "./ui/chart";
+} from "../../../components/ui/chart";
 import { subjects, calculateAttendance } from "./subject-attendence";
 import { HfInference } from "@huggingface/inference";
 
@@ -163,7 +163,7 @@ export function AttendanceGraph() {
   };
 
   return (
-    <Card className="flex flex-col relative">
+    <Card className="flex h-full border border-none flex-col dark:bg-white/10 relative">
       <CardHeader className="flex-row items-center justify-between space-y-0">
         <div>
           <CardTitle>Attendance Overview</CardTitle>
@@ -186,19 +186,19 @@ export function AttendanceGraph() {
         
       </CardHeader>
       
-      <CardContent className="flex-1 pb-0">
+      <CardContent className="flex-1 items-center justify-center align-middle pb-0">
         <ChartContainer
           config={chartConfig}
-          className="mx-auto aspect-square max-h-[250px]"
+          className="mx-auto aspect-square max-h-[400px]"
         >
           <PieChart>
-            <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+            <ChartTooltip cursor={true} content={<ChartTooltipContent hideLabel />} />
             <Pie
               data={subjectAttendance}
               dataKey="attendance"
               nameKey="subject"
-              innerRadius={60}
-              strokeWidth={5}
+              innerRadius={80}
+              strokeWidth={10}
             >
               <Label
                 content={({ viewBox }) => {
@@ -206,7 +206,7 @@ export function AttendanceGraph() {
                     const attendanceColor = getAttendanceColor(totalAttendance);
                     return (
                       <text x={viewBox.cx} y={viewBox.cy} textAnchor="middle" dominantBaseline="middle">
-                        <tspan x={viewBox.cx} y={viewBox.cy} fill={attendanceColor} className="text-3xl font-bold">
+                        <tspan x={viewBox.cx} y={viewBox.cy} fill={attendanceColor} className="text-4xl font-bold">
                           {totalAttendance}%
                         </tspan>
                         <tspan x={viewBox.cx} y={(viewBox.cy || 0) + 24} className="fill-muted-foreground">
