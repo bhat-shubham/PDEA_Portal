@@ -1,11 +1,9 @@
-'use client';
-
+"use client";
 import { useState } from 'react';
 import { Header } from "@/components/ui/teacherheader"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/app/dashboard/ui/card";
-import Link  from "next/link";
-import { Button
- } from '@/components/ui/button';
+// import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+// import Link  from "next/link";
+import { Button } from '@/components/ui/button';
  import { Check, X } from 'lucide-react';
 interface Notification {
     id: number;
