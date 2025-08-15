@@ -3,7 +3,7 @@
 import { Button } from "../../../components/ui/button";
 import * as React from "react";
 import { Label, Pie, PieChart } from "recharts";
-import { Bot, Loader } from "lucide-react";
+import { ArrowBigLeftIcon, Bot, Loader } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -72,7 +72,8 @@ const groq = new Groq({
 export function AttendanceGraph() {
   const [loading, setLoading] = React.useState(false);
   const [output, setOutput] = React.useState("");
-  const [isLoading,setisLoading] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [showAISummary, setShowAISummary] = React.useState(false);
 
   const totalAttendance = React.useMemo(() => {
     return Math.round(
@@ -116,8 +117,16 @@ export function AttendanceGraph() {
 
   const calculateLectureRequirements = async () => {
     setLoading(true);
-    setisLoading(true);
+    setIsLoading(true);
     setOutput("");
+    
+    // If already showing summary, just toggle back to graph
+    if (showAISummary) {
+      setShowAISummary(false);
+      setLoading(false);
+      setIsLoading(false);
+      return;
+    }
 
     try {
       const thresholdPct = 75;
@@ -185,113 +194,143 @@ ${compact}
         "Unable to generate a plan.";
 
       setOutput(content);
+      setShowAISummary(true);
     } catch (err) {
       console.error("AI planning error:", err);
       setOutput("AI planning error. Please try again.");
+      setShowAISummary(true);
     } finally {
       setLoading(false);
-      setisLoading(false);
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="h-full">
-    <Card className="flex h-full border flex-col dark:bg-white/10 relative">
-      <CardHeader className="flex-row items-center justify-between space-y-0">
-        <div>
-          <CardTitle>Attendance Overview</CardTitle>
-          <CardDescription>Semester Performance</CardDescription>
-        </div>
-        <div className="rounded-xl shadow-[0_0_10px_2px_rgba(138,43,226,0.4)]">
-          <Button
-            variant={"outline"}
-            className="w-25 h-25 p-2"
-            onClick={calculateLectureRequirements}
-            disabled={loading}
-          >
-            {loading ? (
-              <Loader className="!size-10 text-[#B080FF] animate-spin" />
-            ) : (
-              <Bot className="!size-10 text-[#B080FF] drop-shadow-[0_0_6px_rgba(186,104,255,0.7)]" />
-            )}
-          </Button>
-        </div>
-      </CardHeader>
-
-      <CardContent className="flex flex-1 items-center justify-center align-middle">
-        <ChartContainer
-          config={chartConfig}
-          className="flex items-center "
-        >
-          <PieChart>
-            <ChartTooltip cursor={true} content={<ChartTooltipContent hideLabel />} />
-            <Pie
-              data={subjectAttendance}
-              dataKey="attendance"
-              nameKey="subject"
-              innerRadius={60}
-              strokeWidth={1}
+      <Card className="flex h-full border flex-col dark:bg-white/10 relative">
+        <CardHeader className="flex-row items-center justify-between space-y-0">
+          <div>
+            <CardTitle>
+              {showAISummary ? 'AI Attendance Analysis' : 'Attendance Overview'}
+            </CardTitle>
+            <CardDescription>
+              {showAISummary ? 'Personalized attendance insights' : 'Semester Performance'}
+            </CardDescription>
+          </div>
+          <div className="flex items-center gap-2">
+            {showAISummary && (
+              <Button
+              variant={"outline"}
+              className="w-25 h-25 p-2"
+              onClick={calculateLectureRequirements}
+              disabled={loading}
             >
-              <Label
-                content={({ viewBox }) => {
-                  if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                    const attendanceColor = getAttendanceColor(totalAttendance);
-                    return (
-                      <text
-                        x={viewBox.cx}
-                        y={viewBox.cy}
-                        textAnchor="middle"
-                        dominantBaseline="middle"
-                      >
-                        <tspan
-                          x={viewBox.cx}
-                          y={viewBox.cy}
-                          fill={attendanceColor}
-                          className="text-4xl font-bold"
-                        >
-                          {totalAttendance}%
-                        </tspan>
-                        <tspan
-                          x={viewBox.cx}
-                          y={(viewBox.cy || 0) + 24}
-                          className="fill-muted-foreground"
-                        >
-                          Average
-                        </tspan>
-                      </text>
-                    );
-                  }
-                }}
-              />
-            </Pie>
-          </PieChart>
-        </ChartContainer>
-      </CardContent>
+              <ArrowBigLeftIcon className="!size-10 text-[#B080FF] drop-shadow-[0_0_6px_rgba(186,104,255,0.7)]"/>
+            </Button>
+            )}
+            <div className="rounded-xl shadow-[0_0_10px_2px_rgba(138,43,226,0.4)]">
+              <Button
+                variant={"outline"}
+                className="w-25 h-25 p-2"
+                onClick={calculateLectureRequirements}
+                disabled={loading}
+              >
+                {loading ? (
+                  <Loader className="!size-10 text-[#B080FF] animate-spin" />
+                ) : (
+                  <Bot className="!size-10 text-[#B080FF] drop-shadow-[0_0_6px_rgba(186,104,255,0.7)]" />
+                )}
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
 
-      <CardFooter className="flex-col gap-2 text-sm">
-        <div className="leading-none text-muted-foreground">
-          Showing overall attendance across subjects
-        </div>
-        
-      </CardFooter>
-    </Card>
-    {/* <Card className="relative h-full items-center dark:bg-white/10">
-      <CardHeader>
-        <CardTitle className="flex items-center">
-          {!isLoading 
-      ? <p>Tired Of Seeing The Graphs?Get AI insights by Clicking On The Icon Above</p> 
-      : <p>Data loaded successfully!</p>
-    }
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        {output && (
-          <pre className="mt-3 w-full p-3 bg-black/30 text-white rounded whitespace-pre-wrap border border-white/10">
-            {output}
-          </pre>
+        <CardContent className="flex-1 overflow-auto">
+          {showAISummary ? (
+            <div className="h-full p-4 rounded-lg">
+              {isLoading ? (
+                <div className="flex items-center justify-center h-full">
+                  <Loader className="h-8 w-8 animate-spin text-[#B080FF]" />
+                </div>
+              ) : output ? (
+                <div className="prose dark:prose-invert max-w-none">
+                  {output.split('\n').map((line, i) => (
+                    <p key={i} className="mb-2">
+                      {line || <br />}
+                    </p>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center text-muted-foreground py-8">
+                  No AI analysis available. Click the bot icon to generate insights.
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="flex flex-1 items-center justify-center h-full w-full p-4">
+              <ChartContainer
+                config={chartConfig}
+                className="w-full h-full flex items-center justify-center"
+              >
+                <PieChart width={400} height={400}>
+                  <ChartTooltip cursor={true} content={<ChartTooltipContent hideLabel />} />
+                  <Pie
+                    data={subjectAttendance}
+                    dataKey="attendance"
+                    nameKey="subject"
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={120}
+                    paddingAngle={1}
+                    strokeWidth={1}
+                  >
+                    <Label
+                      content={({ viewBox }) => {
+                        if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                          const attendanceColor = getAttendanceColor(totalAttendance);
+                          return (
+                            <text
+                              x={viewBox.cx}
+                              y={viewBox.cy}
+                              textAnchor="middle"
+                              dominantBaseline="middle"
+                            >
+                              <tspan
+                                x={viewBox.cx}
+                                y={viewBox.cy}
+                                fill={attendanceColor}
+                                className="text-4xl font-bold"
+                              >
+                                {totalAttendance}%
+                              </tspan>
+                              <tspan
+                                x={viewBox.cx}
+                                y={(viewBox.cy || 0) + 24}
+                                className="fill-muted-foreground"
+                              >
+                                Average
+                              </tspan>
+                            </text>
+                          );
+                        }
+                      }}
+                    />
+                  </Pie>
+                </PieChart>
+              </ChartContainer>
+            </div>
+          )}
+        </CardContent>
+
+        {!showAISummary && (
+          <CardFooter className="flex-col gap-2 text-sm">
+            <div className="leading-none text-muted-foreground">
+              Showing overall attendance across subjects. Click the bot icon for AI analysis.
+            </div>
+          </CardFooter>
         )}
-      </CardContent>
-    </Card> */}
+    </Card>
     </div>
     
   );
