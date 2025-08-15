@@ -72,7 +72,6 @@ export function AttendanceGraph() {
   const [loading, setLoading] = React.useState(false);
   const [output, setOutput] = React.useState("");
 
-  // Average for donut center
   const totalAttendance = React.useMemo(() => {
     return Math.round(
       subjectAttendance.reduce((acc, curr) => acc + curr.attendance, 0) /
@@ -86,7 +85,7 @@ export function AttendanceGraph() {
     return "green";
   };
 
-  // --- Helpers for risk & forecasting ---
+
   const rateFromRisk = (pct: number) => {
     if (pct < 60) return 0.6; // high risk
     if (pct < 75) return 0.8; // medium risk
@@ -113,7 +112,6 @@ export function AttendanceGraph() {
     return ceilNonNeg(x);
   };
 
-  // ---- Main action: compute plan + ask Groq to summarize ----
   const calculateLectureRequirements = async () => {
     setLoading(true);
     setOutput("");
@@ -122,7 +120,7 @@ export function AttendanceGraph() {
       const thresholdPct = 75;
       const p = thresholdPct / 100;
 
-      // Build per-subject plan
+      //subject plan
       const plans: SubjectPlan[] = subjects.map((s) => {
         const t = s.total ?? 0;
         const a = s.attended ?? 0;
@@ -146,13 +144,10 @@ export function AttendanceGraph() {
           feasibleAtRate: feasible
         };
       });
-
-      // Overall picture to steer the tone
       const overallAvg =
         plans.reduce((sum, p) => sum + p.currentAttendancePct, 0) /
         Math.max(1, plans.length);
 
-      // Prepare a compact JSON-like summary for the LLM
       const compact = plans
         .map((p) => {
           const line = `${p.subject} | now=${p.currentAttendancePct}% | risk=${p.risk}` +
@@ -196,7 +191,7 @@ ${compact}
   };
 
   return (
-    <Card className="flex h-full border border-none flex-col dark:bg-white/10 relative">
+    <Card className="flex h-2/3 border border-none flex-col dark:bg-white/10 relative">
       <CardHeader className="flex-row items-center justify-between space-y-0">
         <div>
           <CardTitle>Attendance Overview</CardTitle>
@@ -221,7 +216,7 @@ ${compact}
       <CardContent className="flex-1 items-center justify-center align-middle pb-0">
         <ChartContainer
           config={chartConfig}
-          className="mx-auto aspect-square max-h-[400px]"
+          className="mx-auto aspect-square max-h-[300px]"
         >
           <PieChart>
             <ChartTooltip cursor={true} content={<ChartTooltipContent hideLabel />} />
@@ -229,8 +224,8 @@ ${compact}
               data={subjectAttendance}
               dataKey="attendance"
               nameKey="subject"
-              innerRadius={80}
-              strokeWidth={10}
+              innerRadius={60}
+              strokeWidth={1}
             >
               <Label
                 content={({ viewBox }) => {
