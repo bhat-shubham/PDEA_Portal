@@ -191,7 +191,8 @@ ${compact}
   };
 
   return (
-    <Card className="flex h-2/3 border border-none flex-col dark:bg-white/10 relative">
+    <div className="flex flex-col gap-5">
+    <Card className="flex h-3/5 border border-none flex-col dark:bg-white/10 relative">
       <CardHeader className="flex-row items-center justify-between space-y-0">
         <div>
           <CardTitle>Attendance Overview</CardTitle>
@@ -213,10 +214,10 @@ ${compact}
         </div>
       </CardHeader>
 
-      <CardContent className="flex-1 items-center justify-center align-middle pb-0">
+      <CardContent className="flex-1 items-center justify-center align-middle max-h-fit">
         <ChartContainer
           config={chartConfig}
-          className="mx-auto aspect-square max-h-[300px]"
+          className="mx-auto  max-h-[215px]"
         >
           <PieChart>
             <ChartTooltip cursor={true} content={<ChartTooltipContent hideLabel />} />
@@ -224,7 +225,7 @@ ${compact}
               data={subjectAttendance}
               dataKey="attendance"
               nameKey="subject"
-              innerRadius={60}
+              innerRadius={50}
               strokeWidth={1}
             >
               <Label
@@ -267,12 +268,25 @@ ${compact}
         <div className="leading-none text-muted-foreground">
           Showing overall attendance across subjects
         </div>
+        
+      </CardFooter>
+    </Card>
+    <Card className="relative h-2/5 items-center dark:bg-white/10">
+      <CardHeader>
+        <CardTitle className="flex items-center">
+          {/* <Bell className="mr-2 h-5 w-5" /> */}
+          AI Output
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
         {output && (
           <pre className="mt-3 w-full p-3 bg-black/30 text-white rounded whitespace-pre-wrap border border-white/10">
             {output}
           </pre>
         )}
-      </CardFooter>
+      </CardContent>
     </Card>
+    </div>
+    
   );
 }
