@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-require-imports */
 
 // import  bcrypt from 'bcrypt';
@@ -144,7 +145,6 @@ const createClass = async (req, res) => {
   for (let i = 0; i < codeLength; i++) {
     codeString += Math.floor(Math.random() * 10).toString();
   }
-  console.log("Generated class code:", codeString);
 
   const newClass = new Class({
     name,
@@ -163,16 +163,38 @@ const getClasses = async (req, res) => {
     if (!classes || classes.length === 0) {
       return res.status(404).json({ message: "No classes found." });
     }
+    console.log("Fetched classes:", classes);
     res.status(200).json({
       message: "Classes fetched successfully.",
       classes: classes.map((cls) => ({
         id: cls._id,
         name: cls.name,
         subject: cls.subject,
+        class_code: cls.class_code,
       })),
     });
   } catch (error) {
     console.error("[GET CLASSES ERROR]", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+const deleteClass = async (req, res) => {
+  const classId = req.params.classId;
+  console.log("Deleting class with ID:", classId);
+
+  try {
+    const deletedClass = await Class.findByIdAndDelete(classId);
+    if (!deletedClass) {
+      return res.status(404).json({ message: "Class not found." });
+    } else {
+      console.log("Deleted class:", deletedClass);
+      res
+        .status(200)
+        .json({ message: "Class deleted successfully.", class: deletedClass });
+    }
+  } catch (error) {
+    console.error("[DELETE CLASS ERROR]", error);
     res.status(500).json({ message: "Internal server error." });
   }
 };
@@ -184,4 +206,5 @@ module.exports = {
   teacherDetails,
   createClass,
   getClasses,
+  deleteClass,
 };
