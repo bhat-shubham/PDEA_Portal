@@ -9,7 +9,7 @@ const notifications = [
 
 export function Notifications() {
   return (
-    <Card className="relative h-full items-center dark:bg-white/10">
+    <Card className="relative h-full border border-none items-center dark:bg-white/10">
       <CardHeader>
         <CardTitle className="flex items-center">
           <Bell className="mr-2 h-5 w-5" />

@@ -8,35 +8,20 @@ import { AttendanceGraph } from "./attendence-graph"
 
 export default function Dashboard() {
   return (
-    <div className="min-h-screen w-full relative">
-  {/* Cosmic Aurora */}
-  <div
-    className="absolute inset-0"
-    style={{
-      backgroundImage: `
-        radial-gradient(ellipse at 20% 30%, rgba(56, 189, 248, 0.4) 0%, transparent 60%),
-        radial-gradient(ellipse at 80% 70%, rgba(139, 92, 246, 0.3) 0%, transparent 70%),
-        radial-gradient(ellipse at 60% 20%, rgba(236, 72, 153, 0.25) 0%, transparent 50%),
-        radial-gradient(ellipse at 40% 80%, rgba(34, 197, 94, 0.2) 0%, transparent 65%)
-      `,
-    }}
-  />
-    <div className="flex z-[999] h-screen">
-      <StudentSidebar />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <StudentHeader />
-        <main className="flex-1 h-full overflow-x-hidden overflow-y-auto p-6">
-          <div className="flex justify- gap-3 w-full h-full">
-            <div className="w-1/2 h-full">
+    <div className="h-full flex flex-col">
+      <StudentHeader />
+      <main className="flex-1 p-6 overflow-hidden">
+          <div className="grid grid-cols-2 gap-6 h-full">
+            <div className="h-full">
               <AttendanceGraph />
             </div>
-            <div className="w-1/2 flex flex-col gap-5">
-            <div className="h-3/5">
-              <SubjectAttendance />
-            </div>
-            <div className="h-full">
-              <Notifications/>
-            </div>
+            <div className="flex flex-col gap-6 h-full">
+              <div className="h-[60%]">
+                <SubjectAttendance />
+              </div>
+              <div className="h-[40%]">
+                <Notifications/>
+              </div>
             </div>
             {/* <div className="lg:col-span-2">
               <Timetable />
@@ -48,9 +33,7 @@ export default function Dashboard() {
               <LatestResults />
             </div> */}
           </div>
-        </main>
-      </div>
-    </div>
+      </main>
     </div>
   )
 }

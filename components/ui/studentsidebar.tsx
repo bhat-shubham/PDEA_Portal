@@ -101,7 +101,7 @@ export function StudentSidebar() {
                 className="w-full justify-start"
                 asChild
               >
-                <Link href="/admin/dashboard">
+                <Link href="/student/dashboard">
                   <Home className="mr-3 h-5 w-5" />
                   Dashboard
                 </Link>
@@ -112,7 +112,7 @@ export function StudentSidebar() {
                 className="w-full justify-start"
                 asChild
               >
-                <Link href="/admin/dashboard/notices">
+                <Link href="/student/dashboard/notices">
                   <Megaphone className="mr-3 h-5 w-5" />
                   Notices
                 </Link>

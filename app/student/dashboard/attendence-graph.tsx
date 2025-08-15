@@ -206,7 +206,7 @@ ${compact}
 
   return (
     <div className="h-full">
-      <Card className="flex h-full border flex-col dark:bg-white/10 relative">
+      <Card className="flex h-full border border-none flex-col dark:bg-white/10 relative">
         <CardHeader className="flex-row items-center justify-between space-y-0">
           <div>
             <CardTitle>

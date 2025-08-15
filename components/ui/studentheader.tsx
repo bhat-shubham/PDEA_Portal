@@ -64,18 +64,18 @@ export function StudentHeader() {
     }
   };
 
-  useEffect(() => {
-    const fetchAdmin = async () => {
-      const data = await adminProfile();
-      if (data) {
-        setStudent(data.admin);
-      } else {
-        console.error("Failed to fetch teacher profile");
-      }
-    };
+  // useEffect(() => {
+  //   const fetchAdmin = async () => {
+  //     const data = await adminProfile();
+  //     if (data) {
+  //       setStudent(data.admin);
+  //     } else {
+  //       console.error("Failed to fetch teacher profile");
+  //     }
+  //   };
 
-    fetchAdmin();
-  }, []);
+  //   fetchAdmin();
+  // }, []);
 
   return (
     <header className="lg:relative lg:bg-transparent bg-[#0F131F] z-10 sticky top-0 border-b p-4 lg:p-6 flex items-center justify-between">
