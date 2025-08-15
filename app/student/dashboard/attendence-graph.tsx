@@ -186,7 +186,6 @@ ${compact}
           { role: "user", content: prompt }
         ],
         temperature: 0.4,
-        max_tokens: 300
       });
 
       const content =
@@ -255,7 +254,7 @@ ${compact}
               ) : output ? (
                 <div className="prose dark:prose-invert max-w-none">
                   {output.split('\n').map((line, i) => (
-                    <p key={i} className="mb-2">
+                    <p key={i} className="font-figtree">
                       {line || <br />}
                     </p>
                   ))}
@@ -326,7 +325,7 @@ ${compact}
         {!showAISummary && (
           <CardFooter className="flex-col gap-2 text-sm">
             <div className="leading-none text-muted-foreground">
-              Showing overall attendance across subjects. Click the bot icon for AI analysis.
+              Graphs are cool, but gossip about your attendance is cooler, click the bot icon.
             </div>
           </CardFooter>
         )}
