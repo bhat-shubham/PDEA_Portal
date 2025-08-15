@@ -20,6 +20,7 @@ import {
 } from "../../../components/ui/chart";
 import { subjects } from "./subject-attendence";
 import Groq from "groq-sdk";
+import { set } from "date-fns";
 
 // ---- Types ----
 type Subject = {
@@ -71,6 +72,7 @@ const groq = new Groq({
 export function AttendanceGraph() {
   const [loading, setLoading] = React.useState(false);
   const [output, setOutput] = React.useState("");
+  const [isLoading,setisLoading] = React.useState(false);
 
   const totalAttendance = React.useMemo(() => {
     return Math.round(
@@ -114,6 +116,7 @@ export function AttendanceGraph() {
 
   const calculateLectureRequirements = async () => {
     setLoading(true);
+    setisLoading(true);
     setOutput("");
 
     try {
@@ -187,12 +190,13 @@ ${compact}
       setOutput("AI planning error. Please try again.");
     } finally {
       setLoading(false);
+      setisLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-col gap-5">
-    <Card className="flex h-3/5 border border-none flex-col dark:bg-white/10 relative">
+    <div className="h-full">
+    <Card className="flex h-full border flex-col dark:bg-white/10 relative">
       <CardHeader className="flex-row items-center justify-between space-y-0">
         <div>
           <CardTitle>Attendance Overview</CardTitle>
@@ -214,10 +218,10 @@ ${compact}
         </div>
       </CardHeader>
 
-      <CardContent className="flex-1 items-center justify-center align-middle max-h-fit">
+      <CardContent className="flex flex-1 items-center justify-center align-middle">
         <ChartContainer
           config={chartConfig}
-          className="mx-auto  max-h-[215px]"
+          className="flex items-center "
         >
           <PieChart>
             <ChartTooltip cursor={true} content={<ChartTooltipContent hideLabel />} />
@@ -225,7 +229,7 @@ ${compact}
               data={subjectAttendance}
               dataKey="attendance"
               nameKey="subject"
-              innerRadius={50}
+              innerRadius={60}
               strokeWidth={1}
             >
               <Label
@@ -271,11 +275,13 @@ ${compact}
         
       </CardFooter>
     </Card>
-    <Card className="relative h-2/5 items-center dark:bg-white/10">
+    {/* <Card className="relative h-full items-center dark:bg-white/10">
       <CardHeader>
         <CardTitle className="flex items-center">
-          {/* <Bell className="mr-2 h-5 w-5" /> */}
-          AI Output
+          {!isLoading 
+      ? <p>Tired Of Seeing The Graphs?Get AI insights by Clicking On The Icon Above</p> 
+      : <p>Data loaded successfully!</p>
+    }
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -285,7 +291,7 @@ ${compact}
           </pre>
         )}
       </CardContent>
-    </Card>
+    </Card> */}
     </div>
     
   );
