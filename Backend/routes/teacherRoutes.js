@@ -6,7 +6,9 @@ const {
   teacherLogin,
   teacherLogout,
   teacherDetails,
-  createClass,getClasses
+  createClass,
+  getClasses,
+  deleteClass,
 } = require("../controllers/teachercontroller");
 const auth = require("../middleware/auth");
 
@@ -15,6 +17,7 @@ route.post("/login", teacherLogin);
 route.post("/logout", teacherLogout);
 route.get("/info", auth, teacherDetails);
 route.post("/class", auth, createClass);
-route.get("/getClass", auth ,getClasses)
+route.get("/getClass", auth, getClasses);
+route.delete("/deleteClass/:classId", auth, deleteClass);
 
 module.exports = route;
