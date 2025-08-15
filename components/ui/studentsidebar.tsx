@@ -112,17 +112,6 @@ export function StudentSidebar() {
                 className="w-full justify-start"
                 asChild
               >
-                <Link href="/admin/dashboard/teachers">
-                  <GraduationCap className="mr-3 h-5 w-5" />
-                  Teachers
-                </Link>
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={handleLinkClick}
-                className="w-full justify-start"
-                asChild
-              >
                 <Link href="/admin/dashboard/notices">
                   <Megaphone className="mr-3 h-5 w-5" />
                   Notices

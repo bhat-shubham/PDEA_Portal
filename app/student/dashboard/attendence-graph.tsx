@@ -1,60 +1,83 @@
 "use client";
-import { Button, buttonVariants } from "../../../components/ui/button";
+
+import { Button } from "../../../components/ui/button";
 import * as React from "react";
 import { Label, Pie, PieChart } from "recharts";
 import { Bot, Loader } from "lucide-react";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../../../components/ui/card";
-import { 
-  ChartConfig, 
-  ChartContainer, 
-  ChartTooltip, 
-  ChartTooltipContent 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from "../../../components/ui/card";
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent
 } from "../../../components/ui/chart";
-import { subjects, calculateAttendance } from "./subject-attendence";
-import { HfInference } from "@huggingface/inference";
+import { subjects } from "./subject-attendence";
+import Groq from "groq-sdk";
 
-// Define Subject type with totalLectures
+// ---- Types ----
 type Subject = {
   name: string;
-  attendance: number;
-  totalLectures?: number;
-  attended?: number;
-  total?: number;
-}
+  attendance: number;   // percentage snapshot used for the chart
+  attended?: number;    // total attended sessions
+  total?: number;       // total conducted sessions
+};
 
-// Convert subjects to pie chart format with original color scheme
-const subjectAttendance = subjects.map(subject => ({
-  subject: subject.name, 
-  attendance: subject.attendance, 
-  fill: subject.name === "TOC" 
-    ? "hsl(214, 84%, 56%)"  // Bright Blue for TOC
-    : subject.name === "BCN" 
-    ? "hsl(142, 11%, 45%)"  // Green for BCN
-    : subject.name === "Internship" 
-    ? "hsl(0, 84%, 70%)"    // Red for Internship
-    : subject.name === "CyberSecurity" 
-    ? "hsl(270, 67%, 58%)"  // Purple for CyberSecurity
-    : "hsl(35, 91%, 59%)"   // Orange for WAD
+type SubjectPlan = {
+  subject: string;
+  currentAttendancePct: number; // 0-100
+  risk: "HIGH" | "MEDIUM" | "LOW";
+  rateAssumption: number;       // r in [0..1]
+  neededAt75IfAttendAll: number; // number of lectures needed if r=1
+  neededAt75AtRate?: number;    // number at rate r (if feasible), else undefined
+  feasibleAtRate: boolean;
+};
+
+// ---- Chart prep (unchanged palette) ----
+const subjectAttendance = subjects.map((subject) => ({
+  subject: subject.name,
+  attendance: subject.attendance,
+  fill:
+    subject.name === "TOC"
+      ? "hsl(214, 84%, 56%)"
+      : subject.name === "BCN"
+      ? "hsl(142, 11%, 45%)"
+      : subject.name === "Internship"
+      ? "hsl(0, 84%, 70%)"
+      : subject.name === "CyberSecurity"
+      ? "hsl(270, 67%, 58%)"
+      : "hsl(35, 91%, 59%)"
 }));
 
-// Chart configuration
 const chartConfig = {
   attendance: { label: "Attendance" },
   toc: { label: "TOC", color: "hsl(214, 84%, 56%)" },
   bcn: { label: "BCN", color: "hsl(142, 71%, 45%)" },
   internship: { label: "Internship", color: "hsl(0, 84%, 60%)" },
   cybersecurity: { label: "CyberSecurity", color: "hsl(270, 67%, 58%)" },
-  wad: { label: "WAD", color: "hsl(35, 91%, 59%)" },
+  wad: { label: "WAD", color: "hsl(35, 91%, 59%)" }
 } satisfies ChartConfig;
+
+const groq = new Groq({
+  apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY!,dangerouslyAllowBrowser: true
+});
 
 export function AttendanceGraph() {
   const [loading, setLoading] = React.useState(false);
-  const [aiResult, setAiResult] = React.useState("");
-  const [result, setResult] = React.useState("");
+  const [output, setOutput] = React.useState("");
 
-  // Calculate total and average attendance
+  // Average for donut center
   const totalAttendance = React.useMemo(() => {
-    return Math.round(subjectAttendance.reduce((acc, curr) => acc + curr.attendance, 0) / subjectAttendance.length);
+    return Math.round(
+      subjectAttendance.reduce((acc, curr) => acc + curr.attendance, 0) /
+        subjectAttendance.length
+    );
   }, []);
 
   const getAttendanceColor = (attendance: number) => {
@@ -63,100 +86,110 @@ export function AttendanceGraph() {
     return "green";
   };
 
+  // --- Helpers for risk & forecasting ---
+  const rateFromRisk = (pct: number) => {
+    if (pct < 60) return 0.6; // high risk
+    if (pct < 75) return 0.8; // medium risk
+    return 0.95;              // low risk
+  };
+
+  const ceilNonNeg = (x: number) => Math.max(0, Math.ceil(x));
+
+  // Minimum x such that (a + x)/(t + x) >= p  -> x >= (p*t - a) / (1 - p)
+  const neededIfAttendAll = (a: number, t: number, p: number) => {
+    if (t <= 0) return 0;
+    const num = p * t - a;
+    const den = 1 - p;
+    if (den <= 0) return 0;
+    return ceilNonNeg(num / den);
+    // If already at/above p, this returns <=0, which we clamp to 0
+  };
+
+  // Minimum x such that (a + r*x)/(t + x) >= p  -> x >= (p*t - a) / (r - p), requires r>p
+  const neededAtRate = (a: number, t: number, p: number, r: number) => {
+    if (t <= 0) return 0;
+    if (r <= p) return undefined; // not feasible at current consistency
+    const x = (p * t - a) / (r - p);
+    return ceilNonNeg(x);
+  };
+
+  // ---- Main action: compute plan + ask Groq to summarize ----
   const calculateLectureRequirements = async () => {
     setLoading(true);
-    setAiResult("");
+    setOutput("");
 
     try {
-      // Detailed attendance calculation
-      const lecturesToAttend = subjects.map((subject: Subject) => {
-        const currentAttendedLectures = subject.attended || 0; 
-        const totalLectures = subject.total || 0; 
-        const requiredAttendance = 75; // Standard minimum attendance
+      const thresholdPct = 75;
+      const p = thresholdPct / 100;
 
-        // Prevent division by zero and ensure correct percentage calculation
-        const currentAttendance = totalLectures > 0 
-          ? Math.round((currentAttendedLectures / totalLectures) * 100) 
-          : 0;
-        
-        const requiredLectures = totalLectures > 0
-          ? Math.max(0, Math.ceil(
-              (requiredAttendance * totalLectures / 100) - currentAttendedLectures
-            ))
-          : 0;
+      // Build per-subject plan
+      const plans: SubjectPlan[] = subjects.map((s) => {
+        const t = s.total ?? 0;
+        const a = s.attended ?? 0;
+
+        const currentPct = t > 0 ? Math.round((a / t) * 100) : 0;
+        const risk: SubjectPlan["risk"] =
+          currentPct < 60 ? "HIGH" : currentPct < thresholdPct ? "MEDIUM" : "LOW";
+        const r = rateFromRisk(currentPct);
+
+        const xAll = neededIfAttendAll(a, t, p);
+        const xRate = neededAtRate(a, t, p, r);
+        const feasible = xRate !== undefined;
 
         return {
-          subject: subject.name,
-          currentAttendance,
-          requiredLectures
+          subject: s.name,
+          currentAttendancePct: currentPct,
+          risk,
+          rateAssumption: r,
+          neededAt75IfAttendAll: xAll,
+          neededAt75AtRate: xRate,
+          feasibleAtRate: feasible
         };
       });
 
-      // Calculate average attendance
-      const averageAttendance = lecturesToAttend.length > 0
-        ? lecturesToAttend.reduce((sum, item) => sum + item.currentAttendance, 0) / lecturesToAttend.length
-        : 0;
+      // Overall picture to steer the tone
+      const overallAvg =
+        plans.reduce((sum, p) => sum + p.currentAttendancePct, 0) /
+        Math.max(1, plans.length);
 
-      // Prepare subject recommendations
-      const subjectRecommendations = lecturesToAttend.map((item, index) => 
-        `${index + 1}. ${item.subject}: ${item.requiredLectures} more lectures needed`
-      ).join('\n');
+      // Prepare a compact JSON-like summary for the LLM
+      const compact = plans
+        .map((p) => {
+          const line = `${p.subject} | now=${p.currentAttendancePct}% | risk=${p.risk}` +
+            ` | r=${Math.round(p.rateAssumption * 100)}%` +
+            ` | need@1.0=${p.neededAt75IfAttendAll}` +
+            ` | need@r=${p.neededAt75AtRate ?? "N/A"}`;
+          return line;
+        })
+        .join("\n");
+      const prompt = `
+${process.env.NEXT_PUBLIC_ATTENDANCE_PROMPT!.trim()}
 
-      // Prepare prompt based on average attendance
-      const prompt = averageAttendance > 75 
-        ? `Output only this exact message without adding anything else:
-           "Your overall attendance is excellent at ${averageAttendance.toFixed(2)}%. 
-            Keep up the great work! Consistent attendance is key to academic success." 
-           Include one short motivational quote on consistency. 
-           Do not bold any words, do not add any extra text, and do not respond like a chatbot.`
-        : `Output only this exact format without adding anything else:
-           Detailed Attendance Analysis:
-           Overall Attendance: ${averageAttendance.toFixed(2)}%
+Context: 
+- Threshold: ${thresholdPct}%
+- Overall average: ${overallAvg.toFixed(2)}%
+- Per-subject snapshot:
+${compact}
+`.trim();
 
-           Recommendations for each subject to reach 75% attendance:
-           ${subjectRecommendations}
-           
-           Focus on these subjects to improve your overall attendance.
-           Do not bold any words, do not add extra text, and do not respond like a chatbot.`;
+      const completion = await groq.chat.completions.create({
+        model: "llama3-70b-8192",
+        messages: [
+          { role: "system", content: "You are a crisp, pragmatic academic advisor." },
+          { role: "user", content: prompt }
+        ],
+        temperature: 0.4,
+        max_tokens: 300
+      });
 
-      try {
-        const response = await fetch('/api/huggingface', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            messages: [{ role: "user", content: prompt }],
-            max_tokens: 250
-          })
-        });
+      const content =
+        completion.choices?.[0]?.message?.content?.trim() ||
+        "Unable to generate a plan.";
 
-        // Log the full response for debugging
-        console.log('Full API Response:', response);
-
-        if (!response.ok) {
-          // Try to get more details about the error
-          const errorBody = await response.text();
-          console.error('API Error Response Body:', errorBody);
-          throw new Error(`Failed to fetch AI response. Status: ${response.status}, Body: ${errorBody}`);
-        }
-
-        const data = await response.json();
-        console.log('Parsed Response Data:', data);
-        
-        // Safely access the message content
-        const aiMessage = data.choices && data.choices[0] && data.choices[0].message 
-          ? data.choices[0].message.content 
-          : "Unable to generate analysis.";
-        
-        setAiResult(aiMessage);
-      } catch (aiError) {
-        console.error("Detailed AI Error:", aiError);
-        setAiResult(aiError instanceof Error ? `AI Error: ${aiError.message}` : "Unexpected error in AI analysis");
-      }
-    } catch (error) {
-      console.error("Comprehensive Error:", error);
-      setAiResult("Error generating lecture attendance analysis.");
+      setOutput(content);
+    } catch (err) {
+      console.error("AI planning error:", err);
+      setOutput("AI planning error. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -170,22 +203,21 @@ export function AttendanceGraph() {
           <CardDescription>Semester Performance</CardDescription>
         </div>
         <div className="rounded-xl shadow-[0_0_10px_2px_rgba(138,43,226,0.4)]">
-          <Button 
-            variant={"outline"} 
+          <Button
+            variant={"outline"}
             className="w-25 h-25 p-2"
             onClick={calculateLectureRequirements}
             disabled={loading}
           >
             {loading ? (
-              <Loader className="!size-10 text-[#B080FF] animate-spin"/>
+              <Loader className="!size-10 text-[#B080FF] animate-spin" />
             ) : (
-              <Bot className="!size-10 text-[#B080FF] drop-shadow-[0_0_6px_rgba(186,104,255,0.7)]"/>
+              <Bot className="!size-10 text-[#B080FF] drop-shadow-[0_0_6px_rgba(186,104,255,0.7)]" />
             )}
           </Button>
         </div>
-        
       </CardHeader>
-      
+
       <CardContent className="flex-1 items-center justify-center align-middle pb-0">
         <ChartContainer
           config={chartConfig}
@@ -205,11 +237,25 @@ export function AttendanceGraph() {
                   if (viewBox && "cx" in viewBox && "cy" in viewBox) {
                     const attendanceColor = getAttendanceColor(totalAttendance);
                     return (
-                      <text x={viewBox.cx} y={viewBox.cy} textAnchor="middle" dominantBaseline="middle">
-                        <tspan x={viewBox.cx} y={viewBox.cy} fill={attendanceColor} className="text-4xl font-bold">
+                      <text
+                        x={viewBox.cx}
+                        y={viewBox.cy}
+                        textAnchor="middle"
+                        dominantBaseline="middle"
+                      >
+                        <tspan
+                          x={viewBox.cx}
+                          y={viewBox.cy}
+                          fill={attendanceColor}
+                          className="text-4xl font-bold"
+                        >
                           {totalAttendance}%
                         </tspan>
-                        <tspan x={viewBox.cx} y={(viewBox.cy || 0) + 24} className="fill-muted-foreground">
+                        <tspan
+                          x={viewBox.cx}
+                          y={(viewBox.cy || 0) + 24}
+                          className="fill-muted-foreground"
+                        >
                           Average
                         </tspan>
                       </text>
@@ -221,18 +267,17 @@ export function AttendanceGraph() {
           </PieChart>
         </ChartContainer>
       </CardContent>
-      
+
       <CardFooter className="flex-col gap-2 text-sm">
         <div className="leading-none text-muted-foreground">
           Showing overall attendance across subjects
         </div>
+        {output && (
+          <pre className="mt-3 w-full p-3 bg-black/30 text-white rounded whitespace-pre-wrap border border-white/10">
+            {output}
+          </pre>
+        )}
       </CardFooter>
-
-      {aiResult && (
-        <div className="mt-4 p-3 bg-muted rounded-lg">
-          <p className="text-sm">{aiResult}</p>
-        </div>
-      )}
     </Card>
   );
 }
