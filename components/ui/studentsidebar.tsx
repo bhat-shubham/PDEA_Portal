@@ -141,7 +141,7 @@ export function StudentSidebar() {
                 onClick={() => { setShowProfile(true); handleLinkClick(); }}
                 asChild
               >
-                <Link href="/admin/dashboard/profile">
+                <Link href="/student/dashboard/profile">
                   <User className="mr-3 h-5 w-5" />
                   Profile
                 </Link>
