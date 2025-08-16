@@ -51,7 +51,7 @@ export function StudentSidebar() {
 
       setTimeout(() => {
         // window.location.href = "/teacher/login";
-        router.push("/teacher/login");
+        router.push("/student/login");
       }, 1500);
     } else {
       toast.error("Logout failed");
