@@ -1,6 +1,7 @@
 "use client";
 
 import { Header } from "@/components/ui/teacherheader";
+import { useRouter } from "next/navigation";
 import { CiCirclePlus } from "react-icons/ci";
 import { useEffect, useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -13,8 +14,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Clipboard,
-  Check,
   CircleAlert,
   ChevronsRight,
   ChevronsLeft,
@@ -22,24 +21,22 @@ import {
   PencilLine,
   Trash2,
 } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-  TooltipProvider,
-} from "@/components/ui/tooltip";
+// import {
+//   Tooltip,
+//   TooltipContent,
+//   TooltipTrigger,
+//   TooltipProvider,
+// } from "@/components/ui/tooltip";
 import { teacherClass } from "@/app/lib/teacherClass";
 import React from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { set } from "date-fns";
+// import { set } from "date-fns";
 export default function Dashboard() {
   const [classes, setClasses] = useState<ClassType[]>([]);
   const [selectedClass, setSelectedClass] = useState<string | null>(null);
@@ -60,6 +57,7 @@ export default function Dashboard() {
   });
 
   type ClassType = {
+    _id: string;
     id: string;
     name: string;
     subject: number;
@@ -72,8 +70,10 @@ export default function Dashboard() {
     try {
       const data = await teacherClass("GET", "getClass");
       console.log("Fetched classes:", data);
-      if (data?.classes) {
-        setClasses(data.classes); // ensure you replace array
+      if (data?.classes && Array.isArray(data.classes)) {
+        setClasses(data.classes as ClassType[]);
+      } else {
+        console.log("No classes found");
       }
     } catch (error) {
       console.error("Error fetching classes:", error);
@@ -81,22 +81,43 @@ export default function Dashboard() {
   };
 
   const createClass = async () => {
-    const data = await teacherClass("POST", "class", newClass);
-    if (data?.message === "Class created") {
-      setClasses((prev) => [...prev, data.class]);
-      setShowAddClass(false);
-      setNewClass({ name: "", subject: "" });
+    try {
+      const data = await teacherClass("POST", "class", newClass);
+
+      if (data?.message === "Class created" && data?.class) {
+        setClasses((prev) => [...prev, data.class]);
+
+        // Reset form
+        setShowAddClass(false);
+        setNewClass({ name: "", subject: "" });
+
+        console.log("Class created successfully:", data.class);
+      } else {
+        console.error("Failed to create class:", data);
+      }
+    } catch (err) {
+      console.error("Error creating class:", err);
     }
   };
-
   const deleteClass = async (classId: string) => {
     try {
       const res = await teacherClass("DELETE", `deleteClass/${classId}`);
-      if (res?.success) {
-        await fetchClasses(); // wait for DB response
+
+      if (res?.message === "Class deleted successfully.") {
+        // Remove from UI instantly
+        setClasses((prev) =>
+          prev.filter((cls) => cls._id !== classId && cls.id !== classId)
+        );
+
+        console.log("Class deleted successfully:", classId);
+
+        // Optional: refresh list to stay 100% in sync
+        // await fetchClasses();
+      } else {
+        console.error("Failed to delete class:", res);
       }
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error("Error deleting class:", err);
     }
   };
 
@@ -123,6 +144,7 @@ export default function Dashboard() {
   const handleDialogConfirm = () => {
     if (confirmationDialog.type === "delete" && confirmationDialog.classId) {
       deleteClass(confirmationDialog.classId);
+      console.log("Deleted class:", confirmationDialog.classId);
     }
     setConfirmationDialog({
       isOpen: false,
@@ -146,8 +168,14 @@ export default function Dashboard() {
   };
 
   const handleAddClass = () => {
+    if (!newClass.name.trim() || !newClass.subject.trim()) {
+      console.error("Class name and subject are required");
+      return;
+    }
+
     console.log("Adding new class:", newClass);
     createClass();
+    window.__REACT_LOADABLE_MANIFEST();
   };
 
   // --- ATTENDANCE ACTIONS ---
@@ -252,10 +280,7 @@ export default function Dashboard() {
                       <span className="sr-only">Subject</span>
                       Subject: <span className="text-white">{cls.subject}</span>
                     </p>
-                    <p className="text-sm md:text-base text-gray-300">
-                      <span className="sr-only">Aggregate Attendance:</span>
-                      Strength <span className="text-white">{cls.count}</span>
-                    </p>
+
                     <p className="text-sm md:text-base text-gray-300">
                       <span className="sr-only">class_code:</span>
                       class_code:
