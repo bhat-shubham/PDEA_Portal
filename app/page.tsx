@@ -18,8 +18,8 @@ export default function Home() {
         />
       </div>
 
-      <div className="absolute inset-0 z-10 flex items-center justify-center">
-        <div className="w-3/4 h-4/5 flex p-5 rounded-3xl bg-[#699fa20d] backdrop-blur-md overflow-hidden">
+      <div className="absolute inset-0 z-10 flex md:p-0 p-5 items-center justify-center">
+        <div className="md:w-3/4 md:p-5 w-full h-4/5 flex rounded-3xl bg-[#699fa20d] backdrop-blur-md overflow-hidden">
           <div className="w-1/2 hidden md:flex overflow-hidden rounded-3xl items-center justify-center h-full">
             <ImageGallery/>
           </div>

@@ -81,7 +81,7 @@ function CustomProgressBar({ value, attended, total }: { value: number; attended
 
 export function SubjectAttendance() {
   return (
-    <Card className="h-full w-full relative dark:bg-white/10">
+    <Card className="h-full w-full border border-none relative dark:bg-white/10">
       <CardHeader>
         <CardTitle>Subject-wise Attendance</CardTitle>
       </CardHeader>

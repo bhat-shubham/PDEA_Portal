@@ -8,7 +8,9 @@ import { teacherLogin } from "@/app/lib/teacherLogin";
 import { useRouter } from "next/navigation";
 import ImageGallery from "@/components/ui/image-gallery";
 import { useForm } from "react-hook-form";
-
+import { Button } from "@/components/ui/button";
+import { PiStudent } from "react-icons/pi";
+import { GrUserAdmin } from "react-icons/gr";
 type FormData = {
   email: string;
   password: string;
@@ -46,7 +48,7 @@ export default function Home() {
         amplitude={1.5}
         speed={0.5}
       />
-      <div className="font-figtree absolute w-3/4 z-20 backdrop-blur-md flex p-5 h-4/5 align-middle items-center rounded-3xl bg-[#6a69691e] overflow-hidden">
+      <div className="font-figtree absolute md:w-3/4 w-5/6 z-20 backdrop-blur-md flex md:p-5 md:h-4/5 md:py-0 py-10 align-middle items-center rounded-3xl bg-[#6a69691e] overflow-hidden">
         <div className="w-1/2 hidden md:flex overflow-hidden rounded-3xl items-center justify-center h-full">
           <ImageGallery />
         </div>
@@ -94,9 +96,25 @@ export default function Home() {
                 type="submit"
                 value="Login"
               />
-              <div className="text-center flex mt-5 flex-col gap-2 text-lg text-blue-500 font-figtree">
-                <Link href="/">Click Here To Go Back To Student Login</Link>
-                <Link href="/admin/login">Click Here For Admin Login</Link>
+              <div className="text-center flex mt-5 md:gap-20 gap-2 text-lg text-blue-500 font-figtree">
+                <Link href="/">
+                      <Button
+                      variant="outline"
+                      className="w-full justify-center bg-[#443379] text-white"
+                    >
+                      <PiStudent className="mr-1 h-4 w-4" />
+                      Student Login
+                    </Button>
+                    </Link>
+                    <Link href="/admin/login">
+                      <Button
+                      variant="outline"
+                      className="w-full justify-center bg-[#443379] text-white"
+                    >
+                      <GrUserAdmin className="mr-1 h-4 w-4" />
+                      Admin Login
+                    </Button>
+                    </Link>
               </div>
             </form>
           </div>
