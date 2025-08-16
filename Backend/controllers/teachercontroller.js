@@ -154,7 +154,16 @@ const createClass = async (req, res) => {
   });
 
   await newClass.save();
-  res.status(201).json({ message: "Class created", class: newClass });
+  // res.status(201).json({ message: "Class created", class: newClass });
+  res.status(201).json({
+    message: "Class creat",
+    class: {
+      id: newClass._id.toString(),
+      name: newClass.name,
+      subject: newClass.subject,
+      class_code: newClass.class_code,
+    },
+  });
 };
 
 const getClasses = async (req, res) => {
@@ -167,7 +176,7 @@ const getClasses = async (req, res) => {
     res.status(200).json({
       message: "Classes fetched successfully.",
       classes: classes.map((cls) => ({
-        id: cls._id,
+        id: cls._id.toString(),
         name: cls.name,
         subject: cls.subject,
         class_code: cls.class_code,
