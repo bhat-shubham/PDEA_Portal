@@ -10,9 +10,8 @@ export default async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
   const token = req.cookies.get("token")?.value;
 
-  let user: { email: string; role: string; exp?: number } | null = null;
+  let user: { email: string; role: string; exp?: number };
 
-  // ✅ Check if route is protected (not login/signup)
   const protectedRoutes = Object.values(roleRoutes).flat();
   const isProtectedRoute = protectedRoutes.some((route) =>
     path.startsWith(route)
@@ -22,8 +21,6 @@ export default async function middleware(req: NextRequest) {
 
   if (isProtectedRoute && !isAuthPage) {
     if (!token) {
-      // alert("You need to be logged in to access this page.");
-      // alert("You need to be logged in to access this page.");
       const res = NextResponse.redirect(new URL("/", req.url));
       res.cookies.set("flash", "unauthorized", { maxAge: 5 });
       return res;
@@ -41,12 +38,10 @@ export default async function middleware(req: NextRequest) {
       const data = await verifyRes.json();
 
       if (verifyRes.ok && data.message === "authorized") {
-        user = data.user; // { email, role }
+        user = data.user;
 
-        // ✅ Role-based protection
         const allowedRoutes = roleRoutes[user.role] || [];
         if (!allowedRoutes.some((route) => path.startsWith(route))) {
-          // User trying to access another role’s route
           return NextResponse.redirect(new URL("/", req.url));
         }
       } else {

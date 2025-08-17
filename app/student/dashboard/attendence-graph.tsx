@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { Button } from "../../../components/ui/button";
@@ -19,8 +20,8 @@ import {
   ChartTooltipContent,
 } from "../../../components/ui/chart";
 import { subjects } from "./subject-attendence";
-// import Groq from "groq-sdk";
-// import { set } from "date-fns";
+import Groq from "groq-sdk";
+
 
 // ---- Types ----
 type Subject = {
