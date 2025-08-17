@@ -5,17 +5,8 @@ import { AdminHeader } from "@/components/ui/adminheader"
 import AllClasses from "@/components/ui/classes";
 // import { CiCirclePlus } from "react-icons/ci";
 import { useState } from "react";
-// import {Checkbox } from "../../dashboard/ui/checkbox";
-// import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-// import { Input } from "@/app/dashboard/ui/input";
-// import { Label } from "@/app/dashboard/ui/label";
-// import { Clipboard, Check,CircleAlert,ChevronsRight, ChevronsLeft   } from 'lucide-react';
-// import {
-//   Tooltip,
-//   TooltipContent,
-//   TooltipTrigger,
-//   TooltipProvider
-// } from "@/components/ui/tooltip"
+
+
 
 export default function AdminDashboard() {
   const [selectedClass, setSelectedClass] = useState<string | null>(null);

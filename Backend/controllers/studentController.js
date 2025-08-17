@@ -12,7 +12,7 @@ const studentRegistration = async (req,res)=>{
     const {name, email,mobile,password} = req.body;
 
 
-    // Check if the student already exists
+    
     const isStudentExist  = await Student.findOne({email: email});
 
     if(isStudentExist){
@@ -27,7 +27,7 @@ const studentRegistration = async (req,res)=>{
             if(err){
                 return res.status(500).send("Error hashing password");
             }
-            // Save the student with hashed password
+            
             const newStudent = new Student({
                 name,
                 email,
@@ -53,8 +53,7 @@ const studentRegistration = async (req,res)=>{
 
 const studentLogin = async (req, res) => {
     const {email, password} = req.body;
-    // console.log({email, password});
-    // Check if the student exists
+
     const student = await Student.findOne({email:email});
     if(!student){
         res.send("Student not found with this email");
@@ -62,11 +61,11 @@ const studentLogin = async (req, res) => {
 
     bcrypt.compare(password, student.password  ,(err, ismatch )=>{
         if(err){
-            return res.status(500).send("Error comparing password");    
+            return res.status(500).send({message:"Error comparing password"});    
         }
 
         if(!ismatch){
-            return res.status(400).send("Invalid password");
+            return res.status(400).send({message:"Invalid password"});
         }
     })
 
@@ -88,7 +87,7 @@ const studentLogin = async (req, res) => {
             mobile: student.mobile
         }
     });
-    // res.send("Login successful");
+   
 }
 
 const studentLogout = (req, res) => {

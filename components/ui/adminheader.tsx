@@ -18,7 +18,7 @@ import {
 } from "./dropdown-menu";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { adminProfile } from "@/app/lib/adminProfile";
+import { adminHandler } from "@/app/lib/adminProfile";
 import { da } from "date-fns/locale";
 
 export function AdminHeader() {
@@ -66,7 +66,7 @@ export function AdminHeader() {
 
   useEffect(() => {
     const fetchAdmin = async () => {
-      const data = await adminProfile();
+      const data = await adminHandler("admin/profile", "GET"); 
       if (data) {
         setTeacher(data.admin);
       } else {
