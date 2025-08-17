@@ -8,6 +8,11 @@ import { adminRegister } from "@/app/lib/adminRegister";
 import ImageGallery from "@/components/ui/image-gallery";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { ChevronDown } from "lucide-react";
+import { useState } from "react";
+import React from "react";
 
 type FormData = {
   firstname: string;
@@ -18,6 +23,7 @@ type FormData = {
 };
 
 export default function Home() {
+  const [Branch, setBranch] = React.useState("Branch");
   const router = useRouter();
   const {
     register,
@@ -70,11 +76,11 @@ export default function Home() {
               <p>
                 Already Registered as a Student?
                 <Link className="text-blue-500" href="/">
-                  {" "}
-                  Login.
+                   Login.
                 </Link>
               </p>
               <div className="bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent my-2 h-[1px] w-full" />
+              <div className="w-full flex gap-2">
 
               <LabelInputContainer>
                 <Label htmlFor="firstname">First name</Label>
@@ -95,6 +101,7 @@ export default function Home() {
                   {...register("lastname", { required: true })}
                 />
               </LabelInputContainer>
+              </div>
 
               <LabelInputContainer>
                 <Label htmlFor="email">Email Address</Label>
@@ -115,7 +122,7 @@ export default function Home() {
                   {...register("password", { required: true })}
                 />
               </LabelInputContainer>
-
+              <div className="w-full flex gap-2">
               <LabelInputContainer>
                 <Label htmlFor="phone">Phone Number</Label>
                 <Input
@@ -125,6 +132,51 @@ export default function Home() {
                   {...register("phone", { required: true })}
                 />
               </LabelInputContainer>
+
+              <LabelInputContainer>
+                <Label htmlFor="phone">Parent's Phone Number</Label>
+                <Input
+                  id="phone"
+                  placeholder="1234567890"
+                  type="tel"
+                  {...register("phone", { required: true })}
+                />
+              </LabelInputContainer>
+              </div>
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    className="bg-[#3C364A] w-full mt-2 text-md"
+                    variant="secondary"
+                  >
+                    {Branch === "Branch" ? "Select Branch" : Branch}
+                    <ChevronDown className="ml-2 h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-full">
+                  <DropdownMenuRadioGroup
+                    className="w-[480px]"
+                    value={Branch}
+                    onValueChange={setBranch}
+                  >
+                    <DropdownMenuRadioItem value="Information Technology">
+                      Information Technology
+                    </DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="Computer Science">
+                      Computer Science
+                    </DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="Mechanical">
+                      Mechanical
+                    </DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="AI/DS">
+                      AI/DS
+                    </DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="MCA">
+                      MCA
+                    </DropdownMenuRadioItem>
+                  </DropdownMenuRadioGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
 
               <div className="bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent my-1 h-[1px] w-full" />
 
