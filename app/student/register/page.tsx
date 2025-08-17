@@ -19,6 +19,7 @@ type FormData = {
   lastname: string;
   email: string;
   password: string;
+  confirmpassword:string;
   phone: string;
 };
 
@@ -41,6 +42,11 @@ export default function Home() {
         data.password,
         data.phone,
       );
+        if(data.password !== data.confirmpassword)
+        {alert("Passwords do not match");
+            return;
+        }
+
       console.log(res);
       if (res.message === "Student registered successfully") {
         router.push("/");
@@ -112,7 +118,7 @@ export default function Home() {
                   {...register("email", { required: true })}
                 />
               </LabelInputContainer>
-
+              <div className="w-full flex gap-2">
               <LabelInputContainer>
                 <Label htmlFor="password">Password</Label>
                 <Input
@@ -122,6 +128,16 @@ export default function Home() {
                   {...register("password", { required: true })}
                 />
               </LabelInputContainer>
+              <LabelInputContainer>
+                <Label htmlFor="password">Confirm Password</Label>
+                <Input
+                  id="confirmpassword"
+                  placeholder="••••••••"
+                  type="password"
+                  {...register("password", { required: true })}
+                />
+              </LabelInputContainer>
+              </div>
               <div className="w-full flex gap-2">
               <LabelInputContainer>
                 <Label htmlFor="phone">Phone Number</Label>
