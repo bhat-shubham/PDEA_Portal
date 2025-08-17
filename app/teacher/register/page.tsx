@@ -34,8 +34,8 @@ export default function Home() {
   const onSubmit = async (data: FormData) => {
     try {
       const fullData = { ...data, branch: Branch };
-      // const TEST_API = process.env.TEST_API;
-      const response = await fetch(`http://localhost:3001/teacher/register`, {
+      const TEST_API = process.env.TEST_API || "http://localhost:3001";
+      const response = await fetch(`${TEST_API}/teacher/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -45,14 +45,14 @@ export default function Home() {
 
       const resData = await response.json();
 
-      if (!response.ok) {
+      if (resData.message == "Teacher registered successfully") {
         alert(resData.message || "Registration failed");
-        return;
+        router.push("/teacher/login");
       }
 
-      alert(resData.message || "Registration successful");
-      router.push("/teacher/login");
-      // window.location.href = "/teacher/login";
+      // alert(resData.message || "Registration successful");
+      // router.push("/teacher/login");
+     
     } catch (error) {
       console.error("Error during registration:", error);
       alert("Something went wrong. Please try again.");

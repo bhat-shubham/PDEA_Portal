@@ -7,7 +7,9 @@ const protectRoute = async (req, res) => {
   try {
     console.log("Protect Route Middleware Triggered");
     const token =
-      req.cookies?.token || req.headers["authorization"]?.split(" ")[1] || req.body.token;
+      req.cookies?.token ||
+      req.headers["authorization"]?.split(" ")[1] ||
+      req.body.token;
     console.log("Token from request:", token);
     if (!token) {
       return res.status(401).json({ message: "Unauthorized" });

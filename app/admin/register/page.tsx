@@ -33,9 +33,9 @@ export default function Home() {
         data.lastname,
         data.email,
         data.password,
-        data.phone
+        data.phone,
       );
-
+      console.log(res);
       if (res.message === "Admin registered successfully") {
         router.push("/admin/login");
       }
