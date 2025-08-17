@@ -7,8 +7,6 @@ import { useState } from "react";
 import Link from "next/link";
 export default function SignupFormDemo() {
   const [formData, setFormData] = useState({
-    firstname: "",
-    lastname: "",
     email: "",
     password: "",
   });
@@ -27,34 +25,14 @@ export default function SignupFormDemo() {
       <h2 className="font-figtree z-10 text-lg md:text-3xl text-white text-center">
         Login to PDEA&apos;s Portal
       </h2>
-      <div className="bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent my-5 h-[1px] w-full" />
-      <p className="text-center md:mb-10 text-white font-figtree text-md max-w-sm mt-2">
-        Enter Your Credentials to view your Profile and Latest Notifications
+      <p className="text-center text-white font-figtree text-md mt-1">
+        Not Registered as a Student Yet?<Link className="text-blue-500" href="/student/register"> Register Here</Link>
       </p>
-
+      <div className="bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent my-5 h-[1px] w-full" />
+      <p className="text-center md:mb-5 text-white font-figtree text-md mt-1">
+        Enter Your Credentials to View Attendance and Notifications
+      </p>
       <form className="w-full md:p-0 p-5" onSubmit={handleSubmit}>
-        <div className="flex flex-col md:flex-row space-y-5 md:space-y-0 md:space-x-2 mb-4">
-          <LabelInputContainer>
-            <Label htmlFor="firstname">First name</Label>
-            <Input
-              id="firstname"
-              placeholder="Tyler"
-              type="text"
-              value={formData.firstname}
-              onChange={handlechange}
-            />
-          </LabelInputContainer>
-          <LabelInputContainer>
-            <Label htmlFor="lastname">Last name</Label>
-            <Input
-              id="lastname"
-              placeholder="Durden"
-              type="text"
-              value={formData.lastname}
-              onChange={handlechange}
-            />
-          </LabelInputContainer>
-        </div>
         <LabelInputContainer className="mb-4">
           <Label htmlFor="email">Email Address</Label>
           <Input
