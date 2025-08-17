@@ -9,7 +9,7 @@ const {
   adminProfile,
 } = require("../controllers/adminController");
 const auth = require("../middleware/auth");
-const protectRoute = require("../controllers/protectRoute");
+const protectRoute = require("../middleware/protectRoute");
 
 route.post("/register", adminRegistration);
 route.post("/login", adminLogin);

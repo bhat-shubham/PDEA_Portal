@@ -2,7 +2,6 @@
 import {
   Home,
   Megaphone,
-  Bell,
   User,
   Menu,
   X,

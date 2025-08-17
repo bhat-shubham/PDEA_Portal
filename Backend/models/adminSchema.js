@@ -26,16 +26,12 @@ const adminSchema = new mongoose.Schema(
     },
     phone: {
       type: String,
-      required: true,
+
       match: [/^\d{10}$/, "Phone number must be 10 digits"],
     },
     role: {
       type: String,
       default: "admin",
-    },
-    teacher: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Teacher",
     },
   },
   { timestamps: true }

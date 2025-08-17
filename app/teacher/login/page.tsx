@@ -97,24 +97,24 @@ export default function Home() {
                 value="Login"
               />
               <div className="text-center flex mt-5 md:gap-20 gap-2 text-lg text-blue-500 font-figtree">
-                <Link href="/">
-                      <Button
-                      variant="outline"
-                      className="w-full justify-center bg-[#443379] text-white"
-                    >
-                      <PiStudent className="mr-1 h-4 w-4" />
-                      Student Login
-                    </Button>
-                    </Link>
-                    <Link href="/admin/login">
-                      <Button
-                      variant="outline"
-                      className="w-full justify-center bg-[#443379] text-white"
-                    >
-                      <GrUserAdmin className="mr-1 h-4 w-4" />
-                      Admin Login
-                    </Button>
-                    </Link>
+                <Link href="/teacher/register">
+                  <Button
+                    variant="outline"
+                    className="w-full justify-center bg-[#443379] text-white"
+                  >
+                    <PiStudent className="mr-1 h-4 w-4" />
+                    Student Login
+                  </Button>
+                </Link>
+                <Link href="/admin/login">
+                  <Button
+                    variant="outline"
+                    className="w-full justify-center bg-[#443379] text-white"
+                  >
+                    <GrUserAdmin className="mr-1 h-4 w-4" />
+                    Admin Login
+                  </Button>
+                </Link>
               </div>
             </form>
           </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { Header } from "@/components/ui/teacherheader";
-import { useRouter } from "next/navigation";
+
 import { CiCirclePlus } from "react-icons/ci";
 import { useEffect, useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -84,10 +84,9 @@ export default function Dashboard() {
     try {
       const data = await teacherClass("POST", "class", newClass);
 
-      if (data?.message === "Class created" && data?.class) {
+      if (data?.message === "Class creat" && data?.class) {
         setClasses((prev) => [...prev, data.class]);
 
-        // Reset form
         setShowAddClass(false);
         setNewClass({ name: "", subject: "" });
 
@@ -173,9 +172,8 @@ export default function Dashboard() {
       return;
     }
 
-    console.log("Adding new class:", newClass);
+    // console.log("Adding new class:", newClass);
     createClass();
-    window.__REACT_LOADABLE_MANIFEST();
   };
 
   // --- ATTENDANCE ACTIONS ---
