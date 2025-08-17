@@ -5,6 +5,9 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import Link from "next/link";
+import { Button } from "./button";
+import { PiChalkboardTeacher} from "react-icons/pi";
+import { GrUserAdmin } from "react-icons/gr";
 export default function SignupFormDemo() {
   const [formData, setFormData] = useState({
     email: "",
@@ -59,9 +62,27 @@ export default function SignupFormDemo() {
           value="Login"
         />
         <div className="bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent my-5 h-[1px] w-full" />
-        <div className="text-center text-lg text-blue-500 font-figtree">
-          <Link href="/admin/login">Admin Login </Link>
-          <Link href="/teacher/login">/Teacher Login!</Link>
+        <div className="text-center text-lg flex justify-center align-middle items-center text-blue-500 font-figtree">
+        <div className="text-center flex mt-3 md:gap-20 gap-2 text-lg text-blue-500 font-figtree">
+                <Link href="/teacher/login">
+                  <Button
+                    variant="outline"
+                    className="w-full justify-center bg-[#443379] text-white"
+                  >
+                    <PiChalkboardTeacher className="mr-1 h-5 w-5" />
+                    Teacher Login
+                  </Button>
+                </Link>
+                <Link href="/admin/login">
+                  <Button
+                    variant="outline"
+                    className="w-full justify-center bg-[#443379] text-white"
+                  >
+                    <GrUserAdmin className="mr-1 h-4 w-4" />
+                    Admin Login
+                  </Button>
+                </Link>
+              </div>
         </div>
       </form>
     </div>
