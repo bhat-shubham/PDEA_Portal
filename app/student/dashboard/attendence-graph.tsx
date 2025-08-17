@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { Button } from "../../../components/ui/button";
@@ -10,33 +11,33 @@ import {
   CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle
+  CardTitle,
 } from "../../../components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
-  ChartTooltipContent
+  ChartTooltipContent,
 } from "../../../components/ui/chart";
 import { subjects } from "./subject-attendence";
 import Groq from "groq-sdk";
-import { set } from "date-fns";
+
 
 // ---- Types ----
 type Subject = {
   name: string;
-  attendance: number;   // percentage snapshot used for the chart
-  attended?: number;    // total attended sessions
-  total?: number;       // total conducted sessions
+  attendance: number; // percentage snapshot used for the chart
+  attended?: number; // total attended sessions
+  total?: number; // total conducted sessions
 };
 
 type SubjectPlan = {
   subject: string;
   currentAttendancePct: number; // 0-100
   risk: "HIGH" | "MEDIUM" | "LOW";
-  rateAssumption: number;       // r in [0..1]
+  rateAssumption: number; // r in [0..1]
   neededAt75IfAttendAll: number; // number of lectures needed if r=1
-  neededAt75AtRate?: number;    // number at rate r (if feasible), else undefined
+  neededAt75AtRate?: number; // number at rate r (if feasible), else undefined
   feasibleAtRate: boolean;
 };
 
@@ -53,7 +54,7 @@ const subjectAttendance = subjects.map((subject) => ({
       ? "hsl(0, 84%, 70%)"
       : subject.name === "CyberSecurity"
       ? "hsl(270, 67%, 58%)"
-      : "hsl(35, 91%, 59%)"
+      : "hsl(35, 91%, 59%)",
 }));
 
 const chartConfig = {
@@ -62,11 +63,12 @@ const chartConfig = {
   bcn: { label: "BCN", color: "hsl(142, 71%, 45%)" },
   internship: { label: "Internship", color: "hsl(0, 84%, 60%)" },
   cybersecurity: { label: "CyberSecurity", color: "hsl(270, 67%, 58%)" },
-  wad: { label: "WAD", color: "hsl(35, 91%, 59%)" }
+  wad: { label: "WAD", color: "hsl(35, 91%, 59%)" },
 } satisfies ChartConfig;
 
 const groq = new Groq({
-  apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY!,dangerouslyAllowBrowser: true
+  apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY!,
+  dangerouslyAllowBrowser: true,
 });
 
 export function AttendanceGraph() {
@@ -88,11 +90,10 @@ export function AttendanceGraph() {
     return "green";
   };
 
-
   const rateFromRisk = (pct: number) => {
     if (pct < 60) return 0.6; // high risk
     if (pct < 75) return 0.8; // medium risk
-    return 0.95;              // low risk
+    return 0.95; // low risk
   };
 
   const ceilNonNeg = (x: number) => Math.max(0, Math.ceil(x));
@@ -119,7 +120,7 @@ export function AttendanceGraph() {
     setLoading(true);
     setIsLoading(true);
     setOutput("");
-    
+
     // If already showing summary, just toggle back to graph
     if (showAISummary) {
       setShowAISummary(false);
@@ -139,7 +140,11 @@ export function AttendanceGraph() {
 
         const currentPct = t > 0 ? Math.round((a / t) * 100) : 0;
         const risk: SubjectPlan["risk"] =
-          currentPct < 60 ? "HIGH" : currentPct < thresholdPct ? "MEDIUM" : "LOW";
+          currentPct < 60
+            ? "HIGH"
+            : currentPct < thresholdPct
+            ? "MEDIUM"
+            : "LOW";
         const r = rateFromRisk(currentPct);
 
         const xAll = neededIfAttendAll(a, t, p);
@@ -153,7 +158,7 @@ export function AttendanceGraph() {
           rateAssumption: r,
           neededAt75IfAttendAll: xAll,
           neededAt75AtRate: xRate,
-          feasibleAtRate: feasible
+          feasibleAtRate: feasible,
         };
       });
       const overallAvg =
@@ -162,7 +167,8 @@ export function AttendanceGraph() {
 
       const compact = plans
         .map((p) => {
-          const line = `${p.subject} | now=${p.currentAttendancePct}% | risk=${p.risk}` +
+          const line =
+            `${p.subject} | now=${p.currentAttendancePct}% | risk=${p.risk}` +
             ` | r=${Math.round(p.rateAssumption * 100)}%` +
             ` | need@1.0=${p.neededAt75IfAttendAll}` +
             ` | need@r=${p.neededAt75AtRate ?? "N/A"}`;
@@ -182,8 +188,11 @@ ${compact}
       const completion = await groq.chat.completions.create({
         model: "llama3-70b-8192",
         messages: [
-          { role: "system", content: "You are a crisp, pragmatic academic advisor." },
-          { role: "user", content: prompt }
+          {
+            role: "system",
+            content: "You are a crisp, pragmatic academic advisor.",
+          },
+          { role: "user", content: prompt },
         ],
         temperature: 0.4,
       });
@@ -210,22 +219,24 @@ ${compact}
         <CardHeader className="flex-row items-center justify-between space-y-0">
           <div>
             <CardTitle>
-              {showAISummary ? 'AI Attendance Analysis' : 'Attendance Overview'}
+              {showAISummary ? "AI Attendance Analysis" : "Attendance Overview"}
             </CardTitle>
             <CardDescription>
-              {showAISummary ? 'Personalized attendance insights' : 'Semester Performance'}
+              {showAISummary
+                ? "Personalized attendance insights"
+                : "Semester Performance"}
             </CardDescription>
           </div>
           <div className="flex items-center gap-2">
             {showAISummary && (
               <Button
-              variant={"outline"}
-              className="w-25 h-25 p-2"
-              onClick={calculateLectureRequirements}
-              disabled={loading}
-            >
-              <ArrowBigLeftIcon className="!size-10 text-[#B080FF] drop-shadow-[0_0_6px_rgba(186,104,255,0.7)]"/>
-            </Button>
+                variant={"outline"}
+                className="w-25 h-25 p-2"
+                onClick={calculateLectureRequirements}
+                disabled={loading}
+              >
+                <ArrowBigLeftIcon className="!size-10 text-[#B080FF] drop-shadow-[0_0_6px_rgba(186,104,255,0.7)]" />
+              </Button>
             )}
             <div className="rounded-xl shadow-[0_0_10px_2px_rgba(138,43,226,0.4)]">
               <Button
@@ -253,7 +264,7 @@ ${compact}
                 </div>
               ) : output ? (
                 <div className="prose dark:prose-invert max-w-none">
-                  {output.split('\n').map((line, i) => (
+                  {output.split("\n").map((line, i) => (
                     <p key={i} className="font-figtree">
                       {line || <br />}
                     </p>
@@ -261,7 +272,8 @@ ${compact}
                 </div>
               ) : (
                 <div className="text-center text-muted-foreground py-8">
-                  No AI analysis available. Click the bot icon to generate insights.
+                  No AI analysis available. Click the bot icon to generate
+                  insights.
                 </div>
               )}
             </div>
@@ -272,7 +284,10 @@ ${compact}
                 className="w-full h-full flex items-center justify-center"
               >
                 <PieChart width={400} height={400}>
-                  <ChartTooltip cursor={true} content={<ChartTooltipContent hideLabel />} />
+                  <ChartTooltip
+                    cursor={true}
+                    content={<ChartTooltipContent hideLabel />}
+                  />
                   <Pie
                     data={subjectAttendance}
                     dataKey="attendance"
@@ -287,7 +302,8 @@ ${compact}
                     <Label
                       content={({ viewBox }) => {
                         if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                          const attendanceColor = getAttendanceColor(totalAttendance);
+                          const attendanceColor =
+                            getAttendanceColor(totalAttendance);
                           return (
                             <text
                               x={viewBox.cx}
@@ -325,12 +341,12 @@ ${compact}
         {!showAISummary && (
           <CardFooter className="flex-col gap-2 text-sm">
             <div className="leading-none text-muted-foreground">
-              Graphs are cool, but gossip about your attendance is cooler, click the bot icon.
+              Graphs are cool, but gossip about your attendance is cooler, click
+              the bot icon.
             </div>
           </CardFooter>
         )}
-    </Card>
+      </Card>
     </div>
-    
   );
 }

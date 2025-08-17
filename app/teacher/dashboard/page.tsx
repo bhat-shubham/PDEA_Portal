@@ -1,6 +1,7 @@
 "use client";
 
 import { Header } from "@/components/ui/teacherheader";
+
 import { CiCirclePlus } from "react-icons/ci";
 import { useEffect, useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -13,129 +14,169 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Clipboard,
-  Check,
   CircleAlert,
   ChevronsRight,
-  ChevronsLeft, EllipsisVertical, PencilLine, Trash2,
+  ChevronsLeft,
+  EllipsisVertical,
+  PencilLine,
+  Trash2,
 } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-  TooltipProvider,
-} from "@/components/ui/tooltip";
+// import {
+//   Tooltip,
+//   TooltipContent,
+//   TooltipTrigger,
+//   TooltipProvider,
+// } from "@/components/ui/tooltip";
 import { teacherClass } from "@/app/lib/teacherClass";
 import React from "react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+// import { set } from "date-fns";
 export default function Dashboard() {
+  const [classes, setClasses] = useState<ClassType[]>([]);
   const [selectedClass, setSelectedClass] = useState<string | null>(null);
+
   const [attendance, setAttendance] = useState<{ [key: string]: boolean }>({});
-  const [showAddClass, setShowAddClass] = useState(false);
-  const [newClass, setNewClass] = useState({
-    className: "",
-    subject: "",
-  });
-  const [classCode, setClassCode] = useState<string | null>(null);
-  const [isCopied, setIsCopied] = useState(false);
-  const [showConfirmation, setShowConfirmation] = useState(false);
   const [presentCount, setPresentCount] = useState(0);
-  
-  const [confirmationDialog, setConfirmationDialog] = useState<{
-    isOpen: boolean;
-    type: 'edit' | 'delete' | null;
-    classId: string | null;
-    className: string;
-    newClassName: string;
-  }>({
+  const [showConfirmation, setShowConfirmation] = useState(false);
+
+  const [showAddClass, setShowAddClass] = useState(false);
+  const [newClass, setNewClass] = useState({ name: "", subject: "" });
+
+  const [confirmationDialog, setConfirmationDialog] = useState({
     isOpen: false,
-    type: null,
-    classId: null,
-    className: '',
-    newClassName: ''
+    type: null as "edit" | "delete" | null,
+    classId: null as string | null,
+    className: "",
+    newClassName: "",
   });
 
-  // const [classes, setClasses] = useState([
-  //   { id: "SE_IT", name: "SE IT", students: 30, attendance: "80%", room: "101" },
-  //   { id: "BE_IT", name: "BE IT", students: 28, attendance: "90%", room: "103" },
-  // ]);
+  type ClassType = {
+    _id: string;
+    id: string;
+    name: string;
+    subject: number;
+    count: string;
+    class_code: string;
+  };
+
+  // --- API FUNCTIONS ---
+  const fetchClasses = async () => {
+    try {
+      const data = await teacherClass("GET", "getClass");
+      console.log("Fetched classes:", data);
+      if (data?.classes && Array.isArray(data.classes)) {
+        setClasses(data.classes as ClassType[]);
+      } else {
+        console.log("No classes found");
+      }
+    } catch (error) {
+      console.error("Error fetching classes:", error);
+    }
+  };
+
+  const createClass = async () => {
+    try {
+      const data = await teacherClass("POST", "class", newClass);
+
+      if (data?.message === "Class creat" && data?.class) {
+        setClasses((prev) => [...prev, data.class]);
+
+        setShowAddClass(false);
+        setNewClass({ name: "", subject: "" });
+
+        console.log("Class created successfully:", data.class);
+      } else {
+        console.error("Failed to create class:", data);
+      }
+    } catch (err) {
+      console.error("Error creating class:", err);
+    }
+  };
+  const deleteClass = async (classId: string) => {
+    try {
+      const res = await teacherClass("DELETE", `deleteClass/${classId}`);
+
+      if (res?.message === "Class deleted successfully.") {
+        // Remove from UI instantly
+        setClasses((prev) =>
+          prev.filter((cls) => cls._id !== classId && cls.id !== classId)
+        );
+
+        console.log("Class deleted successfully:", classId);
+
+        // Optional: refresh list to stay 100% in sync
+        // await fetchClasses();
+      } else {
+        console.error("Failed to delete class:", res);
+      }
+    } catch (err) {
+      console.error("Error deleting class:", err);
+    }
+  };
 
   const handleEditClick = (classId: string, className: string) => {
     setConfirmationDialog({
       isOpen: true,
-      type: 'edit',
+      type: "edit",
       classId,
       className,
-      newClassName: className
+      newClassName: className,
     });
   };
 
   const handleDeleteClick = (classId: string, className: string) => {
     setConfirmationDialog({
       isOpen: true,
-      type: 'delete',
+      type: "delete",
       classId,
       className,
-      newClassName: ''
+      newClassName: "",
     });
   };
 
   const handleDialogConfirm = () => {
-    if (confirmationDialog.type === 'edit' && confirmationDialog.classId) {
-      setClasses(prevClasses => 
-        prevClasses.map(cls => 
-          cls.id === confirmationDialog.classId 
-            ? { ...cls, name: confirmationDialog.newClassName }
-            : cls
-        )
-      );
-    } else if (confirmationDialog.type === 'delete' && confirmationDialog.classId) {
-      setClasses(prevClasses => 
-        prevClasses.filter(cls => cls.id !== confirmationDialog.classId)
-      );
-      if (selectedClass === confirmationDialog.classId) {
-        setSelectedClass(null);
-      }
+    if (confirmationDialog.type === "delete" && confirmationDialog.classId) {
+      deleteClass(confirmationDialog.classId);
+      console.log("Deleted class:", confirmationDialog.classId);
     }
-    
     setConfirmationDialog({
       isOpen: false,
       type: null,
       classId: null,
-      className: '',
-      newClassName: ''
+      className: "",
+      newClassName: "",
     });
   };
-  
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setConfirmationDialog(prev => ({
+    setConfirmationDialog((prev) => ({
       ...prev,
-      newClassName: e.target.value
+      newClassName: e.target.value,
     }));
   };
 
-  const generateClassCode = () => {
-    // random 6-digit code
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-    setClassCode(code);
+  // --- CLASS ACTIONS ---
+  const handleClassClick = (classId: string) => {
+    setSelectedClass((prev) => (prev === classId ? null : classId));
   };
 
   const handleAddClass = () => {
-    console.log("New class:", { ...newClass, code: classCode });
-    setShowAddClass(false);
-    setNewClass({ className: "", subject: "" });
-    setClassCode(null);
-  };
-
-  const handleClassClick = (classId: string) => {
-    if (selectedClass === classId) {
-      setSelectedClass(null);
-    } else {
-      setSelectedClass(classId);
+    if (!newClass.name.trim() || !newClass.subject.trim()) {
+      console.error("Class name and subject are required");
+      return;
     }
+
+    // console.log("Adding new class:", newClass);
+    createClass();
   };
 
+  // --- ATTENDANCE ACTIONS ---
   const handleClearAttendance = () => {
     setAttendance({});
   };
@@ -152,37 +193,10 @@ export default function Dashboard() {
     setPresentCount(count);
     setShowConfirmation(true);
     console.log("Submitting attendance:", attendance);
-    // send to backend
   };
 
-  // const classes = [
-  //   { id: "SE_IT", name: "SE IT", students: 30, attendance: "80%", room: "101" },
-  //   { id: "BE_IT", name: "BE IT", students: 28, attendance: "90%", room: "103" },
-  // ];
-
-  type ClassType = {
-    id: string;
-    name: string;
-    subject: number;
-    count: string;
-    room: string;
-  };
-
-  const [classes, setClasses] = useState<ClassType[]>([]);
-
+  // --- INITIAL FETCH ---
   useEffect(() => {
-    console.log("Fetching classes from server...");
-    const fetchClasses = async () => {
-      const data = await teacherClass("GET", "getClass");
-
-      if (data && data.classes) {
-        console.log("Fetched classes:", data.classes);
-        setClasses(data.classes);
-      } else {
-        console.warn("No classes found");
-        setClasses([]);
-      }
-    };
     fetchClasses();
   }, []);
 
@@ -206,7 +220,7 @@ export default function Dashboard() {
                   role="button"
                   tabIndex={0}
                   aria-pressed={selectedClass === cls.id}
-                  aria-label={`${cls.name} class with ${cls.subject} students, ${cls.count} attendance in room ${cls.room}`}
+                  aria-label={`${cls.name} class with ${cls.subject} students, ${cls.count} attendance in room ${cls.class_code}`}
                   className={`cursor-pointer flex-col gap-3 rounded-xl flex items-center justify-center text-white text-lg font-semibold p-4 md:p-6
                     border border-white/10 backdrop-blur-xl bg-black/20
                     transition-all duration-300 ease-out
@@ -227,12 +241,12 @@ export default function Dashboard() {
                         <EllipsisVertical className="h-5 w-5" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent 
-                      align="end" 
-                      className="w-50" 
+                    <DropdownMenuContent
+                      align="end"
+                      className="w-50"
                       onPointerDownOutside={(e) => e.preventDefault()}
                     >
-                      <DropdownMenuItem 
+                      <DropdownMenuItem
                         onPointerDown={(e) => e.stopPropagation()}
                         onClick={(e) => {
                           e.stopPropagation();
@@ -242,7 +256,7 @@ export default function Dashboard() {
                         <PencilLine className="mr-2 h-5 w-5" />
                         <span className="text-md">Edit Class</span>
                       </DropdownMenuItem>
-                      <DropdownMenuItem 
+                      <DropdownMenuItem
                         className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-900/20"
                         onPointerDown={(e) => e.stopPropagation()}
                         onClick={(e) => {
@@ -255,22 +269,21 @@ export default function Dashboard() {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
-                  
-                  <p className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">{cls.name}</p>
+
+                  <p className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                    {cls.name}
+                  </p>
                   <div className="space-y-2 text-center">
                     <p className="text-sm md:text-base text-gray-300">
                       <span className="sr-only">Subject</span>
                       Subject: <span className="text-white">{cls.subject}</span>
                     </p>
+
                     <p className="text-sm md:text-base text-gray-300">
-                      <span className="sr-only">Aggregate Attendance:</span>
-                      Strength <span className="text-white">{cls.count}</span>
+                      <span className="sr-only">class_code:</span>
+                      class_code:
+                      <span className="text-white">{cls.class_code}</span>
                     </p>
-                    <p className="text-sm md:text-base text-gray-300">
-                      <span className="sr-only">Room Number:</span>
-                      Room: <span className="text-white">{cls.room}</span>
-                    </p>
-                    
                   </div>
                 </div>
               ))}
@@ -313,9 +326,9 @@ export default function Dashboard() {
                     <Input
                       id="className"
                       placeholder="Enter class name"
-                      value={newClass.className}
+                      value={newClass.name}
                       onChange={(e) =>
-                        setNewClass({ ...newClass, className: e.target.value })
+                        setNewClass({ ...newClass, name: e.target.value })
                       }
                       className="bg-[#2a2a2a] border-gray-700 text-white"
                     />
@@ -334,75 +347,24 @@ export default function Dashboard() {
                       className="bg-[#2a2a2a] border-gray-700 text-white"
                     />
                   </div>
-                  {!classCode ? (
-                    <button
-                      onClick={generateClassCode}
-                      disabled={!newClass.className || !newClass.subject}
-                      className={`mt-2 w-full px-4 py-2 text-white rounded-lg transition-colors ${
-                        !newClass.className || !newClass.subject
-                          ? "bg-gray-600 cursor-not-allowed opacity-50"
-                          : "bg-green-600 hover:bg-green-700"
-                      }`}
-                    >
-                      Generate Class Code
-                    </button>
-                  ) : (
-                    <div className="space-y-2">
-                      <Label className="text-white">Class Code</Label>
-                      <div className="flex items-center justify-center p-5 bg-[#2a2a2a] rounded-lg border border-gray-700">
-                        <span className="text-3xl font-mono font-bold text-green-500 tracking-wider">
-                          {classCode}
-                        </span>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <button
-                                onClick={() => {
-                                  navigator.clipboard.writeText(classCode);
-                                  setIsCopied(true);
-                                  setTimeout(() => setIsCopied(false), 2000);
-                                }}
-                                className="top-21 h-fit cursor-default bottom-30 right-6 absolute p-1 text-sm rounded transition-colors"
-                              >
-                                {isCopied ? (
-                                  <Check className="h-7 p-1 mt-1 w-7 mb-11 cursor-pointer text-green-500" />
-                                ) : (
-                                  <Clipboard className="h-7 p-1 mt-1 w-7 mb-11 cursor-pointer text-slate-400 hover:bg-zinc-600 rounded-lg hover:text-green-500" />
-                                )}
-                              </button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Copy Code</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <p className="text-sm text-gray-400">
-                          Share this code with your students to join the class
-                        </p>
-                      </div>
-                    </div>
-                  )}
+
                   <div className="flex justify-between gap-3 mt-4">
                     <button
                       onClick={() => {
                         setShowAddClass(false);
-                        setNewClass({ className: "", subject: "" });
-                        setClassCode(null);
+                        setNewClass({ name: "", subject: "" });
                       }}
                       className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
                     >
                       Cancel
                     </button>
-                    {classCode && (
-                      <button
-                        onClick={handleAddClass}
-                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-                      >
-                        Create Class
-                      </button>
-                    )}
+
+                    <button
+                      onClick={handleAddClass}
+                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                    >
+                      Create Class
+                    </button>
                   </div>
                 </div>
               </DialogContent>
@@ -442,18 +404,27 @@ export default function Dashboard() {
             </Dialog>
 
             {/* Edit/Delete Confirmation Dialog */}
-            <Dialog open={confirmationDialog.isOpen} onOpenChange={(isOpen) => setConfirmationDialog(prev => ({ ...prev, isOpen }))}>
+            <Dialog
+              open={confirmationDialog.isOpen}
+              onOpenChange={(isOpen) =>
+                setConfirmationDialog((prev) => ({ ...prev, isOpen }))
+              }
+            >
               <DialogContent className="sm:max-w-[425px] bg-[#1a1a1a] text-white border-gray-800">
                 <DialogHeader>
                   <DialogTitle className="text-xl flex items-center font-semibold">
                     <CircleAlert className="mr-2 h-5 w-5" />
-                    {confirmationDialog.type === 'edit' ? 'Edit Class' : 'Delete Class'}
+                    {confirmationDialog.type === "edit"
+                      ? "Edit Class"
+                      : "Delete Class"}
                   </DialogTitle>
                 </DialogHeader>
                 <div className="py-4 space-y-4">
-                  {confirmationDialog.type === 'edit' ? (
+                  {confirmationDialog.type === "edit" ? (
                     <div className="space-y-2">
-                      <Label htmlFor="className" className="text-white">New Class Name</Label>
+                      <Label htmlFor="className" className="text-white">
+                        New Class Name
+                      </Label>
                       <Input
                         id="className"
                         value={confirmationDialog.newClassName}
@@ -465,26 +436,39 @@ export default function Dashboard() {
                     </div>
                   ) : (
                     <p className="text-white">
-                      Are you sure you want to delete "{confirmationDialog.className}"? This action cannot be undone.
+                      Are you sure you want to delete
+                      {confirmationDialog.className}? This action cannot be
+                      undone.
                     </p>
                   )}
                 </div>
                 <div className="flex justify-end gap-3 mt-4">
                   <Button
                     variant="outline"
-                    onClick={() => setConfirmationDialog(prev => ({
-                      ...prev,
-                      isOpen: false
-                    }))}
+                    onClick={() =>
+                      setConfirmationDialog((prev) => ({
+                        ...prev,
+                        isOpen: false,
+                      }))
+                    }
                   >
                     Cancel
                   </Button>
                   <Button
-                    variant={confirmationDialog.type === 'delete' ? 'destructive' : 'default'}
+                    variant={
+                      confirmationDialog.type === "delete"
+                        ? "destructive"
+                        : "default"
+                    }
                     onClick={handleDialogConfirm}
-                    disabled={confirmationDialog.type === 'edit' && !confirmationDialog.newClassName.trim()}
+                    disabled={
+                      confirmationDialog.type === "edit" &&
+                      !confirmationDialog.newClassName.trim()
+                    }
                   >
-                    {confirmationDialog.type === 'edit' ? 'Save Changes' : 'Delete'}
+                    {confirmationDialog.type === "edit"
+                      ? "Save Changes"
+                      : "Delete"}
                   </Button>
                 </div>
               </DialogContent>

@@ -10,7 +10,9 @@ const { Teacher } = require("../models/studentSchema");
 dotenv.config();
 
 const adminRegistration = async (req, res) => {
+  console.log("regiatration started");
   const { firstname, lastname, email, password, phone } = req.body;
+  console.log(req.body);
 
   try {
     const isAdminExist = await Admin.findOne({ email });
@@ -36,7 +38,8 @@ const adminRegistration = async (req, res) => {
     res.status(200).json({
       message: "Admin registered successfully",
       admin: {
-        name: newAdmin.name,
+        firstname: newAdmin.firstname,
+        lastname: newAdmin.lastname,
         email: newAdmin.email,
       },
     });

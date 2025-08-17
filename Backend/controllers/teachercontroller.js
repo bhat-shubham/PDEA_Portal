@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-require-imports */
 
 // import  bcrypt from 'bcrypt';
@@ -139,15 +140,30 @@ const createClass = async (req, res) => {
   const teacherId = req.user.id;
   console.log("Creating class with data:", name, subject, teacherId);
 
+  const codeLength = 6;
+  var codeString = "";
+  for (let i = 0; i < codeLength; i++) {
+    codeString += Math.floor(Math.random() * 10).toString();
+  }
+
   const newClass = new Class({
     name,
     subject,
-
+    class_code: codeString,
     teacher: teacherId,
   });
 
   await newClass.save();
-  res.status(201).json({ message: "Class created", class: newClass });
+  // res.status(201).json({ message: "Class created", class: newClass });
+  res.status(201).json({
+    message: "Class creat",
+    class: {
+      id: newClass._id.toString(),
+      name: newClass.name,
+      subject: newClass.subject,
+      class_code: newClass.class_code,
+    },
+  });
 };
 
 const getClasses = async (req, res) => {
@@ -156,16 +172,38 @@ const getClasses = async (req, res) => {
     if (!classes || classes.length === 0) {
       return res.status(404).json({ message: "No classes found." });
     }
+    console.log("Fetched classes:", classes);
     res.status(200).json({
       message: "Classes fetched successfully.",
       classes: classes.map((cls) => ({
-        id: cls._id,
-        name: cls.name,   
-        subject: cls.subject, 
+        id: cls._id.toString(),
+        name: cls.name,
+        subject: cls.subject,
+        class_code: cls.class_code,
       })),
-  })}
-   catch (error) {
+    });
+  } catch (error) {
     console.error("[GET CLASSES ERROR]", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+const deleteClass = async (req, res) => {
+  const classId = req.params.classId;
+  console.log("Deleting class with ID:", classId);
+
+  try {
+    const deletedClass = await Class.findByIdAndDelete(classId);
+    if (!deletedClass) {
+      return res.status(404).json({ message: "Class not found." });
+    } else {
+      console.log("Deleted class:", deletedClass);
+      res
+        .status(200)
+        .json({ message: "Class deleted successfully.", class: deletedClass });
+    }
+  } catch (error) {
+    console.error("[DELETE CLASS ERROR]", error);
     res.status(500).json({ message: "Internal server error." });
   }
 };
@@ -176,5 +214,6 @@ module.exports = {
   teacherLogout,
   teacherDetails,
   createClass,
-  getClasses
+  getClasses,
+  deleteClass,
 };
