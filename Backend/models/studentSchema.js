@@ -6,6 +6,7 @@ const studentSchema = new mongoose.Schema({
   email: String,
   mobile: Number,
   password: String,
+  role: String,
   attendance: {
     date: { type: Date, default: Date.now, required: true },
     present: { type: Boolean, required: true },
