@@ -36,15 +36,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className="font-figtree"
-      >
+      <body className="font-figtree">
         <Providers>
           {children}
           <AuthToast />
+          <Toaster position="top-center" richColors  />
         </Providers>
         <Analytics />
-        <Toaster />
       </body>
     </html>
   );
