@@ -40,7 +40,7 @@ export default function RootLayout({
         <Providers>
           {children}
           <AuthToast />
-          <Toaster position="top-center" richColors  />
+          <Toaster position="top-center" className="min-h-[100px]"  />
         </Providers>
         <Analytics />
       </body>
