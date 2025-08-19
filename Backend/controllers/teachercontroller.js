@@ -38,7 +38,7 @@ const teacherRegisration = async (req, res) => {
       name: `${newTeacher.firstname} ${newTeacher.lastname}`,
       email: newTeacher.email,
       branch: newTeacher.branch,
-      role: newTeacher.role, // ✅ read from saved document
+      role: newTeacher.role,
     },
   });
 };

@@ -9,6 +9,7 @@ import { adminLogin } from "@/app/lib/adminlogin";
 import ImageGallery from "@/components/ui/image-gallery";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 type FormData = {
   email: string;
@@ -29,7 +30,9 @@ export default function Home() {
 
     if (res.message === "Admin logged in successfully") {
       localStorage.setItem("token", res.token);
-      alert("Login Successful");
+      toast.success("Logged In Successfully!", {
+        description: "Redirecting to Dashboard...",
+      });
       router.push("/admin/dashboard");
     }
   };

@@ -13,7 +13,7 @@ import Link from "next/link";
 import { Button } from "./button";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { adminHandler } from "@/app/lib/adminProfile";
+import { adminHandler } from "@/app/lib/adminHandler";
 // import { logoutUser } from "@/lib/logout";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";

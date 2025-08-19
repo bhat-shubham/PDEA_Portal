@@ -5,7 +5,7 @@ const bcrypt = require("bcrypt");
 const dotenv = require("dotenv");
 const { Admin } = require("../models/adminSchema");
 
-const { Teacher } = require("../models/studentSchema");
+const { Teacher } = require("../models/teacherSchema");
 
 dotenv.config();
 
@@ -104,7 +104,9 @@ const adminLogout = (req, res) => {
 const teacherlist = async (req, res) => {
   try {
     console.log("Fetching teacher list...");
-    const teachers = await Teacher.find();
+    const teachers = await Teacher.find({ role: "teacher" }).select(
+      "-password"
+    );
 
     if (teachers.length === 0) {
       return res.status(404).send("No teachers found");
@@ -112,8 +114,10 @@ const teacherlist = async (req, res) => {
 
     const formattedTeachers = teachers.map((t) => ({
       firstname: t.firstname,
+      lastname: t.lastname,
       email: t.email,
       branch: t.branch,
+      id: t._id,
     }));
 
     res.status(200).json({

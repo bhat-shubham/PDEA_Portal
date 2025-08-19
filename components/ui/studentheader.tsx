@@ -18,7 +18,7 @@ import {
 } from "./dropdown-menu";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { adminProfile } from "@/app/lib/adminProfile";
+import { adminProfile } from "@/app/lib/adminHandler";
 import { da } from "date-fns/locale";
 
 export function StudentHeader() {

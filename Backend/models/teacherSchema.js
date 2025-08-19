@@ -21,7 +21,7 @@ const teacherSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
-    minlength: 6, // adjust as needed
+    minlength: 6,
   },
   branch: {
     type: String,

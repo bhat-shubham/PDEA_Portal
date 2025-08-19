@@ -20,7 +20,7 @@ import {
   LockKeyhole,
 } from "lucide-react";
 // import { adminHandler } from "@/app/lib/adminProfile";
-import { adminHandler } from "@/app/lib/adminProfile";
+import { adminHandler } from "@/app/lib/adminHandler";
 
 export default function TeacherProfile() {
   // const [isEditing, setIsEditing] = useState(false);
