@@ -21,9 +21,9 @@ export default async function middleware(req: NextRequest) {
 
   if (isProtectedRoute && !isAuthPage) {
     if (!token) {
-      const res = NextResponse.redirect(new URL("/", req.url));
-      res.cookies.set("flash", "unauthorized", { maxAge: 5 });
-      return res;
+      const loginUrl = new URL("/", req.url);
+      loginUrl.searchParams.set("message", "unauthorized");
+      return NextResponse.redirect(loginUrl);
     }
 
     try {

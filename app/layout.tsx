@@ -6,6 +6,7 @@ import "./globals.css";
 import { Providers } from "./provider";
 import { Analytics } from '@vercel/analytics/next';
 import { Toaster } from "@/components/ui/sonner"
+import { AuthToast } from "@/components/ui/auth-toast"
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -39,7 +40,8 @@ export default function RootLayout({
         className="font-figtree"
       >
         <Providers>
-         {children}
+          {children}
+          <AuthToast />
         </Providers>
         <Analytics />
         <Toaster />

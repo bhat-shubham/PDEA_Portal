@@ -58,7 +58,6 @@ export default function Home() {
   };
   console.log(errors);
   return (
-    //  </BackgroundBeamsWithCollision>
     <div className="w-screen relative h-screen flex justify-center items-center align-middle">
       <Aurora
         colorStops={["#c94b4b", "#302b63", "#4b134f"]}
