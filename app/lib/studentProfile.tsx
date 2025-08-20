@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 export const studentProfile = async () => {
   const TEST_API = process.env.TEST_API || "http://localhost:3001";
@@ -18,11 +19,10 @@ export const studentProfile = async () => {
     }
     const data = await response.json();
     console.log("student profile data:", data);
-    // console.log("Teacher profile data:", data);
 
     return data;
   } catch (error) {
     console.error("Error fetching teacher profile:", error);
-    throw new Error("An error occurred while fetching the teacher profile.");
+    throw new Error("An error occurred while fetching the student profile.");
   }
 };

@@ -61,7 +61,7 @@ const adminLogin = async (req, res) => {
 
     const isMatch = await bcrypt.compare(password, admin.password);
     if (!isMatch) {
-      return res.status(400).send("Invalid password");
+      return res.status(400).json({ message: "Invalid password" });
     }
 
     const token = jwt.sign(
@@ -88,7 +88,7 @@ const adminLogin = async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).send("Server Error");
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
@@ -109,7 +109,7 @@ const teacherlist = async (req, res) => {
     );
 
     if (teachers.length === 0) {
-      return res.status(404).send("No teachers found");
+      return res.status(404).json({ message: "No teachers found"});
     }
 
     const formattedTeachers = teachers.map((t) => ({

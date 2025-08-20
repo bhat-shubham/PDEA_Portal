@@ -10,6 +10,7 @@ import ImageGallery from "@/components/ui/image-gallery";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { PiStudent } from "react-icons/pi";
+
 import { GrUserAdmin } from "react-icons/gr";
 type FormData = {
   email: string;
@@ -97,7 +98,7 @@ export default function Home() {
                 value="Login"
               />
               <div className="text-center flex mt-5 md:gap-20 gap-2 text-lg text-blue-500 font-figtree">
-                <Link href="/teacher/register">
+                <Link href="/">
                   <Button
                     variant="outline"
                     className="w-full justify-center bg-[#443379] text-white"
