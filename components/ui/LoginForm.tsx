@@ -12,6 +12,7 @@ import { GrUserAdmin } from "react-icons/gr";
 import { studentHandler } from "@/app/lib/studentHandler";
 // import { Route } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 export default function SignupFormDemo() {
   const Router = useRouter();
 
@@ -28,7 +29,14 @@ export default function SignupFormDemo() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const res = await studentHandler("login", "POST", formData);
-    Router.push("/student/dashboard");
+    if (res.message === "Login successful") {
+      localStorage.setItem("token", res.token);
+      toast.success("Logged In Successfully!", {
+        description: "Redirecting to Dashboard...",
+      });
+      console.log("Redirecting to student dashboard...");
+      Router.push("/student/dashboard");
+    }
   };
   return (
     <div className="w-full rounded-none md:rounded-2xl flex flex-col items-center md:p-8 shadow-input z-10 ">

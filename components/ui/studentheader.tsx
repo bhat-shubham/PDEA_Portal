@@ -7,6 +7,7 @@ import { ModeToggle } from "./mode-toggle";
 import { teacherProfile } from "@/app/lib/teacherProfile";
 import { useEffect, useState } from "react";
 import { teacherLogout } from "@/app/lib/teacherLogout";
+// import { profileHandler } from "@/app/lib/studentHandler";
 
 import {
   DropdownMenu,
@@ -21,6 +22,7 @@ import { useRouter } from "next/navigation";
 // import { adminProfile } from "@/app/lib/adminHandler";
 import { da } from "date-fns/locale";
 import { studentProfile } from "@/app/lib/studentProfile";
+import { profileHandler } from "@/app/lib/studentHandler";
 
 export function StudentHeader() {
   const router = useRouter();
@@ -65,18 +67,20 @@ export function StudentHeader() {
     }
   };
 
-  useEffect(() => {
-    const fetchStudent = async () => {
-      const data = await studentProfile();
-      if (data) {
-        setStudent(data.student);
-      } else {
-        console.error("Failed to fetch teacher profile");
-      }
-    };
+ useEffect(() => {
+  const fetchStudent = async () => {
+    const data = await profileHandler("profile", "GET");
+    if (data && data.student) {
+      setStudent(data.student);
+    } else {
+      console.error("Failed to fetch valid student profile");
+      setStudent({ firstname: "", lastname: "", email: "", branch: "" });
+    }
+  };
 
-    fetchStudent();
-  }, []);
+  fetchStudent();
+}, []);
+
 
   return (
     <header className="lg:relative lg:bg-transparent bg-[#0F131F] z-10 sticky top-0 border-b p-4 lg:p-6 flex items-center justify-between">

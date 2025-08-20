@@ -80,7 +80,7 @@ const studentLogin = async (req, res) => {
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
     });
-    console.log("Login successful");
+    console.log("Login successful:", student);
     return res.status(200).json({
       message: "Login successful",
       token,
@@ -105,4 +105,36 @@ const studentLogout = (req, res) => {
   res.status(200).json({ message: "student logged out successfully" });
 };
 
-module.exports = { studentRegistration, studentLogin, studentLogout };
+const studentProfile = async (req, res) => {
+  try {
+    const email = req.user.email;
+    console.log("Fetching student details for email:", email);
+    const student = await Student.findOne({ email: email }).select("-password");
+    // console.log(teacher);
+    if (!student) {
+      return res.status(404).json({ message: "Student not found." });
+    }
+
+    res.status(200).json({
+      message: "Student profile fetched successfully.",
+      student: {
+        id: student._id,
+        firstname: student.firstname,
+        lastname: student.lastname,
+        email: student.email,
+        branch: student.branch,
+        phone: student.mobile,
+      },
+    });
+  } catch (error) {
+    console.error("[PROFILE ERROR]", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+module.exports = {
+  studentRegistration,
+  studentLogin,
+  studentLogout,
+  studentProfile,
+};

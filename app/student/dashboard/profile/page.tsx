@@ -1,34 +1,16 @@
 "use client";
-import { useState, useEffect, use } from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
+import { useState, useEffect } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { StudentHeader } from "@/components/ui/studentheader";
 import { Button } from "@/components/ui/button";
-import {
-  UserCircle,
-  Mail,
-  Phone,
-  MapPin,
-  Cpu,
-  LockKeyhole,
-} from "lucide-react";
-import { studentProfile } from "@/app/lib/studentProfile";
+import { UserCircle, Mail, Phone, MapPin, LockKeyhole } from "lucide-react";
+// import { studentProfile } from "@/app/lib/studentProfile";
+import { profileHandler } from "@/app/lib/studentHandler";
 
 export default function StudentProfile() {
   // const [isEditing, setIsEditing] = useState(false);
   // const [showImageUpload, setShowImageUpload] = useState(false);
-  const [StudentData, setStuentData] = useState({
-    name: "John Smith",
-    email: "john.smith@education.com",
-    phone: "+91 1234567890",
-    address: "Mumbai, Maharashtra",
-  });
 
   const [profileData, setProfileData] = useState({
     firstname: "",
@@ -36,24 +18,26 @@ export default function StudentProfile() {
     email: "",
     phone: "",
     branch: "",
-    preferences: {
-      theme: "dark",
-      notifications: true,
-    },
   });
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const data = await studentProfile();
-        console.log("Fetched profile data:", data);
+    const fetchStudent = async () => {
+      const data = await profileHandler("profile", "GET");
+      if (data && data.student) {
         setProfileData(data.student);
-      } catch (err) {
-        console.error("Error fetching profile:", err);
+      } else {
+        console.error("Failed to fetch valid student profile");
+        setProfileData({
+          firstname: "",
+          lastname: "",
+          email: "",
+          branch: "",
+          phone: "",
+        });
       }
     };
 
-    fetchProfile();
+    fetchStudent();
   }, []);
 
   return (
@@ -80,7 +64,7 @@ export default function StudentProfile() {
                 <div className="mt-4 space-y-2">
                   <div className="flex items-center justify-center gap-2 text-gray-400">
                     <MapPin className="w-4 h-4" />
-                    <span>{StudentData.address}</span>
+                    <span>{profileData.branch}</span>
                   </div>
                 </div>
 

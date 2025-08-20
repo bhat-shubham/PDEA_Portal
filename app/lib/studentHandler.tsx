@@ -12,7 +12,7 @@ export const studentHandler = async (
       headers: {
         "content-type": "application/json",
       },
-      //   credentials: "include",
+      credentials: "include",
       body: studentdata ? JSON.stringify(studentdata) : null,
     });
 
@@ -23,3 +23,28 @@ export const studentHandler = async (
     throw new Error("An error occurred while  student login .");
   }
 };
+
+export const profileHandler = async(
+  path: string,
+  method: string,
+
+)=>{
+const TEST_API = process.env.TEST_API || "http://localhost:3001";
+
+  try {
+    const response = await fetch(`${TEST_API}/student/${path}`, {
+      method: `${method}`,
+      headers: {
+        "content-type": "application/json",
+      },
+      credentials: "include",
+ 
+    });
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching  student data:", error);
+    throw new Error("An error occurred while  student data .");
+  }
+}
