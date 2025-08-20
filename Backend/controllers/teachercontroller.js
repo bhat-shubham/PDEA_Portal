@@ -38,7 +38,7 @@ const teacherRegisration = async (req, res) => {
       name: `${newTeacher.firstname} ${newTeacher.lastname}`,
       email: newTeacher.email,
       branch: newTeacher.branch,
-      role: newTeacher.role, // ✅ read from saved document
+      role: newTeacher.role,
     },
   });
 };
@@ -114,7 +114,7 @@ const teacherDetails = async (req, res) => {
     const email = req.user.email;
     console.log("Fetching teacher details for email:", email);
     const teacher = await Teacher.findOne({ email: email }).select("-password");
-    // console.log(teacher);
+   
     if (!teacher) {
       return res.status(404).json({ message: "Teacher not found." });
     }
@@ -154,7 +154,7 @@ const createClass = async (req, res) => {
   });
 
   await newClass.save();
-  // res.status(201).json({ message: "Class created", class: newClass });
+ 
   res.status(201).json({
     message: "Class creat",
     class: {

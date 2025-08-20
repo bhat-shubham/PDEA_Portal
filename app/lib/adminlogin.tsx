@@ -9,7 +9,7 @@ export const adminLogin = async (email: string, password: string) => {
         "Content-Type": "application/json",
       },
       // Remove this unless you're using cookies:
-      credentials: "include",
+      // credentials: "include",
       body: JSON.stringify({ email, password }),
     });
 
