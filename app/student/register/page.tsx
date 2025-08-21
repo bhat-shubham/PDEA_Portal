@@ -4,14 +4,21 @@ import Link from "next/link";
 import Aurora from "@/components/ui/aurorabg";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { adminRegister } from "@/app/lib/adminRegister";
+// import { adminRegister } from "@/app/lib/adminRegister";
+import { studentHandler } from "@/app/lib/studentHandler";
 import ImageGallery from "@/components/ui/image-gallery";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
-import { useState } from "react";
+// import { useState } from "react";
 import React from "react";
 
 type FormData = {
@@ -19,8 +26,9 @@ type FormData = {
   lastname: string;
   email: string;
   password: string;
-  confirmpassword:string;
-  phone: string;
+  confirmpassword: string;
+  mobile: string;
+  parentPhone: string;
 };
 
 export default function Home() {
@@ -30,22 +38,21 @@ export default function Home() {
     register,
     handleSubmit,
     formState: { errors },
+    watch,
   } = useForm<FormData>();
 
+  const password = watch("password", "");
+
   const onSubmit = async (data: FormData) => {
-    console.log("Form submitted with data:", data);
+    const fullData = { ...data, branch: Branch };
+
+    console.log("Form submitted with data:", fullData);
     try {
-      const res = await adminRegister(
-        data.firstname,
-        data.lastname,
-        data.email,
-        data.password,
-        data.phone,
-      );
-        if(data.password !== data.confirmpassword)
-        {alert("Passwords do not match");
-            return;
-        }
+      const res = await studentHandler("register", "POST", fullData);
+      if (fullData.password !== fullData.confirmpassword) {
+        alert("Passwords do not match");
+        return;
+      }
 
       console.log(res);
       if (res.message === "Student registered successfully") {
@@ -82,31 +89,30 @@ export default function Home() {
               <p>
                 Already Registered as a Student?
                 <Link className="text-blue-500" href="/">
-                   Login.
+                  Login.
                 </Link>
               </p>
               <div className="bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent my-2 h-[1px] w-full" />
               <div className="w-full flex gap-2">
+                <LabelInputContainer>
+                  <Label htmlFor="firstname">First name</Label>
+                  <Input
+                    id="firstname"
+                    placeholder="Tyler"
+                    type="text"
+                    {...register("firstname", { required: true })}
+                  />
+                </LabelInputContainer>
 
-              <LabelInputContainer>
-                <Label htmlFor="firstname">First name</Label>
-                <Input
-                  id="firstname"
-                  placeholder="Tyler"
-                  type="text"
-                  {...register("firstname", { required: true })}
-                />
-              </LabelInputContainer>
-
-              <LabelInputContainer>
-                <Label htmlFor="lastname">Last name</Label>
-                <Input
-                  id="lastname"
-                  placeholder="Durden"
-                  type="text"
-                  {...register("lastname", { required: true })}
-                />
-              </LabelInputContainer>
+                <LabelInputContainer>
+                  <Label htmlFor="lastname">Last name</Label>
+                  <Input
+                    id="lastname"
+                    placeholder="Durden"
+                    type="text"
+                    {...register("lastname", { required: true })}
+                  />
+                </LabelInputContainer>
               </div>
 
               <LabelInputContainer>
@@ -119,50 +125,54 @@ export default function Home() {
                 />
               </LabelInputContainer>
               <div className="w-full flex gap-2">
-              <LabelInputContainer>
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  placeholder="••••••••"
-                  type="password"
-                  {...register("password", { required: true })}
-                />
-              </LabelInputContainer>
-              <LabelInputContainer>
-                <Label htmlFor="password">Confirm Password</Label>
-                <Input
-                  id="confirmpassword"
-                  placeholder="••••••••"
-                  type="password"
-                  {...register("password", { required: true })}
-                />
-              </LabelInputContainer>
+                <LabelInputContainer>
+                  <Label htmlFor="password">Password</Label>
+                  <Input
+                    id="password"
+                    placeholder="••••••••"
+                    type="password"
+                    {...register("password", { required: true })}
+                  />
+                </LabelInputContainer>
+                <LabelInputContainer>
+                  <Label htmlFor="password">Confirm Password</Label>
+                  <Input
+                    id="confirmpassword"
+                    placeholder="••••••••"
+                    type="password"
+                    {...register("confirmpassword", {
+                      required: "Confirm password is required",
+                      validate: (value) =>
+                        value === password || "Passwords do not match",
+                    })}
+                  />
+                </LabelInputContainer>
               </div>
               <div className="w-full flex gap-2">
-              <LabelInputContainer>
-                <Label htmlFor="phone">Phone Number</Label>
-                <Input
-                  id="phone"
-                  placeholder="1234567890"
-                  type="tel"
-                  {...register("phone", { required: true })}
-                />
-              </LabelInputContainer>
+                <LabelInputContainer>
+                  <Label htmlFor="phone">Phone Number</Label>
+                  <Input
+                    id="mobile"
+                    placeholder="1234567890"
+                    type="tel"
+                    {...register("mobile", { required: true })}
+                  />
+                </LabelInputContainer>
 
-              <LabelInputContainer>
-                <Label htmlFor="phone">Parent's Phone Number</Label>
-                <Input
-                  id="phone"
-                  placeholder="1234567890"
-                  type="tel"
-                  {...register("phone", { required: true })}
-                />
-              </LabelInputContainer>
+                <LabelInputContainer>
+                  <Label htmlFor="phone">Parent&apos;s Phone Number</Label>
+                  <Input
+                    id="parentPhone"
+                    placeholder="1234567890"
+                    type="tel"
+                    {...register("parentPhone", { required: true })}
+                  />
+                </LabelInputContainer>
               </div>
-            <DropdownMenu>
+              <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
-                    className="bg-[#3C364A] w-full mt-2 text-md"
+                    className="bg-gray-800 w-full mt-2 text-md"
                     variant="secondary"
                   >
                     {Branch === "Branch" ? "Select Branch" : Branch}
@@ -170,6 +180,7 @@ export default function Home() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-full">
+                  {/* <DropdownMenuSeparator /> */}
                   <DropdownMenuRadioGroup
                     className="w-[480px]"
                     value={Branch}

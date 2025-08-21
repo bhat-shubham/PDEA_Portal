@@ -11,6 +11,7 @@ const { Student } = require("../models/studentSchema");
 const studentRegistration = async (req, res) => {
   const { firstname, lastname, email, mobile, password, parentPhone, branch } =
     req.body;
+  console.log(req.body);
 
   const isStudentExist = await Student.findOne({ email: email });
 
