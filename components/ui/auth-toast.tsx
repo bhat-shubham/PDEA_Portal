@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import { toast } from "sonner";
 
@@ -10,8 +10,15 @@ export function AuthToast() {
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const router = useRouter();
+    const [isClient, setIsClient] = useState(false);
     
     useEffect(() => {
+        setIsClient(true);
+    }, []);
+    
+    useEffect(() => {
+        if (!isClient) return;
+        
         const message = searchParams.get('message');
         const from = searchParams.get('from');
 
@@ -33,7 +40,6 @@ export function AuthToast() {
                         dismissible:true,
                     });
                     
-                    // Clean both `message` and `from` without navigation
                     const url = new URL(window.location.href);
                     url.searchParams.delete('message');
                     url.searchParams.delete('from');
@@ -47,7 +53,7 @@ export function AuthToast() {
                 return () => clearTimeout(timer);
             }
         }
-    }, [searchParams, pathname, router]);
+    }, [searchParams, pathname, router, isClient]);
 
     return null;
 }
