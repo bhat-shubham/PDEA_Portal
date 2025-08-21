@@ -2,7 +2,6 @@
 import {
   Home,
   Megaphone,
-  Bell,
   User,
   Menu,
   X,
@@ -14,7 +13,8 @@ import Link from "next/link";
 import { Button } from "./button";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { logoutUser } from "@/lib/logout";
+import { adminHandler } from "@/app/lib/adminHandler";
+// import { logoutUser } from "@/lib/logout";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { PagesProgressProvider as ProgressProvider } from "@bprogress/next";
@@ -43,18 +43,12 @@ export function AdminSidebar() {
     }
   };
   const handleLogout = async () => {
-    const success = await logoutUser();
-    if (success) {
+    const res = await adminHandler("admin/logout", "POST");
+    if (res.message === "Admin logged out successfully") {
       toast.success("Logged Out Successfully!", {
         description: "Redirecting to Login Page...",
       });
-
-      setTimeout(() => {
-        // window.location.href = "/teacher/login";
-        router.push("/teacher/login");
-      }, 1500);
-    } else {
-      toast.error("Logout failed");
+      router.push("/admin/login");
     }
   };
 
@@ -149,7 +143,10 @@ export function AdminSidebar() {
               <Button
                 variant="ghost"
                 className="w-full justify-start"
-                onClick={() => { setShowProfile(true); handleLinkClick(); }}
+                onClick={() => {
+                  setShowProfile(true);
+                  handleLinkClick();
+                }}
                 asChild
               >
                 <Link href="/admin/dashboard/profile">
@@ -159,7 +156,10 @@ export function AdminSidebar() {
               </Button>
               <Button
                 variant="ghost"
-                onClick={() => { handleLogout(); handleLinkClick(); }}
+                onClick={() => {
+                  handleLogout();
+                  handleLinkClick();
+                }}
                 className="w-full justify-start"
               >
                 {/* <Link href="/teacher/dashboard/profile"> */}

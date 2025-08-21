@@ -1,12 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-export const adminProfile = async () => {
+export const adminHandler = async (path: string, method: string) => {
   const TEST_API = process.env.TEST_API || "http://localhost:3001";
   const NEXT_PUBLIC_SEVELLA_API = process.env.NEXT_PUBLIC_SEVELLA_API;
 
   try {
-   
-    const response = await fetch(`${TEST_API}/admin/profile`, {
-      method: "GET",
+    const response = await fetch(`${TEST_API}/${path}`, {
+      method: `${method}`,
       headers: {
         "Content-Type": "application/json",
       },

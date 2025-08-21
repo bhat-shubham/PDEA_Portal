@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 export const studentProfile = async () => {
   const TEST_API = process.env.TEST_API || "http://localhost:3001";

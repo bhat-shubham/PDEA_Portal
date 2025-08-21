@@ -19,7 +19,8 @@ import {
   Cpu,
   LockKeyhole,
 } from "lucide-react";
-import { adminProfile } from "@/app/lib/adminProfile";
+// import { adminHandler } from "@/app/lib/adminProfile";
+import { adminHandler } from "@/app/lib/adminHandler";
 
 export default function TeacherProfile() {
   // const [isEditing, setIsEditing] = useState(false);
@@ -46,7 +47,7 @@ export default function TeacherProfile() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const data = await adminProfile();
+        const data = await adminHandler("admin/profile", "GET");
         console.log("Fetched profile data:", data);
         setProfileData(data.admin);
       } catch (err) {

@@ -14,7 +14,7 @@ const protectRoute = require("../middleware/protectRoute");
 route.post("/register", adminRegistration);
 route.post("/login", adminLogin);
 route.post("/logout", adminLogout); // Admin logout route
-route.get("/teacherlist", teacherlist);
+route.get("/teachers", teacherlist);
 route.post("/verify", protectRoute);
 route.get("/profile",auth, adminProfile);
 

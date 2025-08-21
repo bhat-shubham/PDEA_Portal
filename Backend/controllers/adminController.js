@@ -5,7 +5,7 @@ const bcrypt = require("bcrypt");
 const dotenv = require("dotenv");
 const { Admin } = require("../models/adminSchema");
 
-const { Teacher } = require("../models/studentSchema");
+const { Teacher } = require("../models/teacherSchema");
 
 dotenv.config();
 
@@ -61,7 +61,7 @@ const adminLogin = async (req, res) => {
 
     const isMatch = await bcrypt.compare(password, admin.password);
     if (!isMatch) {
-      return res.status(400).send("Invalid password");
+      return res.status(400).json({ message: "Invalid password" });
     }
 
     const token = jwt.sign(
@@ -88,7 +88,7 @@ const adminLogin = async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).send("Server Error");
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
@@ -104,16 +104,20 @@ const adminLogout = (req, res) => {
 const teacherlist = async (req, res) => {
   try {
     console.log("Fetching teacher list...");
-    const teachers = await Teacher.find();
+    const teachers = await Teacher.find({ role: "teacher" }).select(
+      "-password"
+    );
 
     if (teachers.length === 0) {
-      return res.status(404).send("No teachers found");
+      return res.status(404).json({ message: "No teachers found"});
     }
 
     const formattedTeachers = teachers.map((t) => ({
       firstname: t.firstname,
+      lastname: t.lastname,
       email: t.email,
       branch: t.branch,
+      id: t._id,
     }));
 
     res.status(200).json({

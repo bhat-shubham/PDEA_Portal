@@ -5,13 +5,13 @@ import Aurora from "@/components/ui/aurorabg";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { adminLogin } from "@/app/lib/adminlogin";
-
+import { Button } from "@/components/ui/button";
+import { PiChalkboardTeacher } from "react-icons/pi";
+import { PiStudent } from "react-icons/pi";
 import ImageGallery from "@/components/ui/image-gallery";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { PiChalkboardTeacher, PiStudent } from "react-icons/pi";
-import { GrUserAdmin } from "react-icons/gr";
+import { toast } from "sonner";
 
 type FormData = {
   email: string;
@@ -32,7 +32,9 @@ export default function Home() {
 
     if (res.message === "Admin logged in successfully") {
       localStorage.setItem("token", res.token);
-      alert("Login Successful");
+      toast.success("Logged In Successfully!", {
+        description: "Redirecting to Dashboard...",
+      });
       router.push("/admin/dashboard");
     }
   };
@@ -96,25 +98,25 @@ export default function Home() {
             </form>
           </div>
           <div className="text-center flex w-full justify-center mt-5 md:gap-20 gap-2 text-lg text-blue-500 font-figtree">
-                <Link href="/teacher/register">
-                  <Button
-                    variant="outline"
-                    className="w-full justify-center bg-[#443379] text-white"
-                  >
-                    <PiChalkboardTeacher className="mr-1 h-4 w-4" />
-                    Teacher Login
-                  </Button>
-                </Link>
-                <Link href="/">
-                  <Button
-                    variant="outline"
-                    className="w-full justify-center bg-[#443379] text-white"
-                  >
-                    <PiStudent className="mr-1 h-4 w-4" />
-                    Student Login
-                  </Button>
-                </Link>
-              </div>
+            <Link href="/teacher/register">
+              <Button
+                variant="outline"
+                className="w-full justify-center bg-[#443379] text-white"
+              >
+                <PiChalkboardTeacher className="mr-1 h-4 w-4" />
+                Teacher Login
+              </Button>
+            </Link>
+            <Link href="/">
+              <Button
+                variant="outline"
+                className="w-full justify-center bg-[#443379] text-white"
+              >
+                <PiStudent className="mr-1 h-4 w-4" />
+                Student Login
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
     </div>
