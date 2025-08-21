@@ -38,6 +38,7 @@ export function AuthToast() {
                         description: 'Please log in to access this page',
                         duration: 5000,
                         dismissible:true,
+                        richColors: true
                     });
                     
                     const url = new URL(window.location.href);
