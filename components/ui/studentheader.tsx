@@ -56,14 +56,18 @@ export function StudentHeader() {
       });
       toast.success("Logged Out Successfully!", {
         description: "Redirecting to Login Page...",
+        richColors: true
       });
       setTimeout(() => {
-        router.push("/teacher/login");
+        router.push("/");
         // window.location.href = "/teacher/login";
-        router.push("/teacher/login");
+        // router.push("/teacher/login");
       }, 1500);
     } else {
-      toast.error("Logout failed");
+      toast.error("Logout failed", {
+        description: "Please try again later.",
+        richColors: true
+      });
     }
   };
 

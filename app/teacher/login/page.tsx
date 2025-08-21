@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { PiStudent } from "react-icons/pi";
 
 import { GrUserAdmin } from "react-icons/gr";
+import { toast } from "sonner";
 type FormData = {
   email: string;
   password: string;
@@ -22,21 +23,25 @@ export default function Home() {
 
   const onSubmit = async (data: FormData) => {
     try {
-      const result = await teacherLogin(data.email, data.password); // result is already the parsed JSON
-      console.log("Login response data:", result);
+      const result = await teacherLogin(data.email, data.password);
 
-      // Check success using your API's response structure
       if (result.message === "Login successful.") {
-        alert("Login Successful");
-        // window.location.href = "/teacher/dashboard";
+        toast.success("Login Successful", {
+          description: "Redirecting to Dashboard...",
+          richColors: true
+        });
         router.push("/teacher/dashboard");
-        // Use this if you want to navigate without reloading the page
-      } else {
-        alert("Login Failed: " + result.message);
+      } else if (result.message === "Teacher not found with this email.") {
+        toast.error("Login Failed", {
+          description: result.message || "Please try again later.",
+          richColors: true
+        });
       }
     } catch (err) {
-      console.error("Login failed:", err);
-      alert("Login Error: " + err);
+      toast.error("Login Failed", {
+        description: "An unexpected error occurred. Please try again later.",
+        richColors: true
+      });
     }
   };
 
