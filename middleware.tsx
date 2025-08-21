@@ -21,8 +21,9 @@ export default async function middleware(req: NextRequest) {
 
   if (isProtectedRoute && !isAuthPage) {
     if (!token) {
+      // Store the attempted URL in the redirect
       const loginUrl = new URL("/", req.url);
-      loginUrl.searchParams.set("message", "unauthorized");
+      loginUrl.searchParams.set("from", req.nextUrl.pathname);
       return NextResponse.redirect(loginUrl);
     }
 

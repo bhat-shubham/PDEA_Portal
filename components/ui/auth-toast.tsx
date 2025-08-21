@@ -13,8 +13,14 @@ export function AuthToast() {
     
     useEffect(() => {
         const message = searchParams.get('message');
-        
-        if (message === 'unauthorized' && (pathname === '/' || pathname.includes('/login'))) {
+        const from = searchParams.get('from');
+
+        const shouldShow = (
+            (message === 'unauthorized' || !!from) &&
+            (pathname === '/' || pathname.includes('/login'))
+        );
+
+        if (shouldShow) {
             // console.log('AuthToast: Showing unauthorized message');
             
             if (!hasShownToast) {
@@ -27,8 +33,11 @@ export function AuthToast() {
                         dismissible:true,
                     });
                     
-                    const newUrl = pathname;
-                    router.replace(newUrl, { scroll: false });
+                    // Clean both `message` and `from` without navigation
+                    const url = new URL(window.location.href);
+                    url.searchParams.delete('message');
+                    url.searchParams.delete('from');
+                    window.history.replaceState({}, '', url.toString());
                     
                     setTimeout(() => {
                         hasShownToast = false;
