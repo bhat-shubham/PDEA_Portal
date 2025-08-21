@@ -6,6 +6,7 @@ const dotenv = require("dotenv");
 const { Admin } = require("../models/adminSchema");
 
 const { Teacher } = require("../models/teacherSchema");
+const Notices = require("../models/noticeSchema");
 
 dotenv.config();
 
@@ -109,7 +110,7 @@ const teacherlist = async (req, res) => {
     );
 
     if (teachers.length === 0) {
-      return res.status(404).json({ message: "No teachers found"});
+      return res.status(404).json({ message: "No teachers found" });
     }
 
     const formattedTeachers = teachers.map((t) => ({
@@ -154,10 +155,47 @@ const adminProfile = async (req, res) => {
   }
 };
 
+const notices = async (req, res) => {
+  const { title, content, type } = req.body;
+  const adminID = req.user.id;
+
+  try {
+    const newNotice = new Notices({
+      title,
+      content,
+      type,
+      admin: adminID,
+    });
+    await newNotice.save();
+    res.status(200).json({
+      message: "Notice added successfully",
+      notice: {
+        title: newNotice.title,
+        content: newNotice.content,
+        type: newNotice.type,
+        createdAt: newNotice.createdAt,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+const fetchNotices = async (req, res) => {
+  const notices = await Notices.find();
+  res.status(200).json({
+    message: "Notices fetched successfully",
+    notices: notices,
+  });
+};
+
 module.exports = {
   adminLogin,
   adminRegistration,
   adminLogout,
   teacherlist,
   adminProfile,
+  notices,
+  fetchNotices,
 };

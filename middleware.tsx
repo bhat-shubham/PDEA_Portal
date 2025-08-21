@@ -46,11 +46,11 @@ export default async function middleware(req: NextRequest) {
           return NextResponse.redirect(new URL("/", req.url));
         }
       } else {
-        return NextResponse.redirect(new URL("/login", req.url));
+        return NextResponse.redirect(new URL("/", req.url));
       }
     } catch (err) {
       console.error("Error verifying token in middleware:", err);
-      return NextResponse.redirect(new URL("/login", req.url));
+      return NextResponse.redirect(new URL("/", req.url));
     }
   }
 
