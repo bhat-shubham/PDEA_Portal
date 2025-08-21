@@ -52,7 +52,6 @@ const teacherLogin = async (req, res) => {
 
     if (!teacher) {
       return res
-        .status(404)
         .json({ message: "Teacher not found with this email." });
     }
 

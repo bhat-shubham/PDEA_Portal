@@ -35,7 +35,6 @@ export default function SignupFormDemo() {
         description: "Redirecting to Dashboard...",
         richColors:true
       });
-      console.log("Redirecting to student dashboard...");
       Router.push("/student/dashboard");
     }
     else {
