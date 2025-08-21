@@ -9,8 +9,7 @@ import { UserCircle, Mail, Phone, MapPin, LockKeyhole } from "lucide-react";
 import { profileHandler } from "@/app/lib/studentHandler";
 
 export default function StudentProfile() {
-  // const [isEditing, setIsEditing] = useState(false);
-  // const [showImageUpload, setShowImageUpload] = useState(false);
+  
 
   const [profileData, setProfileData] = useState({
     firstname: "",
