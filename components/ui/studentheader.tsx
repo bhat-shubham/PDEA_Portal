@@ -58,9 +58,9 @@ export function StudentHeader() {
         description: "Redirecting to Login Page...",
       });
       setTimeout(() => {
-        router.push("/teacher/login");
+        router.push("/");
         // window.location.href = "/teacher/login";
-        router.push("/teacher/login");
+        // router.push("/teacher/login");
       }, 1500);
     } else {
       toast.error("Logout failed");
