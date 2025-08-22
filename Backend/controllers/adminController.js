@@ -56,7 +56,7 @@ const adminLogin = async (req, res) => {
     const admin = await Admin.findOne({ email });
     console.log("Admin found:", admin);
     if (!admin) {
-      res.status(404).json({ message: "Admin not found with " });
+      res.status(404).json({ message: "Invalid Username Or Password" });
     }
 
     const isMatch = await bcrypt.compare(password, admin.password);
