@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 // import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { BookPlus, FileText, Send, X, Bell, AlertCircle } from "lucide-react";
+import { BookPlus, FileText, Send, X, Bell, AlertCircle, Trash2, AlertTriangle } from "lucide-react";
 import { noticeHandler } from "@/app/lib/noticeHandler";
 import { toast } from "sonner";
 interface notices {
@@ -37,6 +37,30 @@ export default function noticesPage() {
     content: '',
     type: 'Notice' as 'Notice' | 'Circular'
   });
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [selectedNotice, setSelectedNotice] = useState<notices | null>(null);
+
+  const handleDeleteNotice = async () => {
+    if (!selectedNotice) return;
+
+    // try {
+    //   const res = await noticeHandler(`notice/${selectedNotice.id}`, "DELETE");
+    //   if (res) {
+    //     setNotices(notices.filter(notice => notice.id !== selectedNotice.id));
+    //     toast.success("Notice Deleted", {
+    //       description: "The notice has been successfully deleted",
+    //     });
+    //   }
+    // } catch (error) {
+    //   toast.error("Failed to delete notice", {
+    //     description: "Please try again later",
+    //   });
+    //   console.error("Error deleting notice:", error);
+    // } finally {
+    //   setShowDeleteDialog(false);
+    //   setSelectedNotice(null);
+    // }
+  };
 
   const handleNewNoticeSubmit = async () => {
     if (!newNotice.title || !newNotice.content) {
@@ -203,35 +227,94 @@ export default function noticesPage() {
           {notices.map((notification) => (
             <Link href={`/notices/${notification.id}`}>
               <Card
-                className="cursor-pointer border border-white/10 backdrop-blur-xl bg-black/20
+                className="group relative border border-white/10 backdrop-blur-xl bg-black/20
                         transition-all duration-300 ease-out
                         hover:shadow-[0_0_25px_rgba(100,149,237,0.4)] text-white shadow-lg mb-5"
               >
-                <CardHeader>
-                  <CardTitle className="text-xl font-bold">
-                    {notification.title}
-                  </CardTitle>
-                  <CardDescription className="text-sm text-gray-400">
-                    {noticeDate(notification)}
-                  </CardDescription>
-                </CardHeader>
-
-                <CardContent>
-                  <p className="text-gray-300 mb-4">{notification.content}</p>
-                  <span
-                    className={`px-3 py-1 text-sm rounded-full ${
-                      notification.type === "Notice"
-                        ? "bg-green-500 text-white"
-                        : "bg-blue-500 text-white"
-                    }`}
+                <div 
+                  className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setSelectedNotice(notification);
+                    setShowDeleteDialog(true);
+                  }}
+                >
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 bg-red-500/10 hover:bg-red-500/20 text-red-500 hover:text-red-400"
                   >
-                    {notification.type}
-                  </span>
-                </CardContent>
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+                <Link href={`/notices/${notification.id}`} className="block cursor-pointer">
+                  <CardHeader>
+                    <CardTitle className="text-xl font-bold">
+                      {notification.title}
+                    </CardTitle>
+                    <CardDescription className="text-sm text-gray-400">
+                      {noticeDate(notification)}
+                    </CardDescription>
+                  </CardHeader>
+
+                  <CardContent>
+                    <p className="text-gray-300 mb-4">{notification.content}</p>
+                    <span
+                      className={`px-3 py-1 text-sm rounded-full ${
+                        notification.type === "Notice"
+                          ? "bg-green-500 text-white"
+                          : "bg-blue-500 text-white"
+                      }`}
+                    >
+                      {notification.type}
+                    </span>
+                  </CardContent>
+                </Link>
               </Card>
             </Link>
           ))}
         </div>
+
+        <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+          <DialogContent className="bg-gray-900/95 border-gray-800 text-white max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-semibold flex items-center gap-2 text-red-400">
+                <AlertTriangle className="h-5 w-5" />
+                Delete Notice
+              </DialogTitle>
+              <DialogDescription className="text-gray-400">
+                Are you sure you want to delete this notice? This action cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="py-4">
+              {selectedNotice && (
+                <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4">
+                  <h4 className="font-medium text-red-400 mb-1">{selectedNotice.title}</h4>
+                  <p className="text-sm text-gray-400">{selectedNotice.type} • {noticeDate(selectedNotice)}</p>
+                </div>
+              )}
+            </div>
+
+            <DialogFooter className="gap-3 sm:gap-0">
+              <Button
+                variant="ghost"
+                onClick={() => setShowDeleteDialog(false)}
+                className="bg-gray-800 hover:bg-gray-700 text-white"
+              >
+                <X className="w-4 h-4 mr-2" />
+                Cancel
+              </Button>
+              <Button
+                onClick={handleDeleteNotice}
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Delete Notice
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
