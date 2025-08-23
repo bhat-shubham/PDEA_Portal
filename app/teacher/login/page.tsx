@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { PiStudent } from "react-icons/pi";
 import { toast } from "sonner";
 import { GrUserAdmin } from "react-icons/gr";
+
 type FormData = {
   email: string;
   password: string;
@@ -22,8 +23,7 @@ export default function Home() {
 
   const onSubmit = async (data: FormData) => {
     try {
-      const result = await teacherLogin(data.email, data.password); // result is already the parsed JSON
-      console.log("Login response data:", result);
+      const result = await teacherLogin(data.email, data.password);
 
       if (result.message === "Login successful.") {
         toast.success("Logged In Successfully!", {

@@ -6,6 +6,9 @@ import "./globals.css";
 import { Providers } from "./provider";
 import { Analytics } from '@vercel/analytics/next';
 import { Toaster } from "@/components/ui/sonner"
+import { AuthToast } from "@/components/ui/auth-toast"
+import { Suspense } from "react";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -35,14 +38,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className="font-figtree"
-      >
+      <body className="font-figtree">
         <Providers>
-         {children}
+          {children}
+          <Suspense fallback={null}>
+            <AuthToast />
+          </Suspense>
+          <Toaster position="top-center" className="min-h-[100px]"  />
         </Providers>
         <Analytics />
-        <Toaster />
       </body>
     </html>
   );

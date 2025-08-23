@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
 // import { useState } from "react";
 import React from "react";
+import { toast } from "sonner";
 
 type FormData = {
   firstname: string;
@@ -56,16 +57,16 @@ export default function Home() {
 
       console.log(res);
       if (res.message === "Student registered successfully") {
+        toast.success("Registration successful!");
         router.push("/");
       }
     } catch (error) {
       console.error("Registration error:", error);
-      alert("An error occurred during registration. Please try again.");
+      toast.error("An error occurred during registration. Please try again.");
     }
   };
   console.log(errors);
   return (
-    //  </BackgroundBeamsWithCollision>
     <div className="w-screen relative h-screen flex justify-center items-center align-middle">
       <Aurora
         colorStops={["#c94b4b", "#302b63", "#4b134f"]}
