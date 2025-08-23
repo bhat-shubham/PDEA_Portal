@@ -21,7 +21,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 // import { adminProfile } from "@/app/lib/adminHandler";
 import { da } from "date-fns/locale";
-import { studentProfile } from "@/app/lib/studentProfile";
+// import { studentProfile } from "@/app/lib/studentProfile";
 import { profileHandler } from "@/app/lib/studentHandler";
 
 export function StudentHeader() {
