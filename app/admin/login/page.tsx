@@ -38,7 +38,7 @@ export default function Home() {
       router.push("/admin/dashboard");
     }
     if (res.message !== "Admin logged in successfully" && res.message) {
-      toast.success(`${res.message}`, {
+      toast.error(`${res.message}`, {
         description: "Retry Again...",
       });
     }

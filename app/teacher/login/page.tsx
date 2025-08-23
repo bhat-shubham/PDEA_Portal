@@ -10,7 +10,7 @@ import ImageGallery from "@/components/ui/image-gallery";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { PiStudent } from "react-icons/pi";
-
+import { toast } from "sonner";
 import { GrUserAdmin } from "react-icons/gr";
 type FormData = {
   email: string;
@@ -25,18 +25,20 @@ export default function Home() {
       const result = await teacherLogin(data.email, data.password); // result is already the parsed JSON
       console.log("Login response data:", result);
 
-      // Check success using your API's response structure
       if (result.message === "Login successful.") {
-        alert("Login Successful");
-        // window.location.href = "/teacher/dashboard";
+        toast.success("Logged In Successfully!", {
+          description: "Redirecting to Dashboard...",
+        });
+
         router.push("/teacher/dashboard");
-        // Use this if you want to navigate without reloading the page
-      } else {
-        alert("Login Failed: " + result.message);
+      }
+      if (result.message !== "Login successful." && result.message) {
+        toast.error("Something Went Wrong", {
+          description: "Retry Again...",
+        });
       }
     } catch (err) {
       console.error("Login failed:", err);
-      alert("Login Error: " + err);
     }
   };
 
