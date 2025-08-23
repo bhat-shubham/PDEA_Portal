@@ -2,19 +2,17 @@
 import {
   Home,
   Megaphone,
-  Bell,
   User,
   Menu,
   X,
   LogOut,
   PanelsTopLeft,
-  GraduationCap,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "./button";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { logoutUser } from "@/lib/logout";
+import { profileHandler } from "@/app/lib/studentHandler";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { PagesProgressProvider as ProgressProvider } from "@bprogress/next";
@@ -43,16 +41,16 @@ export function StudentSidebar() {
     }
   };
   const handleLogout = async () => {
-    const success = await logoutUser();
-    if (success) {
+    const res = await profileHandler("logout", "POST");
+    console.log("nfkbwfbkb");
+    if (res.message === "Logout successful") {
       toast.success("Logged Out Successfully!", {
         description: "Redirecting to Login Page...",
       });
 
       setTimeout(() => {
-        // window.location.href = "/teacher/login";
-        router.push("/student/login");
-      }, 1500);
+        router.push("/");
+      }, 1000);
     } else {
       toast.error("Logout failed");
     }
@@ -138,7 +136,10 @@ export function StudentSidebar() {
               <Button
                 variant="ghost"
                 className="w-full justify-start"
-                onClick={() => { setShowProfile(true); handleLinkClick(); }}
+                onClick={() => {
+                  setShowProfile(true);
+                  handleLinkClick();
+                }}
                 asChild
               >
                 <Link href="/student/dashboard/profile">
@@ -148,7 +149,10 @@ export function StudentSidebar() {
               </Button>
               <Button
                 variant="ghost"
-                onClick={() => { handleLogout(); handleLinkClick(); }}
+                onClick={() => {
+                  handleLogout();
+                  handleLinkClick();
+                }}
                 className="w-full justify-start"
               >
                 {/* <Link href="/teacher/dashboard/profile"> */}

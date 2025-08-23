@@ -103,7 +103,7 @@ const studentLogout = (req, res) => {
     secure: true,
     sameSite: "Strict",
   });
-  res.status(200).json({ message: "student logged out successfully" });
+  res.status(200).json({ message: "Logout successful" });
 };
 
 const studentProfile = async (req, res) => {

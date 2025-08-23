@@ -3,6 +3,7 @@ import {
   Home,
   Megaphone,
   User,
+  Bell,
   Menu,
   X,
   LogOut,
@@ -13,7 +14,7 @@ import Link from "next/link";
 import { Button } from "../../../components/ui/button";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { logoutUser } from "@/lib/logout";
+import { profileHandler } from "@/app/lib/studentHandler";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { PagesProgressProvider as ProgressProvider } from "@bprogress/next";
@@ -42,16 +43,16 @@ export function AdminSidebar() {
     }
   };
   const handleLogout = async () => {
-    const success = await logoutUser();
-    if (success) {
+    const res = await profileHandler("logout", "POST");
+    console.log("nfkbwfbkb");
+    if (res.message === "Logout successful") {
       toast.success("Logged Out Successfully!", {
         description: "Redirecting to Login Page...",
       });
 
       setTimeout(() => {
-        // window.location.href = "/teacher/login";
-        router.push("/teacher/login");
-      }, 1500);
+        router.push("/");
+      }, 1000);
     } else {
       toast.error("Logout failed");
     }
@@ -134,7 +135,7 @@ export function AdminSidebar() {
               Account
             </h3>
             <div className="space-y-2">
-              {/* <Button
+              <Button
                 variant="ghost"
                 onClick={handleLinkClick}
                 className="w-full justify-start"
@@ -144,11 +145,14 @@ export function AdminSidebar() {
                   <Bell className="mr-3 h-5 w-5" />
                   Notifications
                 </Link>
-              </Button> */}
+              </Button>
               <Button
                 variant="ghost"
                 className="w-full justify-start"
-                onClick={() => { setShowProfile(true); handleLinkClick(); }}
+                onClick={() => {
+                  setShowProfile(true);
+                  handleLinkClick();
+                }}
                 asChild
               >
                 <Link href="/admin/dashboard/profile">
@@ -158,7 +162,10 @@ export function AdminSidebar() {
               </Button>
               <Button
                 variant="ghost"
-                onClick={() => { handleLogout(); handleLinkClick(); }}
+                onClick={() => {
+                  handleLogout();
+                  handleLinkClick();
+                }}
                 className="w-full justify-start"
               >
                 {/* <Link href="/teacher/dashboard/profile"> */}
