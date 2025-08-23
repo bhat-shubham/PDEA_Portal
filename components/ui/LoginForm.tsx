@@ -33,9 +33,15 @@ export default function SignupFormDemo() {
       localStorage.setItem("token", res.token);
       toast.success("Logged In Successfully!", {
         description: "Redirecting to Dashboard...",
+        richColors:true
       });
-      console.log("Redirecting to student dashboard...");
       Router.push("/student/dashboard");
+    }
+    else {
+      toast.error("Login Failed", {
+        description: res.message || "Please try again later.",
+        richColors: true
+      });
     }
   };
   return (

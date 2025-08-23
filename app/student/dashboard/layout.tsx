@@ -1,6 +1,7 @@
 
 "use client";
 import { StudentSidebar } from "@/components/ui/studentsidebar"
+import { Toaster } from "sonner";
 // import withAuth from "../../lib/withAuth";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -18,6 +19,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         height: '100%',
         width: '100%'
       }} />
+      {/* <Toaster position="top-right" richColors /> */}
       <div className="relative z-10 flex flex-1 overflow-hidden">
         <div className="h-full">
           <StudentSidebar />

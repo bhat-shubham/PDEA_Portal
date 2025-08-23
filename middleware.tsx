@@ -21,9 +21,10 @@ export default async function middleware(req: NextRequest) {
 
   if (isProtectedRoute && !isAuthPage) {
     if (!token) {
-      const res = NextResponse.redirect(new URL("/", req.url));
-
-      return res;
+      // Store the attempted URL in the redirect
+      const loginUrl = new URL("/", req.url);
+      loginUrl.searchParams.set("from", req.nextUrl.pathname);
+      return NextResponse.redirect(loginUrl);
     }
 
     try {
