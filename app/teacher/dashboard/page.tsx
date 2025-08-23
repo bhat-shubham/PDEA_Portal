@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { Header } from "@/components/ui/teacherheader";
-
+import { TestSocket } from "@/app/lib/TestSocket";
 import { CiCirclePlus } from "react-icons/ci";
 import { useEffect, useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -79,6 +80,13 @@ export default function Dashboard() {
       console.error("Error fetching classes:", error);
     }
   };
+  useEffect(() => {
+    const socket = TestSocket();
+
+    socket.on("connect", () => {
+      console.log("Connected to server:", socket.id);
+    });
+}, []);
 
   const createClass = async () => {
     try {

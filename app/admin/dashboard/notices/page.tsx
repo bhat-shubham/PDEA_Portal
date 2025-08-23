@@ -23,7 +23,7 @@ interface notices {
   content: string;
 }
 
-export default function noticesPage() {
+export default function NoticesPage() {
   const [notices, setNotices] = useState<notices[]>([]);
 
   const noticeDate = (notice: notices) => {
