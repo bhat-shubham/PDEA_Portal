@@ -4,7 +4,7 @@ import { User, LogOut, UserCircle } from "lucide-react";
 
 import { Button } from "./button";
 import { ModeToggle } from "./mode-toggle";
-import { teacherProfile } from "@/app/lib/teacherProfile";
+// import { teacherProfile } from "@/app/lib/teacherProfile";
 import { useEffect, useState } from "react";
 import { teacherLogout } from "@/app/lib/teacherLogout";
 // import { profileHandler } from "@/app/lib/studentHandler";
@@ -20,7 +20,7 @@ import {
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 // import { adminProfile } from "@/app/lib/adminHandler";
-import { da } from "date-fns/locale";
+// import { da } from "date-fns/locale";
 // import { studentProfile } from "@/app/lib/studentProfile";
 import { profileHandler } from "@/app/lib/studentHandler";
 

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Header } from "@/components/ui/teacherheader";
+import { useState, useEffect } from "react";
+import { StudentHeader } from "@/components/ui/studentheader";
 import {
   Card,
   CardContent,
@@ -10,53 +10,50 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import Link from "next/link";
-interface Notification {
+import { noticeHandler } from "@/app/lib/noticeHandler";
+interface notices {
   id: number;
   type: "Notice" | "Circular";
   title: string;
-  date: string;
-  time: string;
   content: string;
+  createdAt: Date;
 }
 
 export default function NoticesPage() {
-  const [notices] = useState<Notification[]>([
-    {
-      id: 1,
-      type: "Notice",
-      title: "Annual Sports Day",
-      date: "2024-02-15",
-      time: "10:00 AM",
-      content:
-        "Annual Sports Day will be held on February 20th. All teachers must attend.",
-    },
-    {
-      id: 2,
-      type: "Circular",
-      title: "Staff Meeting",
-      date: "2024-02-10",
-      time: "2:00 PM",
-      content: "Monthly staff meeting scheduled for next Monday at 2 PM.",
-    },
-    {
-      id: 3,
-      type: "Notice",
-      title: "Parent-Teacher Meeting",
-      date: "2024-02-25",
-      time: "3:00 PM",
-      content: "PTM for all classes will be conducted on February 25th.",
-    },
-  ]);
+  const [notices, setNotices] = useState<notices[]>([]);
+
+  const noticeDate = (notice: notices) => {
+    const date = new Date(notice.createdAt);
+    const day = date.getDate();
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
+
+  useEffect(() => {
+    const handleNewNotice = async () => {
+      try {
+        const res = await noticeHandler("notice", "GET");
+        if (res) {
+          setNotices(res.notices);
+          console.log();
+        }
+      } catch (error) {
+        console.error("Error fetching notices:", error);
+      }
+    };
+    handleNewNotice();
+  }, []);
 
   return (
     <div className="">
-      <Header />
+      <StudentHeader />
       <div className="p-6">
         <h1 className="text-2xl font-bold mb-8 text-gray-100">
           Notices and Circulars
         </h1>
         <div className=" md:grid-cols-2 lg:grid-cols-3 gap-2 mb-3">
-          {notices.map((notification) => (
+          {[...notices].reverse().map((notification) => (
             <Link key={notification.id} href={`/notices/${notification.id}`}>
               <Card
                 className="cursor-pointer border border-white/10 backdrop-blur-xl bg-black/20
@@ -68,7 +65,7 @@ export default function NoticesPage() {
                     {notification.title}
                   </CardTitle>
                   <CardDescription className="text-sm text-gray-400">
-                    {notification.date},{notification.time}
+                    {noticeDate(notification)}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>

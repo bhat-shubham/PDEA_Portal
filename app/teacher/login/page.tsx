@@ -26,7 +26,6 @@ export default function Home() {
       const result = await teacherLogin(data.email, data.password);
 
       if (result.message === "Login successful.") {
-
         toast.success("Logged In Successfully!", {
           description: "Redirecting to Dashboard...",
         });
@@ -41,23 +40,11 @@ export default function Home() {
     } catch (err) {
       console.error("Login failed:", err);
 
-        toast.success("Login Successful", {
-          description: "Redirecting to Dashboard...",
-          richColors: true
-        });
-        router.push("/teacher/dashboard");
-      } else if (result.message === "Teacher not found with this email.") {
-        toast.error("Login Failed", {
-          description: result.message || "Please try again later.",
-          richColors: true
-        });
-      }
-    } catch (err) {
-      toast.error("Login Failed", {
-        description: "An unexpected error occurred. Please try again later.",
-        richColors: true
+      toast.success("Login Successful", {
+        description: "Redirecting to Dashboard...",
+        richColors: true,
       });
-
+      router.push("/teacher/dashboard");
     }
   };
 
