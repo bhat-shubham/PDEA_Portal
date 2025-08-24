@@ -127,12 +127,11 @@ export function Header() {
       setNotifications(
         notifications.filter((n) => n.id !== confirmationDialog.notificationId)
       );
-      // Here you would typically make an API call to update the backend
-      console.log(
-        `Student ${confirmationDialog.studentName} ${
-          confirmationDialog.type === "approve" ? "approved" : "denied"
-        }`
-      );
+      // console.log(
+      //   `Student ${confirmationDialog.studentName} ${
+      //     confirmationDialog.type === "approve" ? "approved" : "denied"
+      //   }`
+      // );
     }
     setConfirmationDialog({
       isOpen: false,

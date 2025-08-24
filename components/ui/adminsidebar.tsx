@@ -10,6 +10,7 @@ import {
   GraduationCap,
 } from "lucide-react";
 import Link from "next/link";
+import { noticeHandler } from "@/app/lib/noticeHandler";
 import { Button } from "./button";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
@@ -18,9 +19,46 @@ import { adminHandler } from "@/app/lib/adminHandler";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { PagesProgressProvider as ProgressProvider } from "@bprogress/next";
+interface notices {
+  id: number;
+  type: "Notice" | "Circular";
+  title: string;
+
+  createdAt: Date;
+
+  content: string;
+}
 
 export function AdminSidebar() {
+  const [noticeCount, setNoticeCount] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+  
   const router = useRouter();
+
+  useEffect(() => {
+    const fetchNoticeCount = async () => {
+      try {
+        const res = await noticeHandler("notice", "GET");
+        if (res && Array.isArray(res.notices)) {
+          setNoticeCount(res.notices.length);
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error('Failed to fetch notices'));
+        console.error('Error fetching notices:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+
+    fetchNoticeCount();
+
+
+    const intervalId = setInterval(fetchNoticeCount, 30000);
+
+    return () => clearInterval(intervalId);
+  }, []);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -114,12 +152,20 @@ export function AdminSidebar() {
               <Button
                 variant="ghost"
                 onClick={handleLinkClick}
-                className="w-full justify-start"
+                className="w-full justify-start items-center align-middle"
                 asChild
               >
                 <Link href="/admin/dashboard/notices">
                   <Megaphone className="mr-3 h-5 w-5" />
-                  Notices
+                  Notices            
+                  {!isLoading && noticeCount !== null && noticeCount > 0 && (
+                    <span className="ml-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      {noticeCount}
+                    </span>
+                  )}
+                  {isLoading && (
+                    <span className="ml-2 h-5 w-5 rounded-full bg-gray-700/50 animate-pulse" />
+                  )}
                 </Link>
               </Button>
             </div>
