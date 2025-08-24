@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Header } from "@/components/ui/teacherheader"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import Link  from "next/link";
+import { StudentHeader } from '@/components/ui/studentheader';
 interface Notification {
     id: number;
     type: 'Notice' | 'Circular';
@@ -44,7 +44,7 @@ export default function noticesPage() {
     return (
         
         <div className="">
-        <Header />
+        <StudentHeader />
         <div className='p-6'>
 
             <h1 className="text-2xl font-bold mb-8 text-gray-100">Notices and Circulars</h1>

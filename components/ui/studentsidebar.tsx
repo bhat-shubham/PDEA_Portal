@@ -16,8 +16,36 @@ import { profileHandler } from "@/app/lib/studentHandler";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { PagesProgressProvider as ProgressProvider } from "@bprogress/next";
-
+import { noticeHandler } from "@/app/lib/noticeHandler";
 export function StudentSidebar() {
+  const [noticeCount, setNoticeCount] = useState<number | null>(null);
+  const [error, setError] = useState<Error | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+
+    useEffect(() => {
+      const fetchNoticeCount = async () => {
+        try {
+          const res = await noticeHandler("notice", "GET");
+          if (res && Array.isArray(res.notices)) {
+            setNoticeCount(res.notices.length);
+          }
+        } catch (err) {
+          setError(err instanceof Error ? err : new Error('Failed to fetch notices'));
+          console.error('Error fetching notices:', err);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+  
+  
+      fetchNoticeCount();
+  
+  
+      const intervalId = setInterval(fetchNoticeCount, 30000);
+  
+      return () => clearInterval(intervalId);
+    }, []);
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -113,6 +141,11 @@ export function StudentSidebar() {
                 <Link href="/student/dashboard/notices">
                   <Megaphone className="mr-3 h-5 w-5" />
                   Notices
+                  {!isLoading && noticeCount !== null && noticeCount > 0 && (
+                    <span className="ml-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      {noticeCount}
+                    </span>
+                  )}
                 </Link>
               </Button>
             </div>

@@ -26,9 +26,9 @@ export default function Home() {
   // const onSubmit = (data: unknown) => console.log(data);
   const router = useRouter();
   const onSubmit = async (data: FormData) => {
-    console.log("Form submitted with data:", data);
+    // console.log("Form submitted with data:", data);
     const res = await adminLogin(data.email, data.password);
-    console.log("Login response data:", res);
+    // console.log("Login response data:", res);
 
     if (res.message === "Admin logged in successfully") {
       localStorage.setItem("token", res.token);
@@ -36,6 +36,11 @@ export default function Home() {
         description: "Redirecting to Dashboard...",
       });
       router.push("/admin/dashboard");
+    }
+    else if(res.message === "Invalid Username Or Password") {
+      toast.error("Invalid email or password", {
+        description: "Please try again.",
+      });
     }
   };
   console.log(errors);
