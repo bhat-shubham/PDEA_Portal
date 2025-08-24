@@ -7,13 +7,14 @@ const {
   studentRegistration,
   studentLogin,
   studentLogout,
-  studentProfile
+  studentProfile,
+  joinClass,
 } = require("../controllers/studentController");
 
 route.post("/register", studentRegistration);
 route.post("/login", studentLogin);
 route.post("/logout", studentLogout);
-route.get("/profile",auth , studentProfile);
-
+route.get("/profile", auth, studentProfile);
+route.post("/class", auth, joinClass);
 
 module.exports = route;

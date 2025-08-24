@@ -29,7 +29,7 @@ interface notices {
   content: string;
 }
 
-export default function noticesPage() {
+export default function NoticesPage() {
   const [notices, setNotices] = useState<notices[]>([]);
   const [showNewNoticeDialog, setShowNewNoticeDialog] = useState(false);
   const [newNotice, setNewNotice] = useState({
@@ -224,8 +224,8 @@ export default function noticesPage() {
           </div>
         </div>
         <div className=" md:grid-cols-2 lg:grid-cols-3 gap-2 mb-3">
-          {notices.map((notification) => (
-            <Link href={`/notices/${notification.id}`}>
+          {[...notices].reverse().map((notification) => (
+            <Link key={notification.id} href={`/notices/${notification.id}`}>
               <Card
                 className="group relative border border-white/10 backdrop-blur-xl bg-black/20
                         transition-all duration-300 ease-out

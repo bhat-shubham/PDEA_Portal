@@ -58,7 +58,7 @@ const teacherLogin = async (req, res) => {
     const isPasswordValid = await bcrypt.compare(password, teacher.password);
 
     if (!isPasswordValid) {
-      return res.status(401).json({ message: "Invalid password." });
+      return res.json({ message: "Something Went Wrong" });
     }
 
     const token = jwt.sign(
@@ -68,7 +68,7 @@ const teacherLogin = async (req, res) => {
         expiresIn: "1h",
       }
     );
-    // console.log("token",token)
+
 
     res.cookie("token", token, {
       httpOnly: true,
@@ -113,7 +113,7 @@ const teacherDetails = async (req, res) => {
     const email = req.user.email;
     console.log("Fetching teacher details for email:", email);
     const teacher = await Teacher.findOne({ email: email }).select("-password");
-   
+
     if (!teacher) {
       return res.status(404).json({ message: "Teacher not found." });
     }
@@ -153,7 +153,7 @@ const createClass = async (req, res) => {
   });
 
   await newClass.save();
- 
+
   res.status(201).json({
     message: "Class creat",
     class: {

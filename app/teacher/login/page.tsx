@@ -10,9 +10,9 @@ import ImageGallery from "@/components/ui/image-gallery";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { PiStudent } from "react-icons/pi";
-
-import { GrUserAdmin } from "react-icons/gr";
 import { toast } from "sonner";
+import { GrUserAdmin } from "react-icons/gr";
+
 type FormData = {
   email: string;
   password: string;
@@ -26,22 +26,25 @@ export default function Home() {
       const result = await teacherLogin(data.email, data.password);
 
       if (result.message === "Login successful.") {
-        toast.success("Login Successful", {
+        toast.success("Logged In Successfully!", {
           description: "Redirecting to Dashboard...",
-          richColors: true
         });
+
         router.push("/teacher/dashboard");
-      } else if (result.message === "Teacher not found with this email.") {
-        toast.error("Login Failed", {
-          description: result.message || "Please try again later.",
-          richColors: true
+      }
+      if (result.message !== "Login successful." && result.message) {
+        toast.error("Something Went Wrong", {
+          description: "Retry Again...",
         });
       }
     } catch (err) {
-      toast.error("Login Failed", {
-        description: "An unexpected error occurred. Please try again later.",
-        richColors: true
+      console.error("Login failed:", err);
+
+      toast.success("Login Successful", {
+        description: "Redirecting to Dashboard...",
+        richColors: true,
       });
+      router.push("/teacher/dashboard");
     }
   };
 

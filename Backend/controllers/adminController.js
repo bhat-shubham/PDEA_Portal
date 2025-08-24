@@ -62,7 +62,7 @@ const adminLogin = async (req, res) => {
 
     const isMatch = await bcrypt.compare(password, admin.password);
     if (!isMatch) {
-      return res.status(400).json({ message: "Invalid password" });
+      return res.status(400).json({ message: "Something Went Wrong" });
     }
 
     const token = jwt.sign(
@@ -158,6 +158,7 @@ const adminProfile = async (req, res) => {
 const notices = async (req, res) => {
   const { title, content, type } = req.body;
   const adminID = req.user.id;
+  const io = req.app.get("io");
 
   try {
     const newNotice = new Notices({
@@ -167,6 +168,8 @@ const notices = async (req, res) => {
       admin: adminID,
     });
     await newNotice.save();
+
+    io.emit("newNotice", newNotice);
     res.status(200).json({
       message: "Notice added successfully",
       notice: {

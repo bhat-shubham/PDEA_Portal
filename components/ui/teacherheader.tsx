@@ -35,7 +35,6 @@ import {
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-
 export function Header() {
   const router = useRouter();
   const [showNotifications, setShowNotifications] = useState(false);
@@ -105,11 +104,11 @@ export function Header() {
     const success = await teacherLogout();
     if (success) {
       setTeacher({
-            firstname: "",
-            lastname: "",
-            email: "",
-            branch: "",
-      })
+        firstname: "",
+        lastname: "",
+        email: "",
+        branch: "",
+      });
       localStorage.removeItem("token");
       toast.success("Logged Out Successfully!", {
         description: "Redirecting to Login Page...",
@@ -151,36 +150,6 @@ export function Header() {
     });
   };
 
-  // const handleLogout = async () => {
-  //   const response = await fetch("http://localhost:3001/teacher/logout", {
-  //     method: "POST",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //     },
-  //   });
-  //   if (response.ok) {
-  //     // <Toaster position="top-center" />
-  //     toast.success("Logged Out Successfully!", {
-  //         description: "Redirecting to login page...",
-  //         // position: "top-center",
-  //         // action: {
-  //         //   label: "Cancel",
-  //         //   // position: "top-center",
-  //         //   onClick: () => console.log("Cancel"),
-  //         // },
-  //       })
-  //     // alert("Logout Successful");
-
-  //     setTimeout(() => {
-  //     window.location.href = "/teacher/login";},3000); // Manual redirect
-  //   } else {
-  //     console.error("Logout failed");
-  //     toast.error("Logout failed", {
-  //       description: "Please try again",
-  //     });
-  //   }
-  // };
-
   const [teacher, setTeacher] = useState({
     firstname: "",
     lastname: "",
@@ -204,35 +173,7 @@ export function Header() {
     };
 
     fetcheTeacher();
-
-    // const fetchTeacher = async () => {
-    //   try {
-
-    //     const response = await fetch(`${process.env.NEXT_PUBLIC_API}/teacher/getTeacher`, {
-    //       method: "GET",
-    //       headers: {
-    //         "Content-Type": "application/json",
-    //       },
-    //       credentials: "include",
-    //     });
-
-    //     if (!response.ok) {
-    //       const errorData = await response.json();
-
-    //       console.error("Fetch failed:", errorData);
-    //       return;
-    //     }
-
-    //     const data = await response.json();
-    //     setTeacher(data.teacher);
-
-    //   } catch (error) {
-    //     console.error("Unhandled error in fetchTeacher:", error);
-    //   }
-    // };
-
-    // fetchTeacher();
-  }, []);
+  });
 
   return (
     <header className="lg:relative lg:bg-transparent bg-[#0F131F] z-10 sticky top-0 border-b p-4 lg:p-6 flex items-center justify-between">

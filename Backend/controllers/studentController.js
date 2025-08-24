@@ -7,6 +7,8 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 const { Student } = require("../models/studentSchema");
+const { Class } = require("../models/classSchema");
+const { Notification } = require("../models/notificationSchema");
 
 const studentRegistration = async (req, res) => {
   const { firstname, lastname, email, mobile, password, parentPhone, branch } =
@@ -133,9 +135,38 @@ const studentProfile = async (req, res) => {
   }
 };
 
+const joinClass = async (req, res) => {
+  const { class_code } = req.body;
+  console.log(class_code);
+  const email = req.user.email;
+  console.log("Fetching student details for email:", email);
+
+  const classResult = await Class.findOne({ class_code: class_code });
+
+  if (!classResult) {
+    return res.status(404).json({ message: "Class not found" });
+  }
+
+  const student = await Student.findOne({ email: email });
+  if (!student) {
+    return res.status(404).json({ message: "Student not found" });
+  }
+
+  const notification = new Notification({
+    studentID: student._id,
+    classId: classResult._id,
+    studentName: `${student.firstname} ${student.lastname}`,
+    classname: classResult.name,
+  });
+
+  await notification.save();
+  res.status(200).json({ message: "Joined class successfully", notification });
+};
+
 module.exports = {
   studentRegistration,
   studentLogin,
   studentLogout,
   studentProfile,
+  joinClass,
 };

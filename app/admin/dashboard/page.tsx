@@ -1,12 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-"use client"
+"use client";
 
-import { AdminHeader } from "@/components/ui/adminheader"
+import { AdminHeader } from "@/components/ui/adminheader";
 import AllClasses from "@/components/ui/classes";
-// import { CiCirclePlus } from "react-icons/ci";
-import { useState } from "react";
 
-
+import { useState, useEffect } from "react";
+import { TestSocket } from "@/app/lib/TestSocket";
 
 export default function AdminDashboard() {
   const [selectedClass, setSelectedClass] = useState<string | null>(null);
@@ -17,14 +16,29 @@ export default function AdminDashboard() {
   //   subject: ''
   // });
 
-  const handleClassClick = (classId: string) => {
-    // 
-  };
-
+  const handleClassClick = (classId: string) => {};
+  const res = useEffect(() => {
+    const socket = TestSocket();
+    socket.on("connect", () => {
+      console.log("Connected to server:", socket.id);
+    });
+  });
 
   const classes = [
-    { id: "SE_IT", name: "SE IT", students: 30, attendance: "80%", room: "101" },
-    { id: "BE_IT", name: "BE IT", students: 28, attendance: "90%", room: "103" },
+    {
+      id: "SE_IT",
+      name: "SE IT",
+      students: 30,
+      attendance: "80%",
+      room: "101",
+    },
+    {
+      id: "BE_IT",
+      name: "BE IT",
+      students: 28,
+      attendance: "90%",
+      room: "103",
+    },
   ];
 
   return (
@@ -34,5 +48,5 @@ export default function AdminDashboard() {
         <AllClasses />
       </div>
     </>
-  )
+  );
 }
