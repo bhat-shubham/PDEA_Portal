@@ -31,9 +31,9 @@ export default function Home() {
           richColors: true
         });
         router.push("/teacher/dashboard");
-      } else if (result.message === "Teacher not found with this email.") {
-        toast.error("Login Failed", {
-          description: result.message || "Please try again later.",
+      } else if (result.message !== "Login Successful" && result.message) {
+        toast.error(`${result.message}`, {
+          description: "Please try again later.",
           richColors: true
         });
       }
