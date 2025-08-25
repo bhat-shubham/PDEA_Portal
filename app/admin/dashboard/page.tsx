@@ -5,7 +5,7 @@ import { AdminHeader } from "@/components/ui/adminheader";
 import AllClasses from "@/components/ui/classes";
 
 import { useState, useEffect } from "react";
-import { TestSocket } from "@/app/lib/TestSocket";
+import { useTestSocket } from "@/app/lib/TestSocket";
 
 export default function AdminDashboard() {
   const [selectedClass, setSelectedClass] = useState<string | null>(null);
@@ -17,12 +17,6 @@ export default function AdminDashboard() {
   // });
 
   const handleClassClick = (classId: string) => {};
-  const res = useEffect(() => {
-    const socket = TestSocket();
-    socket.on("connect", () => {
-      console.log("Connected to server:", socket.id);
-    });
-  });
 
   const classes = [
     {

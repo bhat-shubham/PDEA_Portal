@@ -1,40 +1,24 @@
-// import { useEffect } from "react";
-import io from "socket.io-client";
+import { useState, useEffect } from "react";
+import { io, Socket } from "socket.io-client";
 
-// export default function TestSocket() {
-//   useEffect(() => {
-//     const socket = io("http://localhost:3001", {
-//       withCredentials: true, // send cookies (for JWT)
-//     });
+export const useTestSocket = () => {
+  const [socket, setSocket] = useState<Socket | null>(null);
 
-//     socket.on("connect", () => {
-//       console.log("Connected to server:", socket.id);
-//     });
+  useEffect(() => {
+    const socket = io("http://localhost:3001", {
+      withCredentials: true,
+    });
 
-//     // socket.on("newNotice", (notice) => {
-//     //   console.log("New notice received:", notice);
-//     //   alert(`New Notice: ${notice.title}`);
-//     // });
+    socket.on("connect", () => {
+      console.log("Connected to socket.io server");
+    });
 
-//     return () => socket.disconnect();
-//   }, []);
+    setSocket(socket);
 
-//   return <h2>Listening for real-time events...</h2>;
-// }
-
-export const TestSocket = () => {
-  const socket = io("http://localhost:3001", {
-    withCredentials: true, // send cookies (for JWT)
-  });
-
-  socket.on("connect", () => {
-    console.log("Connected to server:", socket.id);
-  });
-
-  // socket.on("newNotice", (notice) => {
-  //   console.log("New notice received:", notice);
-  //   alert(`New Notice: ${notice.title}`);
-  // });
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   return socket;
 };

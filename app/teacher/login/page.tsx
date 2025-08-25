@@ -33,7 +33,7 @@ export default function Home() {
         router.push("/teacher/dashboard");
       }
       if (result.message !== "Login successful." && result.message) {
-        toast.error("Something Went Wrong", {
+        toast.error(`${result.message}`, {
           description: "Retry Again...",
         });
       }
