@@ -136,31 +136,42 @@ const studentProfile = async (req, res) => {
 };
 
 const joinClass = async (req, res) => {
-  const { class_code } = req.body;
-  console.log(class_code);
-  const email = req.user.email;
-  console.log("Fetching student details for email:", email);
+  try {
+    const { classCode } = req.body;
+    const studentEmail = req.user.email;
 
-  const classResult = await Class.findOne({ class_code: class_code });
+    console.log("Class code:", classCode);
+    console.log("Student email:", studentEmail);
 
-  if (!classResult) {
-    return res.status(404).json({ message: "Class not found" });
+    const classResult = await Class.findOne({ class_code: classCode });
+    const student = await Student.findOne({ email: studentEmail });
+
+    if (!classResult || !student) {
+      return res.status(404).json({ message: "Class or student not found" });
+    }
+
+    const notification = new Notification({
+      studentName: `${student.firstname} ${student.lastname}`,
+      classname: classResult.name,
+      status: "pending",
+    });
+    await notification.save();
+
+    const io = req.app.get("io");
+    console.log(classResult.teacher.toString());
+    io.to(classResult.teacher.toString()).emit(
+      "new_notification",
+      notification
+    );
+
+    return res.status(200).json({
+      message: "Join request sent successfully",
+      notification,
+    });
+  } catch (error) {
+    console.error("[JOIN CLASS ERROR]", error);
+    res.status(500).json({ message: "Internal server error" });
   }
-
-  const student = await Student.findOne({ email: email });
-  if (!student) {
-    return res.status(404).json({ message: "Student not found" });
-  }
-
-  const notification = new Notification({
-    studentID: student._id,
-    classId: classResult._id,
-    studentName: `${student.firstname} ${student.lastname}`,
-    classname: classResult.name,
-  });
-
-  await notification.save();
-  res.status(200).json({ message: "Joined class successfully", notification });
 };
 
 module.exports = {

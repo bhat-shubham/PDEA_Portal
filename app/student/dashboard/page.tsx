@@ -8,17 +8,17 @@ import { Notifications } from "./notifications";
 // import { Timetable } from "./timetable"
 // import { LatestResults } from "./latest-results"
 import { AttendanceGraph } from "./attendence-graph";
-import {TestSocket} from "@/app/lib/TestSocket";
+import { useTestSocket } from "@/app/lib/TestSocket";
 import { useEffect } from "react";
 
 export default function Dashboard() {
-   const res = useEffect(() => {
-    const socket = TestSocket();
-    socket.on("connect", () => {
-      console.log("Connected to server:", socket.id);
-    });
+  //  const res = useEffect(() => {
+  //   const socket = TestSocket();
+  //   socket.on("connect", () => {
+  //     console.log("Connected to server:", socket.id);
+  //   });
 
-   })
+  //  })
 
   return (
     <div className="h-full flex flex-col">

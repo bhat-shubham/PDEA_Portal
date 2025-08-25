@@ -10,6 +10,10 @@ const notificationSchema = new mongoose.Schema({
     required: true,
     type: String,
   },
+  status: {
+    type: String,
+    default: "pending",
+  },
 });
 
 const Notification = mongoose.model("Notification", notificationSchema);
