@@ -109,7 +109,7 @@ const teacherLogout = (req, res) => {
 const teacherDetails = async (req, res) => {
   try {
     const email = req.user.email;
-    console.log("Fetching teacher details for email:", email);
+    // console.log("Fetching teacher details for email:", email);
     const teacher = await Teacher.findOne({ email: email }).select("-password");
 
     if (!teacher) {
@@ -171,7 +171,7 @@ const getClasses = async (req, res) => {
     if (!classes || classes.length === 0) {
       return res.status(404).json({ message: "No classes found." });
     }
-    console.log("Fetched classes:", classes);
+
     res.status(200).json({
       message: "Classes fetched successfully.",
       classes: classes.map((cls) => ({

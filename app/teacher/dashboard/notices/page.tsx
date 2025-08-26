@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card";
 import Link from "next/link";
 import { noticeHandler } from "@/app/lib/noticeHandler";
+import { useTestSocket } from "@/app/lib/TestSocket";
 interface notices {
   id: number;
   type: "Notice" | "Circular";
@@ -30,20 +31,35 @@ export default function NoticesPage() {
     return `${day}-${month}-${year}`;
   };
 
+
+  const handleNewNotice = async () => {
+    try {
+      const res = await noticeHandler("notice", "GET");
+      if (res) {
+        setNotices(res.notices);
+        console.log();
+      }
+    } catch (error) {
+      console.error("Error fetching notices:", error);
+    }
+  };
+
+
+  const socket = useTestSocket();
+
   useEffect(() => {
-    const handleNewNotice = async () => {
-      try {
-        const res = await noticeHandler("notice", "GET");
-        if (res) {
-          setNotices(res.notices);
-          console.log();
-        }
-      } catch (error) {
-        console.error("Error fetching notices:", error);
+    if (socket) {
+      socket.on("newNotice", () => {
+       handleNewNotice();
+       
+      });
+    }
+    return () => {
+      if (socket) {
+        socket.off("new-notice");
       }
     };
-    handleNewNotice();
-  }, []);
+  }, [socket]);
 
   return (
     <div className="">

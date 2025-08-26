@@ -19,7 +19,7 @@ const app = express();
 const httpServer = createServer(app);
 
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3001;
 const JWT_SECRET = process.env.JWT_SECRET;
 
 if (!JWT_SECRET) {
@@ -46,7 +46,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 dbConnection();
-
 io.use((socket, next) => {
   try {
     const cookies = socket.handshake.headers.cookie
@@ -54,11 +53,13 @@ io.use((socket, next) => {
       : {};
 
     const token = cookies["token"];
-    // console.log("[SOCKET AUTH] token present:", Boolean(token));
 
+    console.log("[SOCKET AUTH] token present:", Boolean(token), token);
+    console.log("[SOCKET HANDSHAKE HEADERS]", socket.handshake.headers);
     if (!token) return next(new Error("Authentication error: Token missing"));
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log("[SOCKET AUTH] decoded:", decoded);
 
     socket.user = { id: decoded.id, email: decoded.email, role: decoded.role };
     console.log("[SOCKET AUTH] user:", socket.user);
@@ -71,12 +72,9 @@ io.use((socket, next) => {
 });
 
 io.on("connection", (socket) => {
-
   const userId = socket.user.id;
   socket.join(userId.toString());
-
-   console.log(`[SOCKET] User ${userId} connected with socket ${socket.id}`);
-
+  console.log(`[SOCKET] User ${userId} connected with socket ${socket.id}`);
 
   socket.on("disconnect", (reason) => {
     console.log("[SOCKET] disconnected:", socket.id, "reason:", reason);
@@ -84,7 +82,6 @@ io.on("connection", (socket) => {
 
   socket.on("ping", () => socket.emit("pong"));
 });
-
 
 app.use("/admin", adminRoutes);
 app.use("/teacher", teacherRoutes);

@@ -12,6 +12,8 @@ import { Button } from "@/components/ui/button";
 import { PiStudent } from "react-icons/pi";
 import { toast } from "sonner";
 import { GrUserAdmin } from "react-icons/gr";
+// import { PiChalkboardTeacher } from "react-icons/pi";
+import { useTestSocket } from "@/app/lib/TestSocket";
 
 type FormData = {
   email: string;
@@ -20,8 +22,15 @@ type FormData = {
 export default function Home() {
   const { register, handleSubmit } = useForm<FormData>();
   const router = useRouter();
+  const socket = useTestSocket();
 
   const onSubmit = async (data: FormData) => {
+    if (socket) {
+      socket.on("connect", () => {
+        console.log("Connected to socket.io server");
+      });
+    }
+
     try {
       const result = await teacherLogin(data.email, data.password);
 
