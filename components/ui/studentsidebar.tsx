@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import {
   Home,
@@ -22,30 +23,29 @@ export function StudentSidebar() {
   const [error, setError] = useState<Error | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-
-    useEffect(() => {
-      const fetchNoticeCount = async () => {
-        try {
-          const res = await noticeHandler("notice", "GET");
-          if (res && Array.isArray(res.notices)) {
-            setNoticeCount(res.notices.length);
-          }
-        } catch (err) {
-          setError(err instanceof Error ? err : new Error('Failed to fetch notices'));
-          console.error('Error fetching notices:', err);
-        } finally {
-          setIsLoading(false);
+  useEffect(() => {
+    const fetchNoticeCount = async () => {
+      try {
+        const res = await noticeHandler("notice", "GET");
+        if (res && Array.isArray(res.notices)) {
+          setNoticeCount(res.notices.length);
         }
-      };
-  
-  
-      fetchNoticeCount();
-  
-  
-      const intervalId = setInterval(fetchNoticeCount, 30000);
-  
-      return () => clearInterval(intervalId);
-    }, []);
+      } catch (err) {
+        setError(
+          err instanceof Error ? err : new Error("Failed to fetch notices")
+        );
+        console.error("Error fetching notices:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchNoticeCount();
+
+    const intervalId = setInterval(fetchNoticeCount, 30000);
+
+    return () => clearInterval(intervalId);
+  }, []);
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
