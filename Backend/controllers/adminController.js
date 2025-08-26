@@ -66,7 +66,7 @@ const adminLogin = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { email: email, role: admin.role },
+      { email: email, role: admin.role, id: admin._id },
       process.env.JWT_SECRET,
       {
         expiresIn: "1h",
@@ -156,6 +156,7 @@ const adminProfile = async (req, res) => {
 };
 
 const notices = async (req, res) => {
+  console.log("notices");
   const { title, content, type } = req.body;
   const adminID = req.user.id;
   const io = req.app.get("io");
@@ -167,16 +168,18 @@ const notices = async (req, res) => {
       type,
       admin: adminID,
     });
-    await newNotice.save();
+    const savedNotice = await newNotice.save();
+    const noticeObj = savedNotice.toObject();
+    noticeObj.id = noticeObj._id;
 
     io.emit("newNotice", newNotice);
     res.status(200).json({
       message: "Notice added successfully",
       notice: {
-        title: newNotice.title,
-        content: newNotice.content,
-        type: newNotice.type,
-        createdAt: newNotice.createdAt,
+        id: noticeObj.id,
+        title: noticeObj.title,
+        content: noticeObj.content,
+        type: noticeObj.type,
       },
     });
   } catch (err) {

@@ -57,26 +57,18 @@ export default function NoticesPage() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedNotice, setSelectedNotice] = useState<notices | null>(null);
 
-  const handleDeleteNotice = async () => {
-    if (!selectedNotice) return;
+ 
 
-    // try {
-    //   const res = await noticeHandler(`notice/${selectedNotice.id}`, "DELETE");
-    //   if (res) {
-    //     setNotices(notices.filter(notice => notice.id !== selectedNotice.id));
-    //     toast.success("Notice Deleted", {
-    //       description: "The notice has been successfully deleted",
-    //     });
-    //   }
-    // } catch (error) {
-    //   toast.error("Failed to delete notice", {
-    //     description: "Please try again later",
-    //   });
-    //   console.error("Error deleting notice:", error);
-    // } finally {
-    //   setShowDeleteDialog(false);
-    //   setSelectedNotice(null);
-    // }
+  const handleNewNotice = async () => {
+    try {
+      const res = await noticeHandler("notice", "GET");
+      if (res) {
+        setNotices(res.notices);
+        console.log();
+      }
+    } catch (error) {
+      console.error("Error fetching notices:", error);
+    }
   };
 
   const handleNewNoticeSubmit = async () => {
@@ -117,17 +109,6 @@ export default function NoticesPage() {
   };
 
   useEffect(() => {
-    const handleNewNotice = async () => {
-      try {
-        const res = await noticeHandler("notice", "GET");
-        if (res) {
-          setNotices(res.notices);
-          console.log();
-        }
-      } catch (error) {
-        console.error("Error fetching notices:", error);
-      }
-    };
     handleNewNotice();
   }, []);
 
@@ -357,7 +338,7 @@ export default function NoticesPage() {
                 Cancel
               </Button>
               <Button
-                onClick={handleDeleteNotice}
+               
                 className="bg-red-600 hover:bg-red-700 text-white"
               >
                 <Trash2 className="w-4 h-4 mr-2" />
