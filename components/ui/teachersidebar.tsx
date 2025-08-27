@@ -14,7 +14,7 @@ import Link from "next/link";
 import { Button } from "./button";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { logoutUser } from "@/lib/logout";
+
 import { toast } from "sonner";
 import { PagesProgressProvider as ProgressProvider } from "@bprogress/next";
 import { useRouter } from "next/navigation";

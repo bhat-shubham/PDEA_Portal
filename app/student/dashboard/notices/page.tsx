@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card";
 import Link from "next/link";
 import { noticeHandler } from "@/app/lib/noticeHandler";
+import { useTestSocket } from "@/app/lib/TestSocket";
 interface notices {
   id: number;
   type: "Notice" | "Circular";
@@ -44,6 +45,16 @@ export default function NoticesPage() {
     };
     handleNewNotice();
   }, []);
+
+  const socket = useTestSocket();
+
+  useEffect(() => {
+    if (socket) {
+      socket.on("newNotice", (notification) => {
+        console.log("newNotice:", notification);
+      });
+    }
+  }, [socket]);
 
   return (
     <div className="">

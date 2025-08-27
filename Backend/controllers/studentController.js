@@ -72,7 +72,7 @@ const studentLogin = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { email: email, role: student.role },
+      { email: email, id: student.id, role: student.role },
       process.env.JWT_SECRET,
       {
         expiresIn: "1h",
