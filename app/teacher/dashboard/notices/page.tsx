@@ -25,7 +25,7 @@ export default function NoticesPage() {
 
   const noticeDate = (notice: notices) => {
     const date = new Date(notice.createdAt);
-    const day = date.getDate();git 
+    const day = date.getDate();
     const month = date.getMonth() + 1;
     const year = date.getFullYear();
     return `${day}-${month}-${year}`;
