@@ -13,7 +13,7 @@ export const teacherLogin = async (email: string, password: string) => {
     });
     // console.log("Login response status:", response.status);
 
-    if (!response.ok) {
+    if (response.status !== 200 && response.status !== 401 ) {
       const errorData = await response.json();
       console.error("Login failed:", errorData);
       throw new Error(errorData.message || "Login failed");
