@@ -1,7 +1,9 @@
 "use client"
+import { Suspense } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/card"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../../../components/ui/tooltip"
 import { motion } from "framer-motion";
+import { Skeleton } from "@/components/ui/skeleton";
 export const calculateAttendance = (attended: number, total: number) => {
   return Math.round((attended / total) * 100)
 }
@@ -81,6 +83,7 @@ function CustomProgressBar({ value, attended, total }: { value: number; attended
 
 export function SubjectAttendance() {
   return (
+    <Suspense fallback={<div className="h-48 w-full animate-pulse rounded-md bg-muted" />}>
     <Card className="h-full w-full border border-none relative dark:bg-white/10">
       <CardHeader>
         <CardTitle>Subject-wise Attendance</CardTitle>
@@ -95,11 +98,14 @@ export function SubjectAttendance() {
                   {subject.attendance}% ({subject.attended}/{subject.total})
                 </span>
               </div>
-              <CustomProgressBar value={subject.attendance} attended={subject.attended} total={subject.total} />
+              <Suspense fallback={<Skeleton className="h-3 w-full rounded-full" />}>
+                <CustomProgressBar value={subject.attendance} attended={subject.attended} total={subject.total} />
+              </Suspense>
             </div>
           ))}
         </div>
       </CardContent>
     </Card>
+    </Suspense>
   )
 }
