@@ -9,7 +9,7 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import Link from "next/link";
+// import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -57,14 +57,11 @@ export default function NoticesPage() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedNotice, setSelectedNotice] = useState<notices | null>(null);
 
- 
-
   const handleNewNotice = async () => {
     try {
       const res = await noticeHandler("notice", "GET");
       if (res) {
         setNotices(res.notices);
-        console.log();
       }
     } catch (error) {
       console.error("Error fetching notices:", error);
@@ -96,21 +93,49 @@ export default function NoticesPage() {
     } finally {
       setShowNewNoticeDialog(false);
     }
-
-    console.log(newNotice);
   };
 
   const noticeDate = (notice: notices) => {
     const date = new Date(notice.createdAt);
+
     const day = date.getDate();
     const month = date.getMonth() + 1;
     const year = date.getFullYear();
+   
     return `${day}-${month}-${year}`;
   };
 
   useEffect(() => {
     handleNewNotice();
   }, []);
+  const showNoticeID = (notices: notices) => {
+    console.log(selectedNotice);
+    return notices.id;
+  };
+
+  const handleDeleteNotice = async (selectedNotice: notices) => {
+    if (!selectedNotice) {
+      return;
+    }
+    const noticeId = selectedNotice.id;
+
+    try {
+      const res = await noticeHandler(`deleteNotice/${noticeId}`, "DELETE");
+      if (res.status === "Notice deleted successfully.") {
+        toast.success("Notice Deleted", {
+          description: "The notice has been successfully deleted",
+        });
+      }
+      handleNewNotice();
+    } catch (error) {
+      toast.error("Failed to delete notice", {
+        description: "Please try again later",
+      });
+      console.error("Error deleting notice:", error);
+    } finally {
+      setShowDeleteDialog(false);
+    }
+  };
 
   return (
     <div className="">
@@ -249,7 +274,10 @@ export default function NoticesPage() {
         </div>
         <div className=" md:grid-cols-2 lg:grid-cols-3 gap-2 mb-3">
           {[...notices].reverse().map((notification) => (
-            <Link key={notification.id} href={`/notices/${notification.id}`}>
+            <div
+              key={notification.id}
+              onClick={() => showNoticeID(notification)}
+            >
               <Card
                 className="group relative border border-white/10 backdrop-blur-xl bg-black/20
                         transition-all duration-300 ease-out
@@ -260,6 +288,7 @@ export default function NoticesPage() {
                   onClick={(e) => {
                     e.preventDefault();
                     setSelectedNotice(notification);
+
                     setShowDeleteDialog(true);
                   }}
                 >
@@ -271,8 +300,8 @@ export default function NoticesPage() {
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
-                <Link
-                  href={`/notices/${notification.id}`}
+                <div
+                  // href={`/notices/${notification.id}`}
                   className="block cursor-pointer"
                 >
                   <CardHeader>
@@ -296,9 +325,9 @@ export default function NoticesPage() {
                       {notification.type}
                     </span>
                   </CardContent>
-                </Link>
+                </div>
               </Card>
-            </Link>
+            </div>
           ))}
         </div>
 
@@ -338,8 +367,10 @@ export default function NoticesPage() {
                 Cancel
               </Button>
               <Button
-               
                 className="bg-red-600 hover:bg-red-700 text-white"
+                onClick={() =>
+                  selectedNotice && handleDeleteNotice(selectedNotice)
+                }
               >
                 <Trash2 className="w-4 h-4 mr-2" />
                 Delete Notice

@@ -16,8 +16,6 @@ export const adminHandler = async (path: string, method: string) => {
       throw new Error("Failed to fetch admin profile");
     }
     const data = await response.json();
-    console.log("Teacher profile data:", data);
-    // console.log("Teacher profile data:", data);
 
     return data;
   } catch (error) {

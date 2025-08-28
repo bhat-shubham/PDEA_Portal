@@ -32,7 +32,8 @@ interface notices {
 }
 
 export function AdminSidebar() {
-  const [noticeCount, setNoticeCount] = useState();
+  const [noticeCount, setNoticeCount] = useState<number | null>(null);
+  const [newNoticesCount, setNewNoticesCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -62,19 +63,8 @@ export function AdminSidebar() {
 
   const socket = useTestSocket();
 
-  useEffect(() => {
-    if (!socket) return;
-
-    socket.on("newNotice", (notice) => {
-      //
-      console.log("newNotice", notice);
-
-      // setNoticeCount((prev) => (prev ? prev + 1 : 1));
-    });
-  }, [socket]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [showProfile, setShowProfile] = useState(false);
 
   useEffect(() => {
@@ -87,6 +77,27 @@ export function AdminSidebar() {
 
     return () => window.removeEventListener("resize", checkIfMobile);
   }, []);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleNewNotice = (notices: notices) => {
+      console.log("New notice received:", notices);
+      setNewNoticesCount((prevCount) => prevCount + 1);
+      console.log(newNoticesCount);
+      // setNoticeCount((prev) => (prev !== null ? prev + 1 : 1));
+    };
+
+    socket.on("newNotice", handleNewNotice);
+
+    return () => {
+      socket.off("newNotice", handleNewNotice);
+    };
+  }, [socket]);
+
+  const handleNoticeClick = () => {
+    setNewNoticesCount(0);
+  };
 
   const handleLinkClick = () => {
     if (isMobile) {
@@ -168,17 +179,15 @@ export function AdminSidebar() {
                 className="w-full justify-start items-center align-middle"
                 asChild
               >
-                <Link href="/admin/dashboard/notices">
+                <Link
+                  href="/admin/dashboard/notices"
+                  onClick={handleNoticeClick}
+                >
                   <Megaphone className="mr-3 h-5 w-5" />
                   Notices
-                  {/* {!isLoading && noticeCount !== null && noticeCount > 0 && (
-                    <span className="ml-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                      {noticeCount}
-                    </span>
-                  )} */}
-                  {isLoading && (
-                    <span className="ml-2 h-5 w-5 rounded-full bg-gray-700/50 animate-pulse" />
-                  )}
+                  <span className="ml-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {newNoticesCount}
+                  </span>
                 </Link>
               </Button>
             </div>

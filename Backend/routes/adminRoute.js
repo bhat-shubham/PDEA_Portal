@@ -8,7 +8,7 @@ const {
   teacherlist,
   adminProfile,
   notices,
-  fetchNotices,
+  fetchNotices,deleteNotice
 } = require("../controllers/adminController");
 const auth = require("../middleware/auth");
 const protectRoute = require("../middleware/protectRoute");
@@ -21,6 +21,6 @@ route.post("/verify", protectRoute);
 route.get("/profile", auth, adminProfile);
 route.post("/notice",auth, notices); //create notice
 route.get("/notice", auth, fetchNotices); //get notice
-// route.get("/deleteNotice/:noticeId", auth, deleteNotice);
+route.delete("/deleteNotice/:noticeId", deleteNotice);
 
 module.exports = route;
