@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { Header } from "@/components/ui/teacherheader";
-
+// import { TestSocket } from "@/app/lib/TestSocket";
 import { CiCirclePlus } from "react-icons/ci";
 import { useEffect, useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -36,7 +37,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-// import { set } from "date-fns";
+
 export default function Dashboard() {
   const [classes, setClasses] = useState<ClassType[]>([]);
   const [selectedClass, setSelectedClass] = useState<string | null>(null);
@@ -65,20 +66,18 @@ export default function Dashboard() {
     class_code: string;
   };
 
-  // --- API FUNCTIONS ---
-  const fetchClasses = async () => {
-    try {
-      const data = await teacherClass("GET", "getClass");
-      console.log("Fetched classes:", data);
-      if (data?.classes && Array.isArray(data.classes)) {
-        setClasses(data.classes as ClassType[]);
-      } else {
-        console.log("No classes found");
-      }
-    } catch (error) {
-      console.error("Error fetching classes:", error);
-    }
-  };
+  // useEffect(() => {
+  //   const socket = TestSocket();
+
+  //   socket.on("connect", () => {
+  //     console.log("Connected to server:", socket.id);
+  //   });
+
+  //   return () => {
+  //     socket.disconnect();
+  //     console.log("Socket disconnected");
+  //   };
+  // }, []);
 
   const createClass = async () => {
     try {
@@ -161,7 +160,6 @@ export default function Dashboard() {
     }));
   };
 
-  // --- CLASS ACTIONS ---
   const handleClassClick = (classId: string) => {
     setSelectedClass((prev) => (prev === classId ? null : classId));
   };
@@ -176,7 +174,6 @@ export default function Dashboard() {
     createClass();
   };
 
-  // --- ATTENDANCE ACTIONS ---
   const handleClearAttendance = () => {
     setAttendance({});
   };
@@ -195,9 +192,30 @@ export default function Dashboard() {
     console.log("Submitting attendance:", attendance);
   };
 
-  // --- INITIAL FETCH ---
+  // useEffect(() => {
+  //   const socket = TestSocket();
+  //   socket.on("connect", () => {
+  //     console.log("Connected to server:", socket.id);
+  //   });
+  // }, []);
+
   useEffect(() => {
-    fetchClasses();
+    const fetchClasses = async () => {
+      try {
+        const data = await teacherClass("GET", "getClass");
+        console.log("Fetched classes:", data);
+        if (data?.classes && Array.isArray(data.classes)) {
+          setClasses(data.classes as ClassType[]);
+        } else {
+          console.log("No classes found");
+        }
+      } catch (error) {
+        console.error("Error fetching classes:", error);
+      }
+    };
+    if (!classes || classes.length === 0) {
+      fetchClasses();
+    }
   }, []);
 
   return (

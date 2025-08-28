@@ -1,7 +1,7 @@
 
 "use client";
 import { StudentSidebar } from "@/components/ui/studentsidebar"
-import { Toaster } from "sonner";
+// import { Toaster } from "sonner";
 // import withAuth from "../../lib/withAuth";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {

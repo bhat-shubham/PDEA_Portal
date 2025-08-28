@@ -7,6 +7,8 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 const { Student } = require("../models/studentSchema");
+const { Class } = require("../models/classSchema");
+const { Notification } = require("../models/notificationSchema");
 
 const studentRegistration = async (req, res) => {
   const { firstname, lastname, email, mobile, password, parentPhone, branch } =
@@ -70,7 +72,7 @@ const studentLogin = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { email: email, role: student.role },
+      { email: email, id: student.id, role: student.role },
       process.env.JWT_SECRET,
       {
         expiresIn: "1h",
@@ -133,9 +135,49 @@ const studentProfile = async (req, res) => {
   }
 };
 
+const joinClass = async (req, res) => {
+  try {
+    const { classCode } = req.body;
+    const studentEmail = req.user.email;
+
+    console.log("Class code:", classCode);
+    console.log("Student email:", studentEmail);
+
+    const classResult = await Class.findOne({ class_code: classCode });
+    const student = await Student.findOne({ email: studentEmail });
+
+    if (!classResult || !student) {
+      return res.status(404).json({ message: "Class or student not found" });
+    }
+
+    const notification = new Notification({
+      studentName: `${student.firstname} ${student.lastname}`,
+      classname: classResult.name,
+      status: "pending",
+    });
+    await notification.save();
+
+    const io = req.app.get("io");
+    console.log(classResult.teacher.toString());
+    io.to(classResult.teacher.toString()).emit(
+      "new_notification",
+      notification
+    );
+
+    return res.status(200).json({
+      message: "Join request sent successfully",
+      notification,
+    });
+  } catch (error) {
+    console.error("[JOIN CLASS ERROR]", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 module.exports = {
   studentRegistration,
   studentLogin,
   studentLogout,
   studentProfile,
+  joinClass,
 };

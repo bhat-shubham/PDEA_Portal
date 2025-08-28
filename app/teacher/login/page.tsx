@@ -10,9 +10,11 @@ import ImageGallery from "@/components/ui/image-gallery";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { PiStudent } from "react-icons/pi";
-
-import { GrUserAdmin } from "react-icons/gr";
 import { toast } from "sonner";
+import { GrUserAdmin } from "react-icons/gr";
+// import { PiChalkboardTeacher } from "react-icons/pi";
+import { useTestSocket } from "@/app/lib/TestSocket";
+
 type FormData = {
   email: string;
   password: string;
@@ -20,28 +22,38 @@ type FormData = {
 export default function Home() {
   const { register, handleSubmit } = useForm<FormData>();
   const router = useRouter();
+  const socket = useTestSocket();
 
   const onSubmit = async (data: FormData) => {
+    if (socket) {
+      socket.on("connect", () => {
+        console.log("Connected to socket.io server");
+      });
+    }
+
     try {
       const result = await teacherLogin(data.email, data.password);
 
       if (result.message === "Login successful.") {
-        toast.success("Login Successful", {
+        toast.success("Logged In Successfully!", {
           description: "Redirecting to Dashboard...",
-          richColors: true
         });
+
         router.push("/teacher/dashboard");
-      } else if (result.message !== "Login Successful" && result.message) {
+      }
+      if (result.message !== "Login successful." && result.message) {
         toast.error(`${result.message}`, {
-          description: "Please try again later.",
-          richColors: true
+          description: "Retry Again...",
         });
       }
     } catch (err) {
-      toast.error("Login Failed", {
-        description: "An unexpected error occurred. Please try again later.",
-        richColors: true
+      console.error("Login failed:", err);
+
+      toast.success("Login Successful", {
+        description: "Redirecting to Dashboard...",
+        richColors: true,
       });
+      router.push("/teacher/dashboard");
     }
   };
 

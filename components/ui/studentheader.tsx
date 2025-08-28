@@ -5,6 +5,7 @@ import { Button } from "./button";
 import { ModeToggle } from "./mode-toggle";
 import { Skeleton } from "./skeleton";
 import { teacherProfile } from "@/app/lib/teacherProfile";
+// import { teacherProfile } from "@/app/lib/teacherProfile";
 import { useEffect, useState } from "react";
 import { teacherLogout } from "@/app/lib/teacherLogout";
 // import { profileHandler } from "@/app/lib/studentHandler";
@@ -20,7 +21,7 @@ import {
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 // import { adminProfile } from "@/app/lib/adminHandler";
-import { da } from "date-fns/locale";
+// import { da } from "date-fns/locale";
 // import { studentProfile } from "@/app/lib/studentProfile";
 import { profileHandler } from "@/app/lib/studentHandler";
 
@@ -71,11 +72,14 @@ export function StudentHeader() {
       });
     }
   };
-
- useEffect(() => {
+useEffect(() => {
   const fetchStudent = async () => {
     try {
       setIsLoading(true);
+
+  useEffect(() => {
+    const fetchStudent = async () => {
+
       const data = await profileHandler("profile", "GET");
       if (data && data.student) {
         setStudent(data.student);
@@ -83,6 +87,7 @@ export function StudentHeader() {
         console.error("Failed to fetch valid student profile");
         setStudent({ firstname: "", lastname: "", email: "", branch: "" });
       }
+
     } catch (error) {
       console.error("Error fetching student profile:", error);
       toast.error("Failed to load profile", {
@@ -95,7 +100,10 @@ export function StudentHeader() {
 
   fetchStudent();
 }, []);
+    };
 
+    fetchStudent();
+  }, []);
 
   return (
     <header className="lg:relative lg:bg-transparent bg-[#0F131F] z-10 sticky top-0 border-b p-4 lg:p-6 flex items-center justify-between">

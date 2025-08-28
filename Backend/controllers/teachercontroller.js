@@ -7,7 +7,7 @@ const bcrypt = require("bcrypt");
 const dotenv = require("dotenv");
 const jwt = require("jsonwebtoken");
 const { Teacher } = require("../models/teacherSchema");
-const Class = require("../models/classSchema.js");
+const { Class } = require("../models/classSchema.js");
 
 dotenv.config();
 
@@ -51,14 +51,13 @@ const teacherLogin = async (req, res) => {
     const teacher = await Teacher.findOne({ email });
 
     if (!teacher) {
-      return res
-        .json({ message: "Teacher not found with this email." });
+      return res.json({ message: "Teacher not found with this email." });
     }
 
     const isPasswordValid = await bcrypt.compare(password, teacher.password);
 
     if (!isPasswordValid) {
-      return res.status(401).json({ message: "Invalid password." });
+      return res.json({ message: "Something Went Wrong" });
     }
 
     const token = jwt.sign(
@@ -68,7 +67,6 @@ const teacherLogin = async (req, res) => {
         expiresIn: "1h",
       }
     );
-    // console.log("token",token)
 
     res.cookie("token", token, {
       httpOnly: true,
@@ -111,9 +109,9 @@ const teacherLogout = (req, res) => {
 const teacherDetails = async (req, res) => {
   try {
     const email = req.user.email;
-    console.log("Fetching teacher details for email:", email);
+    // console.log("Fetching teacher details for email:", email);
     const teacher = await Teacher.findOne({ email: email }).select("-password");
-   
+
     if (!teacher) {
       return res.status(404).json({ message: "Teacher not found." });
     }
@@ -126,6 +124,7 @@ const teacherDetails = async (req, res) => {
         lastname: teacher.lastname,
         email: teacher.email,
         branch: teacher.branch,
+        phone: teacher.mobile,
       },
     });
   } catch (error) {
@@ -153,9 +152,9 @@ const createClass = async (req, res) => {
   });
 
   await newClass.save();
- 
+
   res.status(201).json({
-    message: "Class creat",
+    message: "Class created successfully.",
     class: {
       id: newClass._id.toString(),
       name: newClass.name,
@@ -168,10 +167,11 @@ const createClass = async (req, res) => {
 const getClasses = async (req, res) => {
   try {
     const classes = await Class.find({ teacher: req.user.id });
+    console.log("Fetching classes...");
     if (!classes || classes.length === 0) {
       return res.status(404).json({ message: "No classes found." });
     }
-    console.log("Fetched classes:", classes);
+
     res.status(200).json({
       message: "Classes fetched successfully.",
       classes: classes.map((cls) => ({

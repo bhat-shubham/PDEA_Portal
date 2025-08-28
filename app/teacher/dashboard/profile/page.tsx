@@ -50,35 +50,7 @@ import { add } from "date-fns";
 import { profile } from "console";
 
 export default function TeacherProfile() {
-  // const [isEditing, setIsEditing] = useState(false);
-  // const [showImageUpload, setShowImageUpload] = useState(false);
-  const [teacherData, setTeacherData] = useState({
-    name: "John Smith",
-    email: "john.smith@education.com",
-    phone: "+91 1234567890",
-    subjects: ["Mathematics", "Physics"],
-    experience: "8 years",
-    education: [
-      {
-        degree: "M.Ed. in Education",
-        university: "University of Delhi",
-        year: "2015",
-      },
-      { degree: "B.Ed.", university: "Mumbai University", year: "2013" },
-    ],
-    address: "Mumbai, Maharashtra",
-    bio: "Passionate educator with expertise in advanced mathematics and project-based learning.",
-    achievements: [
-      "Best Teacher Award 2024",
-      "Published research paper on innovative teaching methods",
-      "Conducted 5 workshops on STEM education",
-    ],
-    preferences: {
-      theme: "dark",
-      notifications: true,
-      language: "English",
-    },
-  });
+  const [showImageUpload, setShowImageUpload] = useState(false);
 
   const [profileData, setProfileData] = useState({
     firstname: "",
@@ -134,29 +106,29 @@ export default function TeacherProfile() {
                 <div className="mt-4 space-y-2">
                   <div className="flex items-center justify-center gap-2 text-gray-400">
                     <MapPin className="w-4 h-4" />
-                    <span>{teacherData.address}</span>
+                    <span>{profileData.branch}</span>
                   </div>
                 </div>
 
                 <div className="w-full flex justify-evenly items-center text-lg mt-6 space-y-5">
                   <div className="space-y-5">
-                  <div className="flex items-center gap-3">
-                    <UserCircle className="w-5 h-5 text-gray-400" />
-                    <span>{`${profileData.firstname} ${profileData.lastname}`}</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Mail className="w-5 h-5 text-gray-400" />
-                    <span>{profileData.email}</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Phone className="w-5 h-5 text-gray-400" />
-                    <span>{teacherData.phone}</span>
-                  </div>
                     <div className="flex items-center gap-3">
-                    <Cpu className="w-5 h-5 text-gray-400" />
-                    <span>{`${profileData.branch}`}</span>
-                  </div>
-                                      <Button
+                      <UserCircle className="w-5 h-5 text-gray-400" />
+                      <span>{`${profileData.firstname} ${profileData.lastname}`}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Mail className="w-5 h-5 text-gray-400" />
+                      <span>{profileData.email}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Phone className="w-5 h-5 text-gray-400" />
+                      <span>{profileData.phone}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Cpu className="w-5 h-5 text-gray-400" />
+                      <span>{`${profileData.branch}`}</span>
+                    </div>
+                    <Button
                       variant="outline"
                       className="w-full justify-center bg-[#334166] hover:bg-[#334188] text-white"
                       onClick={() => {
@@ -171,8 +143,6 @@ export default function TeacherProfile() {
               </div>
             </CardContent>
           </Card>
-
-          
         </div>
       </div>
     </div>

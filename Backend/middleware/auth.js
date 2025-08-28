@@ -5,7 +5,6 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 const auth = async (req, res, next) => {
-  console.log("Auth middleware triggered");
   const authHeader = req.headers.authorization;
   const tokenFromHeader =
     authHeader && authHeader.startsWith("Bearer ")
@@ -15,6 +14,7 @@ const auth = async (req, res, next) => {
   const tokenFromCookie = req.cookies?.token;
 
   const token = tokenFromHeader || tokenFromCookie;
+
   try {
     if (!token) {
       return res
@@ -23,7 +23,7 @@ const auth = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
+    // console.log("[VERIFY TOKEN]", decoded);
     return (req.user = decoded), next();
   } catch (error) {
     console.error("[VERIFY TOKEN ERROR]", error.message);
