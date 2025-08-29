@@ -1,15 +1,6 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { AdminHeader } from "@/components/ui/adminheader";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-// import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -22,7 +13,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-// import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   BookPlus,
   FileText,
@@ -41,9 +31,7 @@ interface notices {
   id: number;
   type: "Notice" | "Circular";
   title: string;
-
   createdAt: Date;
-
   content: string;
 }
 
@@ -98,7 +86,6 @@ export default function NoticesPage() {
 
   const noticeDate = (notice: notices) => {
     const date = new Date(notice.createdAt);
-
     const day = date.getDate();
     const month = date.getMonth() + 1;
     const year = date.getFullYear();

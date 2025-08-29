@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Skeleton } from "./skeleton";
 import { useState,useEffect } from "react";
 import { noticeHandler } from "@/app/lib/noticeHandler";
+import { useTestSocket } from "@/app/lib/TestSocket";
 interface notices {
   id: number;
   type: "Notice" | "Circular";
@@ -10,6 +11,7 @@ interface notices {
   createdAt: Date;
 }
 export default function Notices() {
+      const socket = useTestSocket();
       const [notices, setNotices] = useState<notices[]>([]);
       const [isLoading,setIsLoading] = useState(true);
       const noticeDate = (notice: notices) => {
@@ -37,6 +39,13 @@ export default function Notices() {
         };
         handleNewNotice();
       }, []);
+        useEffect(() => {
+    if (socket) {
+      socket.on("newNotice", (notification) => {
+        console.log("newNotice:", notification);
+      });
+    }
+  }, [socket]);
     return(
         <div>
         {isLoading ? (
