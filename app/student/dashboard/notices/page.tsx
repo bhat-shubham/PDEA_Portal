@@ -65,7 +65,6 @@ export default function NoticesPage() {
         </h1>
         <div className=" md:grid-cols-2 lg:grid-cols-3 gap-2 mb-3">
           {[...notices].reverse().map((notification) => (
-            <Link key={notification.id} href={`/notices/${notification.id}`}>
               <Card
                 className="cursor-pointer border border-white/10 backdrop-blur-xl bg-black/20
                         transition-all duration-300 ease-out
@@ -92,7 +91,6 @@ export default function NoticesPage() {
                   </span>
                 </CardContent>
               </Card>
-            </Link>
           ))}
         </div>
       </div>
