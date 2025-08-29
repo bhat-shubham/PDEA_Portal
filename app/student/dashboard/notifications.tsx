@@ -7,6 +7,7 @@ import {
 import { Bell } from "lucide-react";
 import {useState, useEffect} from "react";
 import { noticeHandler } from "@/app/lib/noticeHandler";
+import Link from "next/link";
 interface notices {
   id: number;
   type: "Notice" | "Circular";
@@ -39,6 +40,8 @@ export function Notifications() {
       return `${day}-${month}-${year}`;
     };
   return (
+    <div className="hover:scale-105 transition-transform">
+      <Link href="/student/dashboard/notices">
     <Card className="relative h-full border border-none items-center dark:bg-white/10">
       <CardHeader>
         <CardTitle className="flex items-center">
@@ -48,7 +51,7 @@ export function Notifications() {
       </CardHeader>
       <CardContent>
         <ul className="space-y-4">
-          {[...notices].reverse().map((notification) => (
+          {[...notices].slice(0, 4).reverse().map((notification) => (
             <li
               key={notification.id}
               className="flex justify-between items-start"
@@ -62,5 +65,7 @@ export function Notifications() {
         </ul>
       </CardContent>
     </Card>
+    </Link>
+    </div>
   );
 }
