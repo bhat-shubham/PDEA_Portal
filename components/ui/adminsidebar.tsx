@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import {
   Home,
@@ -18,6 +19,7 @@ import { adminHandler } from "@/app/lib/adminHandler";
 // import { logoutUser } from "@/lib/logout";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useTestSocket } from "@/app/lib/TestSocket";
 import { PagesProgressProvider as ProgressProvider } from "@bprogress/next";
 interface notices {
   id: number;
@@ -31,37 +33,38 @@ interface notices {
 
 export function AdminSidebar() {
   const [noticeCount, setNoticeCount] = useState<number | null>(null);
+  const [newNoticesCount, setNewNoticesCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-  
+
   const router = useRouter();
 
-  useEffect(() => {
-    const fetchNoticeCount = async () => {
-      try {
-        const res = await noticeHandler("notice", "GET");
-        if (res && Array.isArray(res.notices)) {
-          setNoticeCount(res.notices.length);
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error('Failed to fetch notices'));
-        console.error('Error fetching notices:', err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchNoticeCount = async () => {
+  //     try {
+  //       const res = await noticeHandler("notice", "GET");
+  //       if (res && Array.isArray(res.notices)) {
+  //         setNoticeCount(res.notices.length);
+  //       }
+  //     } catch (err) {
+  //       setError(err instanceof Error ? err : new Error('Failed to fetch notices'));
+  //       console.error('Error fetching notices:', err);
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   };
 
+  //   fetchNoticeCount();
 
-    fetchNoticeCount();
+  //   const intervalId = setInterval(fetchNoticeCount, 30000);
 
+  //   return () => clearInterval(intervalId);
+  // }, []);
 
-    const intervalId = setInterval(fetchNoticeCount, 30000);
+  const socket = useTestSocket();
 
-    return () => clearInterval(intervalId);
-  }, []);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [showProfile, setShowProfile] = useState(false);
 
   useEffect(() => {
@@ -74,6 +77,27 @@ export function AdminSidebar() {
 
     return () => window.removeEventListener("resize", checkIfMobile);
   }, []);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleNewNotice = (notices: notices) => {
+      console.log("New notice received:", notices);
+      setNewNoticesCount((prevCount) => prevCount + 1);
+      console.log(newNoticesCount);
+      // setNoticeCount((prev) => (prev !== null ? prev + 1 : 1));
+    };
+
+    socket.on("newNotice", handleNewNotice);
+
+    return () => {
+      socket.off("newNotice", handleNewNotice);
+    };
+  }, [socket]);
+
+  const handleNoticeClick = () => {
+    setNewNoticesCount(0);
+  };
 
   const handleLinkClick = () => {
     if (isMobile) {
@@ -155,17 +179,15 @@ export function AdminSidebar() {
                 className="w-full justify-start items-center align-middle"
                 asChild
               >
-                <Link href="/admin/dashboard/notices">
+                <Link
+                  href="/admin/dashboard/notices"
+                  onClick={handleNoticeClick}
+                >
                   <Megaphone className="mr-3 h-5 w-5" />
-                  Notices            
-                  {!isLoading && noticeCount !== null && noticeCount > 0 && (
-                    <span className="ml-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                      {noticeCount}
-                    </span>
-                  )}
-                  {isLoading && (
-                    <span className="ml-2 h-5 w-5 rounded-full bg-gray-700/50 animate-pulse" />
-                  )}
+                  Notices
+                  <span className="ml-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {newNoticesCount}
+                  </span>
                 </Link>
               </Button>
             </div>

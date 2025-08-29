@@ -66,7 +66,7 @@ const adminLogin = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { email: email, role: admin.role },
+      { email: email, role: admin.role, id: admin._id },
       process.env.JWT_SECRET,
       {
         expiresIn: "1h",
@@ -156,6 +156,7 @@ const adminProfile = async (req, res) => {
 };
 
 const notices = async (req, res) => {
+  console.log("notices");
   const { title, content, type } = req.body;
   const adminID = req.user.id;
   const io = req.app.get("io");
@@ -167,16 +168,18 @@ const notices = async (req, res) => {
       type,
       admin: adminID,
     });
-    await newNotice.save();
+    const savedNotice = await newNotice.save();
+    const noticeObj = savedNotice.toObject();
+    noticeObj.id = noticeObj._id;
 
     io.emit("newNotice", newNotice);
     res.status(200).json({
       message: "Notice added successfully",
       notice: {
-        title: newNotice.title,
-        content: newNotice.content,
-        type: newNotice.type,
-        createdAt: newNotice.createdAt,
+        id: noticeObj.id,
+        title: noticeObj.title,
+        content: noticeObj.content,
+        type: noticeObj.type,
       },
     });
   } catch (err) {
@@ -187,10 +190,42 @@ const notices = async (req, res) => {
 
 const fetchNotices = async (req, res) => {
   const notices = await Notices.find();
+
+  if (!notices) {
+    return res.status(404).json({ message: "No notices found" });
+  }
+
+  const notice = notices.map((notice) => ({
+    id: notice._id,
+    title: notice.title,
+    content: notice.content,
+    type: notice.type,
+    createdAt: notice.createdAt,
+  }));
+
   res.status(200).json({
     message: "Notices fetched successfully",
-    notices: notices,
+    notices: notice,
   });
+};
+
+const deleteNotice = async (req, res) => {
+  const noticeId = req.params.noticeId;
+  try {
+    const deletedNotice = await Notices.findByIdAndDelete(noticeId);
+    if (!deletedNotice) {
+      return res.status(404).json({ message: "Notice not found." });
+    } else {
+      console.log("Deleted notice:", deletedNotice);
+      res.status(200).json({
+        message: "Notice deleted successfully.",
+        notice: deletedNotice,
+      });
+    }
+  } catch (error) {
+    console.error("[DELETE NOTICE ERROR]", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
 };
 
 module.exports = {
@@ -201,4 +236,5 @@ module.exports = {
   adminProfile,
   notices,
   fetchNotices,
+  deleteNotice,
 };

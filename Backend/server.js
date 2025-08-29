@@ -54,12 +54,9 @@ io.use((socket, next) => {
 
     const token = cookies["token"];
 
-    console.log("[SOCKET AUTH] token present:", Boolean(token), token);
-    console.log("[SOCKET HANDSHAKE HEADERS]", socket.handshake.headers);
     if (!token) return next(new Error("Authentication error: Token missing"));
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log("[SOCKET AUTH] decoded:", decoded);
 
     socket.user = { id: decoded.id, email: decoded.email, role: decoded.role };
     console.log("[SOCKET AUTH] user:", socket.user);
