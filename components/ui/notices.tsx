@@ -81,7 +81,7 @@ export default function Notices() {
           
         ) : (
         <div className="md:grid-cols-2 lg:grid-`cols-3 gap-2 mb-3">
-          {[...notices].reverse().map((notification) => (
+        {notices.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 4).map((notification) => (
               <Card
                 key={notification.id}
                 className="cursor-pointer border border-white/10 backdrop-blur-xl bg-black/20

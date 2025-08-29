@@ -8,6 +8,7 @@ import { Bell } from "lucide-react";
 import {useState, useEffect} from "react";
 import { noticeHandler } from "@/app/lib/noticeHandler";
 import Link from "next/link";
+import { Skeleton } from "@/components/ui/skeleton";
 interface notices {
   id: number;
   type: "Notice" | "Circular";
@@ -20,6 +21,7 @@ export function Notifications() {
     useEffect(() => {
       const handleNewNotice = async () => {
         try {
+          setIsLoading(true);
           const res = await noticeHandler("notice", "GET");
           if (res) {
             setNotices(res.notices);
@@ -28,10 +30,14 @@ export function Notifications() {
         } catch (error) {
           console.error("Error fetching notices:", error);
         }
+        finally{
+          setIsLoading(false);
+        }
       };
       handleNewNotice();
     }, []);
     const [notices, setNotices] = useState<notices[]>([]);
+    const [isLoading,setIsLoading] = useState(true);
     const noticeDate = (notice: notices) => {
       const date = new Date(notice.createdAt);
       const day = date.getDate();
@@ -40,6 +46,7 @@ export function Notifications() {
       return `${day}-${month}-${year}`;
     };
   return (
+    <div>
     <div className="hover:scale-105 transition-transform">
       <Link href="/student/dashboard/notices">
     <Card className="relative h-full border border-none items-center dark:bg-white/10">
@@ -49,9 +56,17 @@ export function Notifications() {
           Latest Notices
         </CardTitle>
       </CardHeader>
+    {isLoading ? (
+      <div className="flex flex-col gap-5 p-4">
+    <Skeleton className="h-[20px] bg-white/10"/>
+    <Skeleton className="h-[20px] bg-white/10"/>
+    <Skeleton className="h-[20px] bg-white/10"/>
+    <Skeleton className="h-[20px] bg-white/10"/>
+    </div>
+  ) : (
       <CardContent>
         <ul className="space-y-4">
-          {[...notices].slice(0, 4).reverse().map((notification) => (
+            {notices.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 4).map((notification) => (
             <li
               key={notification.id}
               className="flex justify-between items-start"
@@ -64,8 +79,11 @@ export function Notifications() {
           ))}
         </ul>
       </CardContent>
+    )}
     </Card>
     </Link>
     </div>
+
+  </div>
   );
 }
