@@ -165,14 +165,17 @@ const joinClass = async (req, res) => {
 
     const io = req.app.get("io");
     console.log(classResult.teacher.toString());
-    io.to(classResult.teacher.toString()).emit(
-      "new_notification",
-      notification
-    );
+    io.to(classResult.teacher.toString()).emit("new_notification", {
+      ...notification.toObject(),
+      id: notification._id.toString(),
+    });
 
     return res.status(200).json({
       message: "Join request sent successfully",
-      notification,
+      notification: {
+        ...notification.toObject(),
+        id: notification._id.toString(),
+      },
     });
   } catch (error) {
     console.error("[JOIN CLASS ERROR]", error);

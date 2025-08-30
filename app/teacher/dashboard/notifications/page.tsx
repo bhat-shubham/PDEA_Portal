@@ -107,6 +107,27 @@ export default function NotificationsPage() {
         );
         console.log(res);
         if (res.message === "Student approved successfully") {
+          setNotifications((prev) =>
+            prev.filter((n) => n.id !== notificationId)
+          );
+          handleNotification();
+        }
+      } catch (error) {
+        console.error("Error approving student:", error);
+      }
+    }
+    if (type === "deny") {
+      try {
+        const res = await approveStudentHandler(
+          "denyStudent",
+          "Delete",
+          studentData
+        );
+        console.log(res);
+        if (res.message === "Student denied successfully") {
+          setNotifications((prev) =>
+            prev.filter((n) => n.id !== notificationId)
+          );
           handleNotification();
         }
       } catch (error) {
@@ -123,12 +144,6 @@ export default function NotificationsPage() {
       studentName: "",
       studentID: "",
       classId: null,
-    });
-    console.log({
-      title: "handleCancel",
-      notificationId: confirmationDialog.notificationId,
-      studentID: confirmationDialog.studentID,
-      classId: confirmationDialog.classId,
     });
   };
 

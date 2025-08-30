@@ -286,6 +286,18 @@ const approveStudent = async (req, res) => {
   }
 };
 
+const denyStudent = async (req, res) => {
+  const { studentID, notificationID, classID } = req.body;
+  const deletedNotification = await Notification.findByIdAndDelete(
+    notificationID
+  );
+  console.log("Denying student with ID:", deletedNotification);
+
+  res.status(200).json({
+    deletedNotification: deletedNotification,
+    message: "Student denied successfully",
+  });
+};
 module.exports = {
   teacherLogin,
   teacherRegisration,
@@ -296,4 +308,5 @@ module.exports = {
   deleteClass,
   fetchNotification,
   approveStudent,
+  denyStudent,
 };
