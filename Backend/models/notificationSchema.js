@@ -14,6 +14,15 @@ const notificationSchema = new mongoose.Schema({
     type: String,
     default: "pending",
   },
+  teacherID: {
+    type: String,
+  },
+  studentID: {
+    type: String,
+  },
+  classID: {
+    type: String,
+  },
 });
 
 const Notification = mongoose.model("Notification", notificationSchema);

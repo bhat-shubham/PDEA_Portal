@@ -144,6 +144,7 @@ const joinClass = async (req, res) => {
     console.log("Student email:", studentEmail);
 
     const classResult = await Class.findOne({ class_code: classCode });
+    console.log("Class result:", classResult);
     const student = await Student.findOne({ email: studentEmail });
 
     if (!classResult || !student) {
@@ -153,8 +154,13 @@ const joinClass = async (req, res) => {
     const notification = new Notification({
       studentName: `${student.firstname} ${student.lastname}`,
       classname: classResult.name,
+      teacherID: classResult.teacher.toString(),
+      studentID: student._id.toString(),
       status: "pending",
+      classID: classResult._id.toString(),
     });
+
+    console.log("Notification:", notification);
     await notification.save();
 
     const io = req.app.get("io");

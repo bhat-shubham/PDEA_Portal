@@ -76,10 +76,6 @@ useEffect(() => {
   const fetchStudent = async () => {
     try {
       setIsLoading(true);
-
-  useEffect(() => {
-    const fetchStudent = async () => {
-
       const data = await profileHandler("profile", "GET");
       if (data && data.student) {
         setStudent(data.student);
@@ -87,7 +83,6 @@ useEffect(() => {
         console.error("Failed to fetch valid student profile");
         setStudent({ firstname: "", lastname: "", email: "", branch: "" });
       }
-
     } catch (error) {
       console.error("Error fetching student profile:", error);
       toast.error("Failed to load profile", {
@@ -100,10 +95,7 @@ useEffect(() => {
 
   fetchStudent();
 }, []);
-    };
 
-    fetchStudent();
-  }, []);
 
   return (
     <header className="lg:relative lg:bg-transparent bg-[#0F131F] z-10 sticky top-0 border-b p-4 lg:p-6 flex items-center justify-between">
