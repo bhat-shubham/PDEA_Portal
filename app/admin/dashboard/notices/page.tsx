@@ -1,15 +1,6 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { AdminHeader } from "@/components/ui/adminheader";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-// import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -22,7 +13,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-// import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   BookPlus,
   FileText,
@@ -36,13 +26,12 @@ import {
 import { noticeHandler } from "@/app/lib/noticeHandler";
 import { toast } from "sonner";
 import { noticeHandlerPost } from "@/app/lib/noticeHandler";
+import Notices from "@/components/ui/notices";
 interface notices {
   id: number;
   type: "Notice" | "Circular";
   title: string;
-
   createdAt: Date;
-
   content: string;
 }
 
@@ -97,7 +86,6 @@ export default function NoticesPage() {
 
   const noticeDate = (notice: notices) => {
     const date = new Date(notice.createdAt);
-
     const day = date.getDate();
     const month = date.getMonth() + 1;
     const year = date.getFullYear();
@@ -272,65 +260,7 @@ export default function NoticesPage() {
             </Dialog>
           </div>
         </div>
-        <div className=" md:grid-cols-2 lg:grid-cols-3 gap-2 mb-3">
-          {[...notices].reverse().map((notification) => (
-            <div
-              key={notification.id}
-              onClick={() => showNoticeID(notification)}
-            >
-              <Card
-                className="group relative border border-white/10 backdrop-blur-xl bg-black/20
-                        transition-all duration-300 ease-out
-                        hover:shadow-[0_0_25px_rgba(100,149,237,0.4)] text-white shadow-lg mb-5"
-              >
-                <div
-                  className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setSelectedNotice(notification);
-
-                    setShowDeleteDialog(true);
-                  }}
-                >
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 bg-red-500/10 hover:bg-red-500/20 text-red-500 hover:text-red-400"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-                <div
-                  // href={`/notices/${notification.id}`}
-                  className="block cursor-pointer"
-                >
-                  <CardHeader>
-                    <CardTitle className="text-xl font-bold">
-                      {notification.title}
-                    </CardTitle>
-                    <CardDescription className="text-sm text-gray-400">
-                      {noticeDate(notification)}
-                    </CardDescription>
-                  </CardHeader>
-
-                  <CardContent>
-                    <p className="text-gray-300 mb-4">{notification.content}</p>
-                    <span
-                      className={`px-3 py-1 text-sm rounded-full ${
-                        notification.type === "Notice"
-                          ? "bg-green-500 text-white"
-                          : "bg-blue-500 text-white"
-                      }`}
-                    >
-                      {notification.type}
-                    </span>
-                  </CardContent>
-                </div>
-              </Card>
-            </div>
-          ))}
-        </div>
-
+        <Notices />
         <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
           <DialogContent className="bg-gray-900/95 border-gray-800 text-white max-w-md">
             <DialogHeader>

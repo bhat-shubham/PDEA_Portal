@@ -5,7 +5,6 @@ import { Button } from "./button";
 import { ModeToggle } from "./mode-toggle";
 import { Skeleton } from "./skeleton";
 import { teacherProfile } from "@/app/lib/teacherProfile";
-// import { teacherProfile } from "@/app/lib/teacherProfile";
 import { useEffect, useState } from "react";
 import { teacherLogout } from "@/app/lib/teacherLogout";
 // import { profileHandler } from "@/app/lib/studentHandler";
@@ -21,24 +20,12 @@ import {
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 // import { adminProfile } from "@/app/lib/adminHandler";
-// import { da } from "date-fns/locale";
+import { da } from "date-fns/locale";
 // import { studentProfile } from "@/app/lib/studentProfile";
 import { profileHandler } from "@/app/lib/studentHandler";
 
 export function StudentHeader() {
   const router = useRouter();
-  const [showNotifications, setShowNotifications] = useState(false);
-  const [confirmationDialog, setConfirmationDialog] = useState<{
-    isOpen: boolean;
-    type: "approve" | "deny" | null;
-    notificationId: number | null;
-    studentName: string;
-  }>({
-    isOpen: false,
-    type: null,
-    notificationId: null,
-    studentName: "",
-  });
   const [student, setStudent] = useState({
     firstname: "",
     lastname: "",
@@ -62,8 +49,6 @@ export function StudentHeader() {
       });
       setTimeout(() => {
         router.push("/");
-        // window.location.href = "/teacher/login";
-        // router.push("/teacher/login");
       }, 1500);
     } else {
       toast.error("Logout failed", {
@@ -72,7 +57,8 @@ export function StudentHeader() {
       });
     }
   };
-useEffect(() => {
+
+ useEffect(() => {
   const fetchStudent = async () => {
     try {
       setIsLoading(true);
@@ -100,17 +86,6 @@ useEffect(() => {
   return (
     <header className="lg:relative lg:bg-transparent bg-[#0F131F] z-10 sticky top-0 border-b p-4 lg:p-6 flex items-center justify-between">
       <div className="flex items-center align-middle justify-between w-full">
-        {/* <button
-          onClick={() => setShowNotifications(!showNotifications)}
-          className="lg:hidden z-50 p-2 rounded-lg bg-background/10 backdrop-blur-lg border border-white/10"
-          aria-label={showNotifications ? "Close notifications" : "Open notifications"}
-        >
-          {showNotifications ? (
-            <X className="h-6 w-6 text-white" />
-          ) : (
-            <Menu className="h-6 w-6 text-white" />
-          )}
-        </button> */}
         <div className="text-2xl sm:text-2xl md:text-center lg:text-left font-semibold text-center w-full">
           {isLoading ? (
             <div className="flex gap-2 items-center justify-center lg:justify-start">
