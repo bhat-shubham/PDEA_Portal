@@ -11,7 +11,8 @@ const {
   deleteClass,
   fetchNotification,
   approveStudent,
-  denyStudent
+  denyStudent,
+  fetchStudentsInClass
 } = require("../controllers/teachercontroller");
 const auth = require("../middleware/auth");
 
@@ -25,5 +26,6 @@ route.get("/notifications", auth, fetchNotification);
 route.put("/approveStudent", auth, approveStudent);
 route.delete("/deleteClass/:classId", auth, deleteClass);
 route.delete("/denyStudent", auth, denyStudent);
+route.get("/class/:classId/students", auth, fetchStudentsInClass);
 
 module.exports = route;

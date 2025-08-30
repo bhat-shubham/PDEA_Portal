@@ -10,6 +10,7 @@ const { Teacher } = require("../models/teacherSchema");
 const { Class } = require("../models/classSchema.js");
 const { Notification } = require("../models/notificationSchema");
 const { Student } = require("../models/studentSchema");
+const { id } = require("date-fns/locale/id");
 
 dotenv.config();
 
@@ -298,6 +299,25 @@ const denyStudent = async (req, res) => {
     message: "Student denied successfully",
   });
 };
+
+const fetchStudentsInClass = async (req, res) => {
+  try {
+    const { classId } = req.params;
+    const classData = await Class.findById(classId).populate("students");
+   
+    const studentData = classData.students.map((student) => ({
+      id: student._id.toString(),
+      name: `${student.firstname} ${student.lastname}`,
+      email: student.email,
+      branch: student.branch,
+      phone: student.mobile,
+    }));
+
+    res.status(200).json({ students: studentData });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching students", error });
+  }
+};
 module.exports = {
   teacherLogin,
   teacherRegisration,
@@ -309,4 +329,5 @@ module.exports = {
   fetchNotification,
   approveStudent,
   denyStudent,
+  fetchStudentsInClass,
 };
