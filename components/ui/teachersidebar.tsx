@@ -3,7 +3,6 @@ import {
   Home,
   Calendar,
   Megaphone,
-  Bell,
   User,
   Menu,
   X,
@@ -14,12 +13,18 @@ import Link from "next/link";
 import { Button } from "./button";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-
+import { useTestSocket } from "@/app/lib/TestSocket";
 import { toast } from "sonner";
 import { PagesProgressProvider as ProgressProvider } from "@bprogress/next";
 import { useRouter } from "next/navigation";
 import { teacherLogout } from "@/app/lib/teacherLogout";
 
+// interface notices {
+//   id:number,
+//   classname:string,
+//   studentName:string,
+//   status
+// }
 
 export function Sidebar() {
   const router = useRouter();
@@ -27,6 +32,8 @@ export function Sidebar() {
   const [isMobile, setIsMobile] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [showProfile, setShowProfile] = useState(false);
+  const [newNoticesCount, setNewNoticesCount] = useState(0);
+  const [newNotificationCount, setnewNotificationCount] = useState(0);
 
   useEffect(() => {
     const checkIfMobile = () => {
@@ -44,6 +51,7 @@ export function Sidebar() {
       setIsMobileMenuOpen(false);
     }
   };
+
   const handleLogout = async () => {
     const success = await teacherLogout();
     if (success) {
@@ -58,6 +66,27 @@ export function Sidebar() {
       toast.error("Logout failed");
     }
   };
+
+  const handleNoticeClick = () => {
+    setnewNotificationCount(0);
+  };
+
+  const socket = useTestSocket();
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on("new_notification", () => {
+      setnewNotificationCount((prevCount) => prevCount + 1);
+    });
+    socket.on("newNotice", () => {
+      setNewNoticesCount((prevCount) => prevCount + 1);
+    });
+
+    return () => {
+      socket.off("new_notification");
+      socket.off("newNotice");
+    };
+  }, [socket]);
 
   return (
     <>
@@ -124,9 +153,17 @@ export function Sidebar() {
                 className="w-full justify-start"
                 asChild
               >
-                <Link href="/teacher/dashboard/notices">
+                <Link
+                  href="/teacher/dashboard/notices"
+                  onClick={handleNoticeClick}
+                >
                   <Megaphone className="mr-3 h-5 w-5" />
                   Notices
+                  {newNoticesCount > 0 && (
+                    <span className="absolute top-0 right-0 inline-flex items-center justify-center w-4 h-4 text-xs font-semibold text-white bg-red-500 rounded-full">
+                      {newNoticesCount}
+                    </span>
+                  )}
                 </Link>
               </Button>
             </div>
@@ -142,15 +179,26 @@ export function Sidebar() {
                 className="w-full justify-start"
                 asChild
               >
-                <Link href="/teacher/dashboard/notifications">
-                  <Bell className="mr-3 h-5 w-5" />
-                  Notifications
+                <Link
+                  href="/teacher/dashboard/notifications"
+                  onClick={handleNoticeClick}
+                >
+                  <Megaphone className="mr-3 h-5 w-5" />
+                  Notification
+                  {newNotificationCount > 0 && (
+                    <span className=" ml-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      {newNotificationCount}
+                    </span>
+                  )}
                 </Link>
               </Button>
               <Button
                 variant="ghost"
                 className="w-full justify-start"
-                onClick={() => { setShowProfile(true); handleLinkClick(); }}
+                onClick={() => {
+                  setShowProfile(true);
+                  handleLinkClick();
+                }}
                 asChild
               >
                 <Link href="/teacher/dashboard/profile">
@@ -160,7 +208,10 @@ export function Sidebar() {
               </Button>
               <Button
                 variant="ghost"
-                onClick={() => { handleLogout(); handleLinkClick(); }}
+                onClick={() => {
+                  handleLogout();
+                  handleLinkClick();
+                }}
                 className="w-full justify-start"
               >
                 {/* <Link href="/teacher/dashboard/profile"> */}

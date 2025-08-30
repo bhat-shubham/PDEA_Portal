@@ -61,7 +61,7 @@ export function AdminSidebar() {
   //   return () => clearInterval(intervalId);
   // }, []);
 
-  const socket = useTestSocket();
+
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -77,7 +77,7 @@ export function AdminSidebar() {
 
     return () => window.removeEventListener("resize", checkIfMobile);
   }, []);
-
+  const socket = useTestSocket();
   useEffect(() => {
     if (!socket) return;
 
@@ -85,7 +85,7 @@ export function AdminSidebar() {
       console.log("New notice received:", notices);
       setNewNoticesCount((prevCount) => prevCount + 1);
       console.log(newNoticesCount);
-      // setNoticeCount((prev) => (prev !== null ? prev + 1 : 1));
+     
     };
 
     socket.on("newNotice", handleNewNotice);
