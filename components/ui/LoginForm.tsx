@@ -30,11 +30,16 @@ export default function SignupFormDemo() {
     e.preventDefault();
     const res = await studentHandler("login", "POST", formData);
     if (res.message === "Login successful") {
+      console.log(res)
       localStorage.setItem("token", res.token);
       toast.success("Logged In Successfully!", {
-        description: "Redirecting to Dashboard...",
+        description: "Checking Information...",
         richColors:true
       });
+      if(res.student.classes.length===0){
+        Router.push("/student/noclass")
+        return;
+      }
       Router.push("/student/dashboard");
     }
     else {

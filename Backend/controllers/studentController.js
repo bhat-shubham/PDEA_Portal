@@ -60,6 +60,7 @@ const studentLogin = async (req, res) => {
     const { email, password } = req.body;
 
     const student = await Student.findOne({ email });
+    console.log("student",student)
     if (!student) {
       return res
         .status(404)
@@ -91,6 +92,7 @@ const studentLogin = async (req, res) => {
         name: student.name,
         email: student.email,
         mobile: student.mobile,
+        classes: student.classes,
       },
     });
   } catch (error) {
