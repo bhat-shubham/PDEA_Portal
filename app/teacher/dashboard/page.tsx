@@ -186,9 +186,12 @@ export default function Dashboard() {
     }));
   };
 
-  const handleSubmitAttendance = () => {
+  useEffect(() => {
     const count = Object.values(attendance).filter(Boolean).length;
     setPresentCount(count);
+  }, [attendance]);
+
+  const handleSubmitAttendance = () => {
     setShowConfirmation(true);
     console.log("Submitting attendance:", attendance);
   };
@@ -508,7 +511,10 @@ export default function Dashboard() {
                         <tr className="text-left">
                           <th className="pb-3 px-4">Roll No.</th>
                           <th className="pb-3 px-4">Name</th>
+                          <th className="pb-3 px-4">Current %</th>
                           <th className="pb-3 px-4">Status</th>
+
+                          
                         </tr>
                       </thead>
                       <tbody>
@@ -519,6 +525,8 @@ export default function Dashboard() {
                           >
                             <td className="py-3 px-4">{index + 1}</td>
                             <td className="py-3 px-4">{student.name}</td>
+                            <td className="pb-3 px-4"></td>
+
                             <td className="py-3 px-4">
                               <label className="flex items-center space-x-2">
                                 <Checkbox
