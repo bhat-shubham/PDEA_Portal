@@ -79,8 +79,8 @@ export default function NoClass() {
                 <Button
                   type="submit"
                   disabled={!classCode || isSubmitting || isSuccess}
-                  className="w-full h-10 bg-purple-500/20 hover:bg-purple-500/30 
-                  text-purple-300 hover:text-purple-200 border border-purple-500/30
+                  className="w-full h-10 bg-purple-500/60 hover:bg-purple-500/30 
+                  text-white hover:text-purple-200 border border-purple-500/30
                   disabled:opacity-50 transition-all duration-200"
                 >
                   {isSubmitting ? (
