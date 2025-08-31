@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { StudentHeader } from "@/components/ui/studentheader";
 import { Button } from "@/components/ui/button";
-import { UserCircle, Mail, Phone, MapPin, LockKeyhole } from "lucide-react";
+import { UserCircle, Mail, Phone, LockKeyhole, BookOpenCheck } from "lucide-react";
 // import { studentProfile } from "@/app/lib/studentProfile";
 import { profileHandler } from "@/app/lib/studentHandler";
 
@@ -59,19 +59,15 @@ export default function StudentProfile() {
                     </AvatarFallback>
                   </Avatar>
                 </div>
-
-                <div className="mt-4 space-y-2">
-                  <div className="flex items-center justify-center gap-2 text-gray-400">
-                    <MapPin className="w-4 h-4" />
-                    <span>{profileData.branch}</span>
-                  </div>
-                </div>
-
                 <div className="w-full flex justify-evenly items-center text-lg mt-6 space-y-5">
                   <div className="space-y-5">
                     <div className="flex items-center gap-3">
                       <UserCircle className="w-5 h-5 text-gray-400" />
                       <span>{`${profileData.firstname} ${profileData.lastname}`}</span>
+                    </div>
+                     <div className="flex items-center gap-3">
+                      <BookOpenCheck className="w-5 h-5 text-gray-400" />
+                      <span>{`${profileData.branch}`}</span>
                     </div>
                     <div className="flex items-center gap-3">
                       <Mail className="w-5 h-5 text-gray-400" />
