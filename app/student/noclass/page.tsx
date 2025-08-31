@@ -30,7 +30,13 @@ export default function NoClass() {
         }
         );
         setIsSuccess(true);
-      } 
+      }
+      else if(response.message==="You have already sent a join request for this class"){
+        toast.error("Join request already sent", {
+          description: "You have already sent a join request for this class",
+          richColors: true
+        });
+      }
       else {
         toast.error("Couldn't join class", {
           description: data.message || "Please check the class code",
