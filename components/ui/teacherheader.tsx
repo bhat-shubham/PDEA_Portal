@@ -8,11 +8,12 @@ import {
   X,
   AlertTriangle,
 } from "lucide-react";
-
+import { notificationHandler } from "@/app/lib/notificationHandler";
 import { Button } from "./button";
 import { ModeToggle } from "./mode-toggle";
 import { teacherProfile } from "@/app/lib/teacherProfile";
 import { useEffect, useState } from "react";
+import { useTestSocket } from "@/app/lib/TestSocket";
 import {
   Dialog,
   DialogContent,
@@ -21,7 +22,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-
+import { approveStudentHandler } from "@/app/lib/approveStudenthandler";
 import { teacherLogout } from "@/app/lib/teacherLogout";
 
 import {
@@ -34,76 +35,78 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-
-
-
-
-
+interface notifications {
+  classname: string;
+  id: string;
+  status: string;
+  studentName: string;
+  teacherID: string;
+  studentID: string;
+  classID: string;
+}
+interface ConfirmationDialogState {
+  isOpen: boolean;
+  type: "approve" | "deny" | null;
+  notificationId: string | null;
+  classId: string | null;
+  studentID: string;
+  studentName: string;
+}
 export function Header() {
   const router = useRouter();
   const [showNotifications, setShowNotifications] = useState(false);
-  const [confirmationDialog, setConfirmationDialog] = useState<{
-    isOpen: boolean;
-    type: "approve" | "deny" | null;
-    notificationId: number | null;
-    studentName: string;
-  }>({
-    isOpen: false,
-    type: null,
-    notificationId: null,
-    studentName: "",
-  });
-
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      text: "Dummy Sharma is trying to join the BE IT Classroom",
-      studentName: "Shubham bhat",
-      pending: true,
-    },
-    {
-      id: 2,
-      text: "Dummy Kumar is trying to join the TE IT Classroom",
-      studentName: "Shubham bhat",
-      pending: true,
-    },
-    {
-      id: 3,
-      text: "Dummy Khandge is trying to join the SE IT Classroom",
-      studentName: "Shubham bhat",
-      pending: true,
-    },
-    {
-      id: 4,
-      text: "Dummy Prasad is trying to join the BE IT Classroom",
-      studentName: "Shubham bhat",
-      pending: true,
-    },
-    {
-      id: 5,
-      text: "Dummy Kokne is trying to join the TE IT Classroom",
-      studentName: "Shubham bhat",
-      pending: true,
-    },
-  ]);
-
-  const handleApproveClick = (id: number, studentName: string) => {
+  const [confirmationDialog, setConfirmationDialog] =
+    useState<ConfirmationDialogState>({
+      isOpen: false,
+      type: null,
+      notificationId: null,
+      classId: null,
+      studentID: "",
+      studentName: "",
+    });
+  const [notifications, setNotifications] = useState<notifications[]>([]);
+  const socket = useTestSocket();
+  const handleApproveClick = (notification: notifications) => {
     setConfirmationDialog({
       isOpen: true,
       type: "approve",
-      notificationId: id,
-      studentName,
+      notificationId: notification.id,
+      studentName: notification.studentName,
+      studentID: notification.studentID,
+      classId: notification.classID,
     });
   };
-
-  const handleDenyClick = (id: number, studentName: string) => {
+    const handleDenyClick = (notification: notifications) => {
     setConfirmationDialog({
       isOpen: true,
       type: "deny",
-      notificationId: id,
-      studentName,
+      notificationId: notification.id,
+      studentID: notification.studentID,
+      studentName: notification.studentName,
+      classId: notification.classID,
     });
   };
+  const handleNotification = async () => {
+      const data = await notificationHandler("notifications", "GET");
+      setNotifications(data.notifications);
+  };
+    useEffect(() => {
+      if (socket) {
+        const handler = (notification: notifications) => {
+          // console.log("New notification:", notification);
+          setNotifications((prevNotifications) => [
+            ...prevNotifications,
+            notification,
+          ]);
+        };
+        socket.on("new_notification", handler);
+        handleNotification();
+        return () => {
+          socket.off("new_notification", handler);
+        };
+      }
+    }, [socket]);
+
   const handleLogout = async () => {
     const success = await teacherLogout();
     if (success) {
@@ -126,32 +129,59 @@ export function Header() {
     }
   };
 
-  const handleConfirm = () => {
-    if (confirmationDialog.notificationId) {
-      setNotifications(
-        notifications.filter((n) => n.id !== confirmationDialog.notificationId)
-      );
-      // console.log(
-      //   `Student ${confirmationDialog.studentName} ${
-      //     confirmationDialog.type === "approve" ? "approved" : "denied"
-      //   }`
-      // );
-    }
-    setConfirmationDialog({
-      isOpen: false,
-      type: null,
-      notificationId: null,
-      studentName: "",
-    });
-  };
+  const handleConfirm = async () => {
+    const { studentID, notificationId, classId, type } = confirmationDialog;
 
-  const handleCancel = () => {
+    const studentData = {
+      studentID: studentID,
+      classID: classId,
+      notificationID: notificationId,
+    };
     setConfirmationDialog({
       isOpen: false,
       type: null,
       notificationId: null,
       studentName: "",
+      studentID: "",
+      classId: null,
     });
+
+    if (type === "approve") {
+      try {
+        const res = await approveStudentHandler(
+          "approveStudent",
+          "PUT",
+          studentData
+        );
+        console.log(res);
+        if (res.message === "Student approved successfully") {
+          setNotifications((prev) =>
+            prev.filter((n) => n.id !== notificationId)
+          );
+          handleNotification();
+        }
+      } catch (error) {
+        console.error("Error approving student:", error);
+      }
+    }
+    if (type === "deny") {
+      try {
+        const res = await approveStudentHandler(
+          "denyStudent",
+          "Delete",
+          studentData
+        );
+        console.log(res);
+        if (res.message === "Student denied successfully") {
+          setNotifications((prev) =>
+            prev.filter((n) => n.id !== notificationId)
+          );
+          handleNotification();
+        }
+      } catch (error) {
+        console.error("Error approving student:", error);
+      }
+    }
   };
 
   const [teacher, setTeacher] = useState({
@@ -229,17 +259,12 @@ export function Header() {
                     key={notification.id}
                     className="p-4 border-b hover:bg-[#1a1a1a] flex items-center justify-between"
                   >
-                    <p className="text-sm flex-1">{notification.text}</p>
+                    <p className="text-sm flex-1">{notification.studentName} is trying to join {notification.classname}</p>
                     <div className="flex items-center gap-2 ml-4">
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() =>
-                          handleApproveClick(
-                            notification.id,
-                            notification.studentName
-                          )
-                        }
+                        onClick={() => handleApproveClick(notification)}
                         className="h-8 w-8 text-green-500 hover:text-green-700 hover:bg-green-100"
                       >
                         <Check className="h-4 w-4" />
@@ -247,12 +272,7 @@ export function Header() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() =>
-                          handleDenyClick(
-                            notification.id,
-                            notification.studentName
-                          )
-                        }
+                        onClick={() => handleDenyClick(notification)}
                         className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-100"
                       >
                         <X className="h-4 w-4" />
@@ -271,7 +291,7 @@ export function Header() {
 
           <Dialog
             open={confirmationDialog.isOpen}
-            onOpenChange={() => handleCancel()}
+            onOpenChange={() => setConfirmationDialog(prev => ({ ...prev, isOpen: false }))}
           >
             <DialogContent>
               <DialogHeader>
@@ -301,7 +321,7 @@ export function Header() {
                 </DialogDescription>
               </DialogHeader>
               <DialogFooter>
-                <Button variant="outline" onClick={handleCancel}>
+                <Button variant="outline" onClick={() => setConfirmationDialog(prev => ({ ...prev, isOpen: false }))}>
                   Cancel
                 </Button>
                 <Button
