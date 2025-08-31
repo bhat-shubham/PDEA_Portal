@@ -12,6 +12,7 @@ export default function NoClass() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [classCode, setClassCode] = useState("");
   const [open, setOpen] = useState(false);
+  const [isValidCode, setIsValidCode] = useState(true);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,19 +67,28 @@ export default function NoClass() {
               </p>
             </motion.div>
             <div className="flex flex-col gap-4">
-              <Input
-                id="code"
-                value={classCode}
-                onChange={(e) => setClassCode(e.target.value)}
-                placeholder="Enter class code..."
-                className="h-10 bg-black/100 border-purple-500/30 focus:border-purple-500/50 
-                focus:ring-purple-500/20 placeholder:text-gray-500"
-                disabled={isSubmitting || isSuccess}
-              />
+              <div className="space-y-1">
+                <Input
+                  id="code"
+                  value={classCode}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setClassCode(value);
+                    setIsValidCode(!value || /^\d{6}$/.test(value));
+                  }}
+                  placeholder="Enter 6-digit class code"
+                  className={`h-10 bg-black/100 ${!isValidCode ? 'border-red-500' : 'border-purple-500/30'} focus:border-purple-500/50 
+                  focus:ring-purple-500/20 placeholder:text-gray-500`}
+                  disabled={isSubmitting || isSuccess}
+                />
+                {!isValidCode && (
+                  <p className="text-xs text-red-500">Class code must be exactly 6 digits</p>
+                )}
+              </div>
               <div className="flex gap-3">
                 <Button
                   type="submit"
-                  disabled={!classCode || isSubmitting || isSuccess}
+                  disabled={!classCode || isSubmitting || isSuccess || !isValidCode || classCode.length !== 6}
                   className="w-full h-10 bg-purple-500/60 hover:bg-purple-500/30 
                   text-white hover:text-purple-200 border border-purple-500/30
                   disabled:opacity-50 transition-all duration-200"
@@ -104,6 +114,7 @@ export default function NoClass() {
                     setOpen(false);
                     setIsSuccess(false);
                     setClassCode("");
+                    setIsValidCode(true);
                   }}
                   className="w-full h-10 border-purple-500/30 hover:bg-purple-500/10
                   text-purple-300 hover:text-purple-200"
