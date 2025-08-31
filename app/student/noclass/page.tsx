@@ -6,6 +6,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Input } from "@/components/ui/input"
 import { Check, Loader2 } from "lucide-react"
 import { useState } from "react";
+import {motion} from "framer-motion"
 export default function NoClass() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -36,7 +37,7 @@ export default function NoClass() {
     <div className="absolute inset-0 z-10 flex md:p-0 p-5 items-center justify-center">
     <div className="flex flex-col w-3/4 items-center justify-center align-middle text-center">
       <p className="font-bold text-5xl">You can&apos;t skip what you haven&apos;t joined.<br /><span className="text-purple-500">Join a class</span> to kick things off.</p>
-      <div className="mt-5 border border-purple-400 rounded-2xl max-w-fit p-4 flex gap-3 justify-center align-middle items-center">
+      <div className="mt-5 border bg-gray-500/10 backdrop-blur-sm bg-opacity-10 border-purple-400 rounded-2xl max-w-fit p-4 flex gap-3 justify-center align-middle items-center">
       <p className="text-2xl font-semibold">Have a class code?</p>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
@@ -49,16 +50,21 @@ export default function NoClass() {
           </Button>
         </PopoverTrigger>
         <PopoverContent 
-          className="w-96 transform -translate-x-1/3 -translate-y-1/3
+          className="w-96 
           border border-purple-500/20 bg-black/90 backdrop-blur-xl shadow-[0_0_25px_rgba(168,85,247,0.2)]"
           >
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2 text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-2 text-center">
               <h4 className="font-medium text-xl text-purple-500">Enter Class Code</h4>
               <p className="text-sm text-muted-foreground">
                 Enter the code provided by your teacher
               </p>
-            </div>
+            </motion.div>
             <div className="flex flex-col gap-4">
               <Input
                 id="code"
