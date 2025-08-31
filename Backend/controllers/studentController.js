@@ -176,6 +176,16 @@ const joinClass = async (req, res) => {
     if (!classResult || !student) {
       return res.status(404).json({ message: "Class or student not found" });
     }
+    
+    const existingNotification = await Notification.findOne({
+      studentID: student._id.toString(),
+      classID: classResult._id.toString(),
+      status: "pending"
+    });
+
+    if (existingNotification) {
+      return res.status(400).json({ message: "You have already sent a join request for this class" });
+    }
 
     const notification = new Notification({
       studentName: `${student.firstname} ${student.lastname}`,
