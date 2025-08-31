@@ -33,7 +33,7 @@ export default function NoClass() {
       }
       else if(response.message==="You have already sent a join request for this class"){
         toast.error("Join request already sent", {
-          description: "You have already sent a join request for this class",
+          description: "Kindly wait while the teacher accepts your request",
           richColors: true
         });
       }
