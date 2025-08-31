@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input"
 import { Check, Loader2 } from "lucide-react"
 import { useState } from "react";
 import {motion} from "framer-motion"
+import { toast } from "sonner";
+import { studentHandler } from "@/app/lib/studentHandler";
 export default function NoClass() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -17,9 +19,32 @@ export default function NoClass() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setIsSuccess(true);
-    setIsSubmitting(false);
+    try {
+      const response = await studentHandler("class", "POST", { classCode });
+      const data = response;    
+      console.log(response);
+      if (response.message=="Join request sent successfully") {
+        toast.success("Class join request sent successfully!",{
+          description:"Kindly wait while teacher admits you to the class",
+          richColors:true
+        }
+        );
+        setIsSuccess(true);
+      } 
+      else {
+        toast.error("Couldn't join class", {
+          description: data.message || "Please check the class code",
+          richColors: true
+        });
+      }
+    } catch (error) {
+      toast.error("Failed to send request", {
+        description: "Please try again later",
+        richColors: true
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

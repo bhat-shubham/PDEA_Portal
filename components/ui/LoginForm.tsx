@@ -10,10 +10,9 @@ import { Button } from "./button";
 import { PiChalkboardTeacher } from "react-icons/pi";
 import { GrUserAdmin } from "react-icons/gr";
 import { studentHandler } from "@/app/lib/studentHandler";
-// import { Route } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-export default function SignupFormDemo() {
+export default function StudentLoginForm() {
   const Router = useRouter();
 
   const [formData, setFormData] = useState({
