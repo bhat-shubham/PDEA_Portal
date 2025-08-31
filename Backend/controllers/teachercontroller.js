@@ -10,6 +10,7 @@ const { Teacher } = require("../models/teacherSchema");
 const { Class } = require("../models/classSchema.js");
 const { Notification } = require("../models/notificationSchema");
 const { Student } = require("../models/studentSchema");
+const { id } = require("date-fns/locale/id");
 
 dotenv.config();
 
@@ -286,6 +287,37 @@ const approveStudent = async (req, res) => {
   }
 };
 
+const denyStudent = async (req, res) => {
+  const { studentID, notificationID, classID } = req.body;
+  const deletedNotification = await Notification.findByIdAndDelete(
+    notificationID
+  );
+  console.log("Denying student with ID:", deletedNotification);
+
+  res.status(200).json({
+    deletedNotification: deletedNotification,
+    message: "Student denied successfully",
+  });
+};
+
+const fetchStudentsInClass = async (req, res) => {
+  try {
+    const { classId } = req.params;
+    const classData = await Class.findById(classId).populate("students");
+   
+    const studentData = classData.students.map((student) => ({
+      id: student._id.toString(),
+      name: `${student.firstname} ${student.lastname}`,
+      email: student.email,
+      branch: student.branch,
+      phone: student.mobile,
+    }));
+
+    res.status(200).json({ students: studentData });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching students", error });
+  }
+};
 module.exports = {
   teacherLogin,
   teacherRegisration,
@@ -296,4 +328,6 @@ module.exports = {
   deleteClass,
   fetchNotification,
   approveStudent,
+  denyStudent,
+  fetchStudentsInClass,
 };
