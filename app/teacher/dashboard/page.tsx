@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
@@ -28,7 +29,7 @@ import {
 //   TooltipTrigger,
 //   TooltipProvider,
 // } from "@/components/ui/tooltip";
-import { teacherClass } from "@/app/lib/teacherClass";
+import { teacherHandler } from "@/app/lib/teacherClass";
 import React from "react";
 import {
   DropdownMenu,
@@ -37,6 +38,21 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+
+type ClassType = {
+  id: string;
+  name: string;
+  subject: number;
+  count: string;
+  class_code: string;
+};
+
+type students = {
+  id: string;
+  name: string;
+  email: string;
+  present: boolean;
+};
 
 export default function Dashboard() {
   const [classes, setClasses] = useState<ClassType[]>([]);
@@ -57,31 +73,11 @@ export default function Dashboard() {
     newClassName: "",
   });
 
-  type ClassType = {
-    _id: string;
-    id: string;
-    name: string;
-    subject: number;
-    count: string;
-    class_code: string;
-  };
-
-  // useEffect(() => {
-  //   const socket = TestSocket();
-
-  //   socket.on("connect", () => {
-  //     console.log("Connected to server:", socket.id);
-  //   });
-
-  //   return () => {
-  //     socket.disconnect();
-  //     console.log("Socket disconnected");
-  //   };
-  // }, []);
+  const [students, setStudents] = useState<students[]>([]);
 
   const createClass = async () => {
     try {
-      const data = await teacherClass("POST", "class", newClass);
+      const data = await teacherHandler("POST", "class", newClass);
 
       if (data?.message === "Class creat" && data?.class) {
         setClasses((prev) => [...prev, data.class]);
@@ -99,18 +95,15 @@ export default function Dashboard() {
   };
   const deleteClass = async (classId: string) => {
     try {
-      const res = await teacherClass("DELETE", `deleteClass/${classId}`);
+      const res = await teacherHandler("DELETE", `deleteClass/${classId}`);
 
       if (res?.message === "Class deleted successfully.") {
         // Remove from UI instantly
         setClasses((prev) =>
-          prev.filter((cls) => cls._id !== classId && cls.id !== classId)
+          prev.filter((cls) => cls.id !== classId && cls.id !== classId)
         );
 
         console.log("Class deleted successfully:", classId);
-
-        // Optional: refresh list to stay 100% in sync
-        // await fetchClasses();
       } else {
         console.error("Failed to delete class:", res);
       }
@@ -160,8 +153,18 @@ export default function Dashboard() {
     }));
   };
 
-  const handleClassClick = (classId: string) => {
-    setSelectedClass((prev) => (prev === classId ? null : classId));
+  const handleClassClick = async (cls: ClassType) => {
+    const classId = cls.id;
+    setSelectedClass(classId);
+
+    const data = await teacherHandler("GET", `class/${classId}/students`);
+    if (Array.isArray(data.students)) {
+      setStudents(data.students);
+    } else {
+      setStudents([]); // fallback
+    }
+
+    console.log(data);
   };
 
   const handleAddClass = () => {
@@ -169,8 +172,6 @@ export default function Dashboard() {
       console.error("Class name and subject are required");
       return;
     }
-
-    // console.log("Adding new class:", newClass);
     createClass();
   };
 
@@ -192,17 +193,10 @@ export default function Dashboard() {
     console.log("Submitting attendance:", attendance);
   };
 
-  // useEffect(() => {
-  //   const socket = TestSocket();
-  //   socket.on("connect", () => {
-  //     console.log("Connected to server:", socket.id);
-  //   });
-  // }, []);
-
   useEffect(() => {
     const fetchClasses = async () => {
       try {
-        const data = await teacherClass("GET", "getClass");
+        const data = await teacherHandler("GET", "getClass");
         console.log("Fetched classes:", data);
         if (data?.classes && Array.isArray(data.classes)) {
           setClasses(data.classes as ClassType[]);
@@ -229,10 +223,10 @@ export default function Dashboard() {
               {classes.map((cls) => (
                 <div
                   key={cls.id}
-                  onClick={() => handleClassClick(cls.id)}
+                  onClick={() => handleClassClick(cls)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
-                      handleClassClick(cls.id);
+                      handleClassClick(cls);
                     }
                   }}
                   role="button"
@@ -518,34 +512,23 @@ export default function Dashboard() {
                         </tr>
                       </thead>
                       <tbody>
-                        {[
-                          { roll: "1", name: "Aditya Sharma" },
-                          { roll: "2", name: "Priya Patel" },
-                          { roll: "3", name: "Rahul Mehta" },
-                          { roll: "4", name: "Sneha Singh" },
-                          { roll: "5", name: "Arjun Kumar" },
-                          { roll: "6", name: "Ananya Gupta" },
-                          { roll: "7", name: "Rohan Verma" },
-                          { roll: "8", name: "Nisha Reddy" },
-                          { roll: "9", name: "Kunal Shah" },
-                          { roll: "10", name: "Meera Kapoor" },
-                        ].map((student) => (
+                        {students.map((student, index) => (
                           <tr
-                            key={student.roll}
+                            key={student.id}
                             className="border-b border-gray-700 hover:bg-gray-800"
                           >
-                            <td className="py-3 px-4">{student.roll}</td>
+                            <td className="py-3 px-4">{index + 1}</td>
                             <td className="py-3 px-4">{student.name}</td>
                             <td className="py-3 px-4">
                               <label className="flex items-center space-x-2">
                                 <Checkbox
-                                  checked={attendance[student.roll] || false}
-                                  onCheckedChange={(checked) =>
-                                    handleAttendanceChange(
-                                      student.roll,
-                                      checked === true
-                                    )
-                                  }
+                                // checked={attendance[student.roll] || false}
+                                // onCheckedChange={(checked) =>
+                                //   handleAttendanceChange(
+                                //     student.roll,
+                                //     checked === true
+                                //   )
+                                // }
                                 />
                                 <span className="text-sm text-gray-300">
                                   Present

@@ -8,6 +8,9 @@ const dotenv = require("dotenv");
 const jwt = require("jsonwebtoken");
 const { Teacher } = require("../models/teacherSchema");
 const { Class } = require("../models/classSchema.js");
+const { Notification } = require("../models/notificationSchema");
+const { Student } = require("../models/studentSchema");
+const { id } = require("date-fns/locale/id");
 
 dotenv.config();
 
@@ -106,6 +109,7 @@ const teacherLogout = (req, res) => {
     res.status(500).json({ message: "Logout failed", error });
   }
 };
+
 const teacherDetails = async (req, res) => {
   try {
     const email = req.user.email;
@@ -207,6 +211,113 @@ const deleteClass = async (req, res) => {
   }
 };
 
+const fetchNotification = async (req, res) => {
+  const teacherId = req.user.id;
+
+  try {
+    const notifications = await Notification.find({ teacherID: teacherId });
+
+    if (!notifications || notifications.length === 0) {
+      return res.status(404).json({ message: "No notifications found." });
+    }
+
+    res.status(200).json({
+      message: "Notifications fetched successfully.",
+      notifications: notifications.map((notification) => {
+        return {
+          id: notification._id.toString(),
+          studentName: notification.studentName,
+          classname: notification.classname,
+          teacherID: notification.teacherID,
+          status: notification.status,
+          studentID: notification.studentID,
+          classID: notification.classID,
+        };
+      }),
+    });
+  } catch (error) {
+    console.error("[FETCH NOTIFICATION ERROR]", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+const approveStudent = async (req, res) => {
+  try {
+    const { studentID, notificationID, classID } = req.body;
+    console.log({
+      title: "approveStudent",
+      studentID: studentID,
+      notificationID: notificationID,
+      classID: classID,
+    });
+
+    const TeacherId = req.user?.id;
+
+    if (!studentID || !notificationID || !classID) {
+      return res.status(400).json({ message: "Missing required fields." });
+    }
+
+    console.log("Approving student with ID:", studentID);
+    const classData = await Class.findById(classID);
+
+    const classes = await Class.findByIdAndUpdate(
+      classID,
+      { $addToSet: { students: studentID } },
+      { new: true }
+    );
+
+    if (!classes) {
+      return res.status(404).json({ message: "Class not found." });
+    }
+
+    const notification = await Notification.findByIdAndDelete(notificationID);
+
+    if (!notification) {
+      return res.status(404).json({ message: "Notification not found." });
+    }
+
+    return res.status(200).json({
+      class: classes,
+      deletedNotification: notification,
+      message: "Student approved successfully",
+    });
+  } catch (error) {
+    console.error("[APPROVE STUDENT ERROR]", error);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+const denyStudent = async (req, res) => {
+  const { studentID, notificationID, classID } = req.body;
+  const deletedNotification = await Notification.findByIdAndDelete(
+    notificationID
+  );
+  console.log("Denying student with ID:", deletedNotification);
+
+  res.status(200).json({
+    deletedNotification: deletedNotification,
+    message: "Student denied successfully",
+  });
+};
+
+const fetchStudentsInClass = async (req, res) => {
+  try {
+    const { classId } = req.params;
+    const classData = await Class.findById(classId).populate("students");
+   
+    const studentData = classData.students.map((student) => ({
+      id: student._id.toString(),
+      name: `${student.firstname} ${student.lastname}`,
+      email: student.email,
+      branch: student.branch,
+      phone: student.mobile,
+    }));
+
+    res.status(200).json({ students: studentData });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching students", error });
+  }
+};
 module.exports = {
   teacherLogin,
   teacherRegisration,
@@ -215,4 +326,8 @@ module.exports = {
   createClass,
   getClasses,
   deleteClass,
+  fetchNotification,
+  approveStudent,
+  denyStudent,
+  fetchStudentsInClass,
 };

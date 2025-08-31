@@ -9,6 +9,10 @@ const {
   createClass,
   getClasses,
   deleteClass,
+  fetchNotification,
+  approveStudent,
+  denyStudent,
+  fetchStudentsInClass
 } = require("../controllers/teachercontroller");
 const auth = require("../middleware/auth");
 
@@ -18,6 +22,10 @@ route.post("/logout", teacherLogout);
 route.get("/info", auth, teacherDetails);
 route.post("/class", auth, createClass);
 route.get("/getClass", auth, getClasses);
+route.get("/notifications", auth, fetchNotification);
+route.put("/approveStudent", auth, approveStudent);
 route.delete("/deleteClass/:classId", auth, deleteClass);
+route.delete("/denyStudent", auth, denyStudent);
+route.get("/class/:classId/students", auth, fetchStudentsInClass);
 
 module.exports = route;

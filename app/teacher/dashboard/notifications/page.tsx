@@ -1,71 +1,166 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
+
 import { useState, useEffect } from "react";
 import { Header } from "@/components/ui/teacherheader";
-// import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-// import Link  from "next/link";
+import { notificationHandler } from "@/app/lib/notificationHandler";
 import { Button } from "@/components/ui/button";
-import { Check, X } from "lucide-react";
+import { Check, X, AlertTriangle } from "lucide-react";
 import { useTestSocket } from "@/app/lib/TestSocket";
+import { approveStudentHandler } from "@/app/lib/approveStudenthandler";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
 interface notifications {
   classname: string;
-  studentName: string;
+  id: string;
   status: string;
-  _id: string;
+  studentName: string;
+  teacherID: string;
+  studentID: string;
+  classID: string;
+}
+
+interface ConfirmationDialogState {
+  isOpen: boolean;
+  type: "approve" | "deny" | null;
+  notificationId: string | null;
+  classId: string | null;
+  studentID: string;
+  studentName: string;
 }
 
 export default function NotificationsPage() {
-  const [confirmationDialog, setConfirmationDialog] = useState<{
-    isOpen: boolean;
-    type: "approve" | "deny" | null;
-    notificationId: number | null;
-    studentName: string;
-  }>({
-    isOpen: false,
-    type: null,
-    notificationId: null,
-    studentName: "",
-  });
-  const handleApproveClick = (id: number, studentName: string) => {
+  const [confirmationDialog, setConfirmationDialog] =
+    useState<ConfirmationDialogState>({
+      isOpen: false,
+      type: null,
+      notificationId: null,
+      classId: null,
+      studentID: "",
+      studentName: "",
+    });
+
+  const [notifications, setNotifications] = useState<notifications[]>([]);
+  const socket = useTestSocket();
+
+  const handleApproveClick = (notification: notifications) => {
     setConfirmationDialog({
       isOpen: true,
       type: "approve",
-      notificationId: id,
-      studentName,
+      notificationId: notification.id,
+      studentName: notification.studentName,
+      studentID: notification.studentID,
+      classId: notification.classID,
     });
   };
 
-  const handleDenyClick = (id: number, studentName: string) => {
+  const handleDenyClick = (notification: notifications) => {
     setConfirmationDialog({
       isOpen: true,
       type: "deny",
-      notificationId: id,
-      studentName,
+      notificationId: notification.id,
+      studentID: notification.studentID,
+      studentName: notification.studentName,
+      classId: notification.classID,
     });
   };
 
-  //     const [notifications, setNotifications] = useState([
-  //   { id: 1, text: "is trying to join the BE IT Classroom", studentName: "Mukesh Vaneeyar", pending: true },
-  //   { id: 2, text: "is trying to join the TE IT Classroom", studentName: "Bhamshu tahb", pending: true },
-  //   { id: 3, text: "is trying to join the SE IT Classroom", studentName: "Khandge Kumar", pending: true },
-  //   { id: 4, text: "is trying to join the BE IT Classroom", studentName: "Bhau Rindhe", pending: true },
-  //   { id: 5, text: "is trying to join the TE IT Classroom", studentName: "Mattoo bhat", pending: true },
-  // ]);
+  const handleNotification = async () => {
+    const data = await notificationHandler("notifications", "GET");
+    setNotifications(data.notifications);
+  };
 
-  // const [notifications, setNotifications] = useState([]);
-  const [notifications, setNotifications] = useState<notifications[]>([]);
+  // confirm
+  const handleConfirm = async () => {
+    const { studentID, notificationId, classId, type } = confirmationDialog;
 
-  const socket = useTestSocket();
+    const studentData = {
+      studentID: studentID,
+      classID: classId,
+      notificationID: notificationId,
+    };
+
+    console.log(studentData);
+
+    setConfirmationDialog({
+      isOpen: false,
+      type: null,
+      notificationId: null,
+      studentName: "",
+      studentID: "",
+      classId: null,
+    });
+
+    if (type === "approve") {
+      try {
+        const res = await approveStudentHandler(
+          "approveStudent",
+          "PUT",
+          studentData
+        );
+        console.log(res);
+        if (res.message === "Student approved successfully") {
+          setNotifications((prev) =>
+            prev.filter((n) => n.id !== notificationId)
+          );
+          handleNotification();
+        }
+      } catch (error) {
+        console.error("Error approving student:", error);
+      }
+    }
+    if (type === "deny") {
+      try {
+        const res = await approveStudentHandler(
+          "denyStudent",
+          "Delete",
+          studentData
+        );
+        console.log(res);
+        if (res.message === "Student denied successfully") {
+          setNotifications((prev) =>
+            prev.filter((n) => n.id !== notificationId)
+          );
+          handleNotification();
+        }
+      } catch (error) {
+        console.error("Error approving student:", error);
+      }
+    }
+  };
+
+  const handleCancel = async () => {
+    setConfirmationDialog({
+      isOpen: false,
+      type: null,
+      notificationId: null,
+      studentName: "",
+      studentID: "",
+      classId: null,
+    });
+  };
 
   useEffect(() => {
     if (socket) {
-      socket.on("new_notification", (notification) => {
+      const handler = (notification: notifications) => {
         console.log("New notification:", notification);
         setNotifications((prevNotifications) => [
           ...prevNotifications,
           notification,
         ]);
-      });
+      };
+      socket.on("new_notification", handler);
+      handleNotification();
+      return () => {
+        socket.off("new_notification", handler);
+      };
     }
   }, [socket]);
 
@@ -74,13 +169,14 @@ export default function NotificationsPage() {
       <Header />
       <div className="p-6">
         <h1 className="text-2xl font-bold mb-5 text-gray-100">Notifications</h1>
+
         <div className="overflow-y-auto">
-          {notifications.map((notification) => (
+          {[...notifications].reverse().map((notification) => (
             <div
-              key={notification._id}
+              key={notification.id}
               className="p-5 rounded-lg mb-2 border hover:bg-gray-900/50 flex items-center justify-between"
             >
-              <div className="flex  text-lg">
+              <div className="flex text-lg">
                 <p>
                   <span className="font-bold">{notification.studentName}</span>{" "}
                   is trying to join the{" "}
@@ -89,56 +185,90 @@ export default function NotificationsPage() {
                 </p>
               </div>
 
-              <div className="flex items-center gap-5 lg:gap-10 ml-4">
+              <div className="flex items-center gap-4 lg:gap-6 ml-4 mr-10">
                 <Button
-                  variant="ghost"
-                  size="icon"
-                  // onClick={() =>
-                  //   handleApproveClick(
-                  //     notification._id,
-                  //     notification.studentName
-                  //   )
-                  // }
-                  className="h-9 w-fit px-3 text-green-500 hover:text-green-700 bg-[#2A3147]"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleApproveClick(notification)}
+                  className="flex items-center gap-2 px-3 py-1 rounded-lg border-green-500 text-green-500 hover:bg-green-500 hover:text-white transition"
                 >
-                  <span className="hidden lg:flex">Approve</span>
-                  <Check className="h-4 w-4" />
+                  Approve
                 </Button>
-                {/* <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={() => handleApproveClick(notification.id, notification.studentName)}
-                                    className="lg:hidden md:hidden h-9 w-fit px-3 text-green-500 hover:text-green-700 bg-[#2A3147]"
-                                  >
-                                    <Check className="h-4 w-4" />
-                                  </Button> */}
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleDenyClick(notification)}
+                  className="flex items-center gap-2 px-3 py-1 rounded-lg border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition"
+                >
+                  Deny
+                </Button>
+
                 <Button
                   variant="ghost"
                   size="icon"
-                  // onClick={() =>
-                  //   handleDenyClick(notification._id, notification.studentName)
-                  // }
-                  className="h-9 w-fit px-3 text-red-500 hover:text-red-700 bg-[#2A3147]"
+                  className="lg:hidden md:hidden h-9 w-fit px-3 text-red-500 hover:text-red-700 bg-[#2A3147] rounded-lg"
                 >
-                  <span className="hidden lg:flex">Deny</span>
                   <X className="h-4 w-4" />
                 </Button>
-                {/* <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={() => handleDenyClick(notification.id, notification.studentName)}
-                                    className="lg:hidden md:hidden h-9 w-fit px-3 text-red-500 hover:text-red-700 bg-[#2A3147]"
-                                  >
-                                    <X className="h-4 w-4" />
-                                  </Button> */}
               </div>
             </div>
           ))}
+
           {notifications.length === 0 && (
             <div className="p-4 text-center text-muted-foreground">
               No new notifications
             </div>
           )}
+
+          <Dialog
+            open={confirmationDialog.isOpen}
+            onOpenChange={() => handleCancel()}
+          >
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  {confirmationDialog.type === "approve" ? (
+                    <Check className="h-5 w-5 text-green-500" />
+                  ) : (
+                    <AlertTriangle className="h-5 w-5 text-red-500" />
+                  )}
+                  {confirmationDialog.type === "approve"
+                    ? "Approve Student"
+                    : "Deny Student"}
+                </DialogTitle>
+                <DialogDescription>
+                  Are you sure you want to{" "}
+                  {confirmationDialog.type === "approve" ? "approve" : "deny"}{" "}
+                  the admission request for{" "}
+                  <span className="font-medium">
+                    {confirmationDialog.studentName}
+                  </span>
+                  ?
+                  {confirmationDialog.type === "deny" && (
+                    <p className="mt-2 text-red-500">
+                      This action cannot be undone.
+                    </p>
+                  )}
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => handleCancel()}>
+                  Cancel
+                </Button>
+                <Button
+                  variant={
+                    confirmationDialog.type === "approve"
+                      ? "default"
+                      : "destructive"
+                  }
+                  onClick={() => handleConfirm()}
+                >
+                  {confirmationDialog.type === "approve" ? "Approve" : "Deny"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
     </div>

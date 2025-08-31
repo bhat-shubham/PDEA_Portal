@@ -144,6 +144,7 @@ const joinClass = async (req, res) => {
     console.log("Student email:", studentEmail);
 
     const classResult = await Class.findOne({ class_code: classCode });
+    console.log("Class result:", classResult);
     const student = await Student.findOne({ email: studentEmail });
 
     if (!classResult || !student) {
@@ -153,20 +154,28 @@ const joinClass = async (req, res) => {
     const notification = new Notification({
       studentName: `${student.firstname} ${student.lastname}`,
       classname: classResult.name,
+      teacherID: classResult.teacher.toString(),
+      studentID: student._id.toString(),
       status: "pending",
+      classID: classResult._id.toString(),
     });
+
+    console.log("Notification:", notification);
     await notification.save();
 
     const io = req.app.get("io");
     console.log(classResult.teacher.toString());
-    io.to(classResult.teacher.toString()).emit(
-      "new_notification",
-      notification
-    );
+    io.to(classResult.teacher.toString()).emit("new_notification", {
+      ...notification.toObject(),
+      id: notification._id.toString(),
+    });
 
     return res.status(200).json({
       message: "Join request sent successfully",
-      notification,
+      notification: {
+        ...notification.toObject(),
+        id: notification._id.toString(),
+      },
     });
   } catch (error) {
     console.error("[JOIN CLASS ERROR]", error);
