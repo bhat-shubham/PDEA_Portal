@@ -54,7 +54,7 @@ export default function NoClass() {
   };
 
   return (
-    <main className="relative w-full h-screen overflow-hidden">
+    <main className="relative w-full h-screen overflow-hidden font-figtree">
     <div className="absolute inset-0 z-0">
       <Galaxy
        particleColors={['#A855F7', '#A855F7']}
@@ -66,13 +66,13 @@ export default function NoClass() {
     // mouseInteractive={false}
       />
     </div>
-    <div className="absolute inset-0 z-10 flex p-4 md:p-8 items-center justify-center">
+    <div className="absolute font-figtree inset-0 z-10 flex p-4 md:p-8 items-center justify-center">
     <div className="flex flex-col w-full items-center justify-center text-center px-4 sm:px-6">
       <motion.p
         initial={{ filter: 'blur(20px)', opacity: 0 }}
         animate={{ filter: 'blur(0px)', opacity: 1 }}
         transition={{ duration: 1 }}
-        className="text-3xl sm:text-4xl md:text-5xl font-figtree font-bold leading-tight">
+        className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight">
         You can&apos;t skip what you haven&apos;t joined.<br /><span className="text-purple-500">Join a class</span> to kick things off.
       </motion.p>
       <div className="mt-5 border bg-gray-500/10 backdrop-blur-sm bg-opacity-10 border-purple-400 rounded-2xl w-full max-w-lg p-3 sm:p-4 flex flex-col sm:flex-row gap-3 justify-center items-center">
@@ -88,7 +88,7 @@ export default function NoClass() {
           </Button>
         </PopoverTrigger>
         <PopoverContent 
-          className="w-[calc(100vw-2rem)] sm:w-96 mx-2 sm:mx-0
+          className=" font-figtree w-[calc(100vw-2rem)] sm:w-96 mx-2 sm:mx-0
           border border-purple-500/20 bg-black/90 backdrop-blur-xl shadow-[0_0_25px_rgba(168,85,247,0.2)]"
           >
           <form onSubmit={handleSubmit} className="space-y-6">
