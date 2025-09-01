@@ -50,7 +50,7 @@ export default function StudentLoginForm() {
   };
   return (
     <div className="w-full rounded-none md:rounded-2xl flex flex-col items-center md:p-8 shadow-input z-10 ">
-      <h2 className="font-figtree z-10 text-lg md:text-3xl text-white text-center">
+      <h2 className="font-figtree z-10 text-3xl text-white text-center">
         Login to PDEA&apos;s Portal
       </h2>
       <p className="text-center text-white font-figtree text-md mt-1">
