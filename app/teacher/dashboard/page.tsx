@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
-
+import {motion} from "framer-motion";
 import { Header } from "@/components/ui/teacherheader";
 // import { TestSocket } from "@/app/lib/TestSocket";
 import { SiGoogleclassroom } from "react-icons/si";
@@ -511,7 +511,11 @@ export default function Dashboard() {
             <div className="lg:col-span-3 bg-black/20 backdrop-blur-lg rounded-xl border border-white/10 min-h-[300px] p-4 md:p-6 flex justify-center flex-col">
               {selectedClass ? (
                 <div className="h-full flex flex-col">
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+                  <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5 }}
+                  className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
                     <h2 className="text-lg md:text-xl font-semibold text-white">
                       Today&apos;s Attendance -{" "}
                       {classes.find((c) => c.id === selectedClass)?.name}
@@ -523,7 +527,7 @@ export default function Dashboard() {
                     >
                       Clear All
                     </button>
-                  </div>
+                  </motion.div>
                   <div className="flex-1 overflow-x-auto min-h-0">
                     <table className="w-full text-white">
                       <thead className="border-b border-gray-600">
@@ -577,11 +581,15 @@ export default function Dashboard() {
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center align-middle h-full justify-center">
+                <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+                 className="flex items-center align-middle h-full justify-center">
                   <p className="text-gray-100 text-lg text-center" role="alert">
                     Select a class to mark students attendance
                   </p>
-                </div>
+                </motion.div>
               )}
             </div>
           </div>

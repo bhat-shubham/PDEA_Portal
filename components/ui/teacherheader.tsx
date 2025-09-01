@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
 interface notifications {
   classname: string;
   id: string;
@@ -250,7 +251,13 @@ export function Header() {
           </Button>
 
           {showNotifications && (
-            <div className="absolute right-0 mt-2 w-[calc(100vw-2rem)] sm:w-[460px] lg:w-[500px] bg-background border rounded-lg shadow-lg z-50 overflow-hidden">
+            <motion.div
+             initial={{ 
+              y:-10 
+            }}
+             animate={{ scale: 1, y:0 }}
+             transition={{ duration: 0.1 }}
+             className="absolute right-0 mt-2 w-[calc(100vw-2rem)] sm:w-[460px] lg:w-[500px] bg-background border rounded-lg shadow-lg z-50 overflow-hidden">
               <div className="p-3 sm:p-4 border-b">
                 <h3 className="text-base sm:text-lg font-semibold">
                   Notifications
@@ -289,7 +296,7 @@ export function Header() {
                   </div>
                 )}
               </div>
-            </div>
+            </motion.div>
           )}
 
           <Dialog

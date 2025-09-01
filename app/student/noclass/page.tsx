@@ -68,7 +68,11 @@ export default function NoClass() {
     </div>
     <div className="absolute inset-0 z-10 flex md:p-0 p-5 items-center justify-center">
     <div className="flex flex-col w-3/4 items-center justify-center align-middle text-center">
-      <p className=" text-5xl font-figtree font-bold">You can&apos;t skip what you haven&apos;t joined.<br /><span className="text-purple-500">Join a class</span> to kick things off.</p>
+      <motion.p
+      initial={{ filter: 'blur(20px)', opacity: 0 }}
+      animate={{ filter: 'blur(0px)', opacity: 1 }}
+      transition={{ duration: 1 }}
+      className=" text-5xl font-figtree font-bold">You can&apos;t skip what you haven&apos;t joined.<br /><span className="text-purple-500">Join a class</span> to kick things off.</motion.p>
       <div className="mt-5 border bg-gray-500/10 backdrop-blur-sm bg-opacity-10 border-purple-400 rounded-2xl max-w-fit p-4 flex gap-3 justify-center align-middle items-center">
       <p className="text-2xl font-semibold">Have a class code?</p>
       <Popover open={open} onOpenChange={setOpen}>
