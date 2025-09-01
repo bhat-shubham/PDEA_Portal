@@ -256,7 +256,7 @@ export default function Dashboard() {
                   tabIndex={0}
                   aria-pressed={selectedClass === cls.id}
                   aria-label={`${cls.name} class with ${cls.subject} students, ${cls.count} attendance in room ${cls.class_code}`}
-                  className={`cursor-pointer flex-col gap-3 rounded-xl flex items-center justify-center text-white text-lg font-semibold p-4 md:p-6
+                  className={`cursor-pointer flex-col gap-3 rounded-xl flex items-center justify-center text-white text-lg font-semibold p-4 md:p-10
                     border border-white/10 backdrop-blur-xl bg-black/20
                     transition-all duration-300 ease-out
                     hover:shadow-[0_0_25px_rgba(100,149,237,0.4)]
@@ -269,11 +269,11 @@ export default function Dashboard() {
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
-                        className="dark:bg-transparent absolute top-3 right-3 border-none"
+                        className="dark:bg-transparent absolute top-1 right-0 border-none"
                         variant="outline"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <EllipsisVertical className="h-5 w-5" />
+                        <EllipsisVertical className="rounded-xl bg-white/10 " />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
@@ -315,7 +315,7 @@ export default function Dashboard() {
 
                     <p className="text-sm md:text-base text-gray-300">
                       <span className="sr-only">class_code:</span>
-                      class_code:
+                      Class Code:
                       <span className="text-white">{cls.class_code}</span>
                     </p>
                   </div>
