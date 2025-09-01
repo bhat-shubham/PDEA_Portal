@@ -122,7 +122,7 @@ export default function Home() {
         <div className="w-full md:w-1/2">
           <div className="flex items-center align-middle justify-center overflow-hidden z-10">
             <form
-              className="flex w-full p-7 items-center flex-col gap-3 py-5 rounded-2xl"
+              className="flex w-full p-4 md:p-7 items-center flex-col gap-3 py-5 rounded-2xl"
               onSubmit={handleSubmit(onSubmit)}
             >
               <p className="text-white text-center text-2xl">
@@ -225,7 +225,7 @@ export default function Home() {
                 </LabelInputContainer>
               </div>
 
-              <div className="w-full flex gap-2">
+              <div className="w-full items-center flex gap-2">
                 <LabelInputContainer>
                   <Label htmlFor="mobile">Phone Number *</Label>
                   <Input
