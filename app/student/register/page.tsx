@@ -62,7 +62,6 @@ export default function Home() {
     return isValid && hasAllFields && isBranchSelected;
   }, [watchedValues, isValid, Branch]);
 
-  
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email) || "Please enter a valid email address";
@@ -76,7 +75,7 @@ export default function Home() {
 
   const validatePhone = (phone: string) => {
     const phoneRegex = /^\d{10}$/;
-    return phoneRegex.test(phone) || "Please enter a valid 10-digit phone number";
+    return phoneRegex.test(phone) || "Please enter a valid phone number";
   };
 
   const onSubmit = async (data: FormData) => {
@@ -308,7 +307,9 @@ export default function Home() {
               <div className="bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent my-1 h-[1px] w-full" />
 
               <Button
-                className="bg-[#443379] text-lg text-white rounded-lg cursor-pointer hover:bg-black transition w-full h-10 disabled:opacity-50 disabled:cursor-not-allowed"
+                className={cn(
+                  "bg-[#443379] text-lg text-white rounded-lg cursor-pointer hover:bg-black transition w-full h-10 disabled:opacity-50 disabled:cursor-not-allowed",
+                )}
                 type="submit"
                 disabled={!isFormValid}
               >
