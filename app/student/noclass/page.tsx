@@ -71,13 +71,14 @@ export default function NoClass() {
       <motion.p
         initial={{ filter: 'blur(20px)', opacity: 0 }}
         animate={{ filter: 'blur(0px)', opacity: 1 }}
-        transition={{ duration: 1 }}
+        transition={{ duration: 1.2 }}
         className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight">
         You can&apos;t skip what you haven&apos;t joined.<br /><span className="text-purple-500">Join a class</span> to kick things off.
       </motion.p>
       <motion.div
-        initial={{ filter: 'blur(20px)', opacity: 0 }}
-        animate={{ filter: 'blur(0px)', opacity: 1 }}
+        initial={{ opacity: 0, y: 20, filter: 'blur(20px)' }}
+        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+        exit={{ opacity: 0, y: 20, filter: 'blur(20px)' }}
         transition={{ duration: 1 }}
       className="mt-5 border bg-gray-500/10 backdrop-blur-sm bg-opacity-10 border-purple-400 rounded-2xl w-full max-w-lg p-3 sm:p-4 flex flex-col sm:flex-row gap-3 justify-center items-center">
       <p className="text-2xl sm:text-2xl font-semibold whitespace-nowrap">Have a class code?</p>
