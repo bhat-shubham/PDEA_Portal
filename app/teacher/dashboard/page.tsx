@@ -4,7 +4,7 @@
 
 import { Header } from "@/components/ui/teacherheader";
 // import { TestSocket } from "@/app/lib/TestSocket";
-import { CiCirclePlus } from "react-icons/ci";
+import { SiGoogleclassroom } from "react-icons/si";
 import { useEffect, useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -154,17 +154,21 @@ export default function Dashboard() {
   };
 
   const handleClassClick = async (cls: ClassType) => {
-    const classId = cls.id;
+    const classId = selectedClass === cls.id ? null : cls.id;
     setSelectedClass(classId);
 
-    const data = await teacherHandler("GET", `class/${classId}/students`);
-    if (Array.isArray(data.students)) {
-      setStudents(data.students);
+    if (classId) {
+      const data = await teacherHandler("GET", `class/${classId}/students`);
+      if (Array.isArray(data?.students)) {
+        setStudents(data.students);
+      } else {
+        setStudents([]); 
+      }
+      console.log(data);
     } else {
-      setStudents([]); // fallback
-    }
 
-    console.log(data);
+      setStudents([]);
+    }
   };
 
   const handleAddClass = () => {
@@ -216,13 +220,29 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="flex font-figtree h-screen">
-      <div className="flex-1 z-50 flex flex-col overflow relative">
-        <Header />
-        <main className="flex-1 overflow-x-hidden overflow-y-auto p-6">
-          <div className="flex flex-col min-h-full gap-6">
+    <div className="flex flex-col h-screen">
+      <Header />
+      <main className="flex-1 overflow-auto p-6">
+        <div className="max-w-7xl mx-auto flex flex-col gap-5">
+          <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold">Your Classes</h1>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 p-4 md:p-5">
+            <Button
+              variant="secondary"
+              onClick={() => setShowAddClass(true)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  setShowAddClass(true);
+                }
+              }}
+              aria-label="Add a new class"
+              className="bg-green-600/20 hover:bg-green-600 text-green-500 hover:text-white justify-start transition-all duration-300"
+            >
+              <SiGoogleclassroom className="w-8 h-8" />
+              Add New Class
+            </Button>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
               {classes.map((cls) => (
                 <div
                   key={cls.id}
@@ -259,7 +279,6 @@ export default function Dashboard() {
                     <DropdownMenuContent
                       align="end"
                       className="w-50"
-                      onPointerDownOutside={(e) => e.preventDefault()}
                     >
                       <DropdownMenuItem
                         onPointerDown={(e) => e.stopPropagation()}
@@ -302,7 +321,7 @@ export default function Dashboard() {
                   </div>
                 </div>
               ))}
-              <div
+              {/* <div
                 onClick={() => setShowAddClass(true)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
@@ -323,7 +342,7 @@ export default function Dashboard() {
                   Create a new class for your students
                 </p>
                 <CiCirclePlus className="w-16 h-16 text-white cursor-pointer hover:text-green-500 transition-colors" />
-              </div>
+              </div> */}
             </div>
 
             <Dialog open={showAddClass} onOpenChange={setShowAddClass}>
@@ -530,13 +549,13 @@ export default function Dashboard() {
                             <td className="py-3 px-4">
                               <label className="flex items-center space-x-2">
                                 <Checkbox
-                                // checked={attendance[student.roll] || false}
-                                // onCheckedChange={(checked) =>
-                                //   handleAttendanceChange(
-                                //     student.roll,
-                                //     checked === true
-                                //   )
-                                // }
+                                  checked={attendance[student.id] || false}
+                                  onCheckedChange={(checked) =>
+                                    handleAttendanceChange(
+                                      student.id,
+                                      checked === true
+                                    )
+                                  }
                                 />
                                 <span className="text-sm text-gray-300">
                                   Present
@@ -566,8 +585,9 @@ export default function Dashboard() {
               )}
             </div>
           </div>
-        </main>
-      </div>
+
+      </main>
+
     </div>
   );
 }

@@ -110,12 +110,15 @@ export function Header() {
   const handleLogout = async () => {
     const success = await teacherLogout();
     if (success) {
-      setTeacher({
-        firstname: "",
-        lastname: "",
-        email: "",
-        branch: "",
-      });
+      setTimeout(() => {
+        setTeacher({
+          firstname: "",
+          lastname: "",
+          email: "",
+          branch: "",
+        });
+      }, 1500);
+
       localStorage.removeItem("token");
       toast.success("Logged Out Successfully!", {
         description: "Redirecting to Login Page...",
