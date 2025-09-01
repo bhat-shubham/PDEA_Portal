@@ -75,7 +75,11 @@ export default function NoClass() {
         className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight">
         You can&apos;t skip what you haven&apos;t joined.<br /><span className="text-purple-500">Join a class</span> to kick things off.
       </motion.p>
-      <div className="mt-5 border bg-gray-500/10 backdrop-blur-sm bg-opacity-10 border-purple-400 rounded-2xl w-full max-w-lg p-3 sm:p-4 flex flex-col sm:flex-row gap-3 justify-center items-center">
+      <motion.div
+        initial={{ filter: 'blur(20px)', opacity: 0 }}
+        animate={{ filter: 'blur(0px)', opacity: 1 }}
+        transition={{ duration: 1 }}
+      className="mt-5 border bg-gray-500/10 backdrop-blur-sm bg-opacity-10 border-purple-400 rounded-2xl w-full max-w-lg p-3 sm:p-4 flex flex-col sm:flex-row gap-3 justify-center items-center">
       <p className="text-2xl sm:text-2xl font-semibold whitespace-nowrap">Have a class code?</p>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
@@ -173,7 +177,7 @@ export default function NoClass() {
           </form>
         </PopoverContent>
       </Popover>
-      </div>
+      </motion.div>
       <p className="text-muted-foreground mt-5 text-sm sm:text-base">Do not have a code yet? Please contact your teacher</p>
     </div>
     </div>
