@@ -86,9 +86,6 @@ export default function NotificationsPage() {
       classID: classId,
       notificationID: notificationId,
     };
-
-    console.log(studentData);
-
     setConfirmationDialog({
       isOpen: false,
       type: null,

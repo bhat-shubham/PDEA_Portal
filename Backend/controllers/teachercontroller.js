@@ -244,48 +244,41 @@ const fetchNotification = async (req, res) => {
 const approveStudent = async (req, res) => {
   try {
     const { studentID, notificationID, classID } = req.body;
-    console.log({
-      title: "approveStudent",
-      studentID: studentID,
-      notificationID: notificationID,
-      classID: classID,
-    });
-
-    const TeacherId = req.user?.id;
 
     if (!studentID || !notificationID || !classID) {
       return res.status(400).json({ message: "Missing required fields." });
     }
 
-    console.log("Approving student with ID:", studentID);
-    const classData = await Class.findById(classID);
-
-    const classes = await Class.findByIdAndUpdate(
+    const updatedClass = await Class.findByIdAndUpdate(
       classID,
       { $addToSet: { students: studentID } },
       { new: true }
     );
+    if (!updatedClass) return res.status(404).json({ message: "Class not found." });
 
-    if (!classes) {
-      return res.status(404).json({ message: "Class not found." });
+    const student = await Student.findById(studentID);
+    if (!student) return res.status(404).json({ message: "Student not found." });
+
+    if (!student.classes.includes(classID)) {
+      student.classes.push(classID);
+      await student.save();
     }
 
-    const notification = await Notification.findByIdAndDelete(notificationID);
-
-    if (!notification) {
-      return res.status(404).json({ message: "Notification not found." });
-    }
+    const deletedNotification = await Notification.findByIdAndDelete(notificationID);
+    if (!deletedNotification) return res.status(404).json({ message: "Notification not found." });
 
     return res.status(200).json({
-      class: classes,
-      deletedNotification: notification,
-      message: "Student approved successfully",
+      class: updatedClass,
+      student,
+      deletedNotification,
+      message: "Student approved and added to class successfully",
     });
   } catch (error) {
     console.error("[APPROVE STUDENT ERROR]", error);
     return res.status(500).json({ message: "Internal server error." });
   }
 };
+
 
 const denyStudent = async (req, res) => {
   const { studentID, notificationID, classID } = req.body;

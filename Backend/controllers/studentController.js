@@ -60,6 +60,7 @@ const studentLogin = async (req, res) => {
     const { email, password } = req.body;
 
     const student = await Student.findOne({ email });
+    console.log("student",student)
     if (!student) {
       return res
         .status(404)
@@ -91,6 +92,7 @@ const studentLogin = async (req, res) => {
         name: student.name,
         email: student.email,
         mobile: student.mobile,
+        classes: student.classes,
       },
     });
   } catch (error) {
@@ -112,11 +114,34 @@ const studentProfile = async (req, res) => {
   try {
     const email = req.user.email;
     console.log("Fetching student details for email:", email);
-    const student = await Student.findOne({ email: email }).select("-password");
+    const student = await Student.findOne({ email: email }).select("-password")
+    .populate({
+      path:"classes",
+      select: "name subject class_code",
+      populate:{
+        path:"teacher",
+        select:"firstname lastname email branch"
+      }
+    })
+    ;
     // console.log(teacher);
     if (!student) {
       return res.status(404).json({ message: "Student not found." });
     }
+    const classes = student.classes.map((cls) => ({
+      id: cls._id.toString(),
+      name: cls.name,
+      subject: cls.subject,
+      class_code: cls.class_code,
+      teacher: cls.teacher
+        ? {
+            id: cls.teacher._id.toString(),
+            name: `${cls.teacher.firstname} ${cls.teacher.lastname}`,
+            email: cls.teacher.email,
+            branch: cls.teacher.branch,
+          }
+        : null,
+    }));
 
     res.status(200).json({
       message: "Student profile fetched successfully.",
@@ -127,6 +152,7 @@ const studentProfile = async (req, res) => {
         email: student.email,
         branch: student.branch,
         phone: student.mobile,
+        classes
       },
     });
   } catch (error) {
@@ -149,6 +175,16 @@ const joinClass = async (req, res) => {
 
     if (!classResult || !student) {
       return res.status(404).json({ message: "Class or student not found" });
+    }
+    
+    const existingNotification = await Notification.findOne({
+      studentID: student._id.toString(),
+      classID: classResult._id.toString(),
+      status: "pending"
+    });
+
+    if (existingNotification) {
+      return res.status(400).json({ message: "You have already sent a join request for this class" });
     }
 
     const notification = new Notification({

@@ -37,8 +37,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className="font-figtree">
+    <html lang="en" suppressHydrationWarning className={`${figtree.variable}`}>
+      <body>
         <Providers>
           {children}
           <Suspense fallback={null}>

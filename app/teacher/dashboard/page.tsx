@@ -1,10 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
-
+import {motion} from "framer-motion";
 import { Header } from "@/components/ui/teacherheader";
 // import { TestSocket } from "@/app/lib/TestSocket";
-import { CiCirclePlus } from "react-icons/ci";
+import { SiGoogleclassroom } from "react-icons/si";
 import { useEffect, useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -154,17 +154,21 @@ export default function Dashboard() {
   };
 
   const handleClassClick = async (cls: ClassType) => {
-    const classId = cls.id;
+    const classId = selectedClass === cls.id ? null : cls.id;
     setSelectedClass(classId);
 
-    const data = await teacherHandler("GET", `class/${classId}/students`);
-    if (Array.isArray(data.students)) {
-      setStudents(data.students);
+    if (classId) {
+      const data = await teacherHandler("GET", `class/${classId}/students`);
+      if (Array.isArray(data?.students)) {
+        setStudents(data.students);
+      } else {
+        setStudents([]); 
+      }
+      console.log(data);
     } else {
-      setStudents([]); // fallback
-    }
 
-    console.log(data);
+      setStudents([]);
+    }
   };
 
   const handleAddClass = () => {
@@ -186,9 +190,12 @@ export default function Dashboard() {
     }));
   };
 
-  const handleSubmitAttendance = () => {
+  useEffect(() => {
     const count = Object.values(attendance).filter(Boolean).length;
     setPresentCount(count);
+  }, [attendance]);
+
+  const handleSubmitAttendance = () => {
     setShowConfirmation(true);
     console.log("Submitting attendance:", attendance);
   };
@@ -213,13 +220,29 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="flex font-figtree h-screen">
-      <div className="flex-1 z-50 flex flex-col overflow relative">
-        <Header />
-        <main className="flex-1 overflow-x-hidden overflow-y-auto p-6">
-          <div className="flex flex-col min-h-full gap-6">
+    <div className="flex flex-col h-screen">
+      <Header />
+      <main className="flex-1 overflow-auto p-6">
+        <div className="max-w-7xl mx-auto flex flex-col gap-5">
+          <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold">Your Classes</h1>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 p-4 md:p-5">
+            <Button
+              variant="secondary"
+              onClick={() => setShowAddClass(true)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  setShowAddClass(true);
+                }
+              }}
+              aria-label="Add a new class"
+              className="bg-green-600/20 hover:bg-green-600 text-green-500 hover:text-white justify-start transition-all duration-300"
+            >
+              <SiGoogleclassroom className="w-8 h-8" />
+              Add New Class
+            </Button>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
               {classes.map((cls) => (
                 <div
                   key={cls.id}
@@ -233,7 +256,7 @@ export default function Dashboard() {
                   tabIndex={0}
                   aria-pressed={selectedClass === cls.id}
                   aria-label={`${cls.name} class with ${cls.subject} students, ${cls.count} attendance in room ${cls.class_code}`}
-                  className={`cursor-pointer flex-col gap-3 rounded-xl flex items-center justify-center text-white text-lg font-semibold p-4 md:p-6
+                  className={`cursor-pointer flex-col gap-3 rounded-xl flex items-center justify-center text-white text-lg font-semibold p-4 md:p-10
                     border border-white/10 backdrop-blur-xl bg-black/20
                     transition-all duration-300 ease-out
                     hover:shadow-[0_0_25px_rgba(100,149,237,0.4)]
@@ -246,17 +269,16 @@ export default function Dashboard() {
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
-                        className="dark:bg-transparent absolute top-3 right-3 border-none"
+                        className="dark:bg-transparent absolute top-1 right-0 border-none"
                         variant="outline"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <EllipsisVertical className="h-5 w-5" />
+                        <EllipsisVertical className="rounded-xl bg-white/10 " />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
                       align="end"
                       className="w-50"
-                      onPointerDownOutside={(e) => e.preventDefault()}
                     >
                       <DropdownMenuItem
                         onPointerDown={(e) => e.stopPropagation()}
@@ -293,13 +315,13 @@ export default function Dashboard() {
 
                     <p className="text-sm md:text-base text-gray-300">
                       <span className="sr-only">class_code:</span>
-                      class_code:
+                      Class Code:
                       <span className="text-white">{cls.class_code}</span>
                     </p>
                   </div>
                 </div>
               ))}
-              <div
+              {/* <div
                 onClick={() => setShowAddClass(true)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
@@ -320,7 +342,7 @@ export default function Dashboard() {
                   Create a new class for your students
                 </p>
                 <CiCirclePlus className="w-16 h-16 text-white cursor-pointer hover:text-green-500 transition-colors" />
-              </div>
+              </div> */}
             </div>
 
             <Dialog open={showAddClass} onOpenChange={setShowAddClass}>
@@ -489,7 +511,11 @@ export default function Dashboard() {
             <div className="lg:col-span-3 bg-black/20 backdrop-blur-lg rounded-xl border border-white/10 min-h-[300px] p-4 md:p-6 flex justify-center flex-col">
               {selectedClass ? (
                 <div className="h-full flex flex-col">
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+                  <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5 }}
+                  className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
                     <h2 className="text-lg md:text-xl font-semibold text-white">
                       Today&apos;s Attendance -{" "}
                       {classes.find((c) => c.id === selectedClass)?.name}
@@ -501,14 +527,17 @@ export default function Dashboard() {
                     >
                       Clear All
                     </button>
-                  </div>
+                  </motion.div>
                   <div className="flex-1 overflow-x-auto min-h-0">
                     <table className="w-full text-white">
                       <thead className="border-b border-gray-600">
                         <tr className="text-left">
                           <th className="pb-3 px-4">Roll No.</th>
                           <th className="pb-3 px-4">Name</th>
+                          <th className="pb-3 px-4">Current %</th>
                           <th className="pb-3 px-4">Status</th>
+
+                          
                         </tr>
                       </thead>
                       <tbody>
@@ -519,16 +548,18 @@ export default function Dashboard() {
                           >
                             <td className="py-3 px-4">{index + 1}</td>
                             <td className="py-3 px-4">{student.name}</td>
+                            <td className="pb-3 px-4"></td>
+
                             <td className="py-3 px-4">
                               <label className="flex items-center space-x-2">
                                 <Checkbox
-                                // checked={attendance[student.roll] || false}
-                                // onCheckedChange={(checked) =>
-                                //   handleAttendanceChange(
-                                //     student.roll,
-                                //     checked === true
-                                //   )
-                                // }
+                                  checked={attendance[student.id] || false}
+                                  onCheckedChange={(checked) =>
+                                    handleAttendanceChange(
+                                      student.id,
+                                      checked === true
+                                    )
+                                  }
                                 />
                                 <span className="text-sm text-gray-300">
                                   Present
@@ -550,16 +581,21 @@ export default function Dashboard() {
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center align-middle h-full justify-center">
+                <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+                 className="flex items-center align-middle h-full justify-center">
                   <p className="text-gray-100 text-lg text-center" role="alert">
                     Select a class to mark students attendance
                   </p>
-                </div>
+                </motion.div>
               )}
             </div>
           </div>
-        </main>
-      </div>
+
+      </main>
+
     </div>
   );
 }

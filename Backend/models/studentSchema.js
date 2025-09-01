@@ -46,6 +46,12 @@ const studentSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    classes:[
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Class",
+      }
+    ]
   },
   { timestamps: true } // adds createdAt & updatedAt automatically
 );

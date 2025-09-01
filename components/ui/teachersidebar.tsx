@@ -8,6 +8,7 @@ import {
   X,
   LogOut,
   PanelsTopLeft,
+  Bell,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "./button";
@@ -183,8 +184,8 @@ export function Sidebar() {
                   href="/teacher/dashboard/notifications"
                   onClick={handleNoticeClick}
                 >
-                  <Megaphone className="mr-3 h-5 w-5" />
-                  Notification
+                  <Bell className="mr-3 h-5 w-5" />
+                  Notifications
                   {newNotificationCount > 0 && (
                     <span className=" ml-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                       {newNotificationCount}
