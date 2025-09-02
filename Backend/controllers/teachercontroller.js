@@ -12,6 +12,7 @@ const { Notification } = require("../models/notificationSchema");
 const { Student } = require("../models/studentSchema");
 const { Attendence } = require("../models/attendenceSchema.js");
 const { id } = require("date-fns/locale/id");
+const { default: mongoose } = require("mongoose");
 
 dotenv.config();
 
@@ -317,18 +318,36 @@ const fetchStudentsInClass = async (req, res) => {
   }
 };
 
-const markAttendence = async (req, res) => {
-  const { studentId, classId, status } = req.body;
+const markAttendance = async (req, res) => {
+  try {
+    let { records } = req.body; // frontend should send { records: [...] }
 
-  const attendence = new Attendence({
-    studentId,
-    classId,
-    status,
-  });
-  await attendence.save();
-  res
-    .status(200)
-    .json({ message: "Attendence marked successfully", attendence });
+    if (!Array.isArray(records)) {
+      return res.status(400).json({ message: "Records must be an array" });
+    }
+
+    const markAttendence = records.map((rec) => {
+      if (
+        !mongoose.isValidObjectId(rec.studentId) ||
+        !mongoose.isValidObjectId(rec.classId)
+      ) {
+        throw new Error("Invalid studentId or classId");
+      }
+
+      return {
+        studentId: new mongoose.Types.ObjectId(rec.studentId),
+        classId: new mongoose.Types.ObjectId(rec.classId),
+        status: rec.present ? "present" : "absent",
+      };
+    });
+
+    await Attendence.insertMany(markAttendence);
+
+    res.status(200).json({ message: "Attendance marked successfully" });
+  } catch (error) {
+    console.error("[MARK ATTENDANCE ERROR]", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
 };
 
 module.exports = {
@@ -343,5 +362,5 @@ module.exports = {
   approveStudent,
   denyStudent,
   fetchStudentsInClass,
-  markAttendence,
+  markAttendance,
 };
