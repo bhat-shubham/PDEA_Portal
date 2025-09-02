@@ -46,18 +46,18 @@ const studentSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    classes:[
+    classes: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Class",
-      }
-    ]
+      },
+    ],
   },
-  { timestamps: true } // adds createdAt & updatedAt automatically
+  { timestamps: true }
 );
 
 // Indexing for faster lookups
-studentSchema.index({ email: 1 });
+// studentSchema.index({ email: 1 });
 
 const Student = mongoose.model("Student", studentSchema);
 
