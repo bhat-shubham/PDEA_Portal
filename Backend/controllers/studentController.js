@@ -190,6 +190,7 @@ const joinClass = async (req, res) => {
     const notification = new Notification({
       studentName: `${student.firstname} ${student.lastname}`,
       classname: classResult.name,
+      subject: classResult.subject,
       teacherID: classResult.teacher.toString(),
       studentID: student._id.toString(),
       status: "pending",

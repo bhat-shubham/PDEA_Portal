@@ -25,6 +25,7 @@ interface notifications {
   teacherID: string;
   studentID: string;
   classID: string;
+  subject: string;
 }
 
 interface ConfirmationDialogState {
@@ -34,6 +35,7 @@ interface ConfirmationDialogState {
   classId: string | null;
   studentID: string;
   studentName: string;
+  subject: string;
 }
 
 export default function NotificationsPage() {
@@ -45,6 +47,7 @@ export default function NotificationsPage() {
       classId: null,
       studentID: "",
       studentName: "",
+      subject: "",
     });
 
   const [notifications, setNotifications] = useState<notifications[]>([]);
@@ -58,6 +61,7 @@ export default function NotificationsPage() {
       studentName: notification.studentName,
       studentID: notification.studentID,
       classId: notification.classID,
+      subject: notification.subject,
     });
   };
 
@@ -69,6 +73,7 @@ export default function NotificationsPage() {
       studentID: notification.studentID,
       studentName: notification.studentName,
       classId: notification.classID,
+      subject: notification.subject,
     });
   };
 
@@ -93,6 +98,7 @@ export default function NotificationsPage() {
       studentName: "",
       studentID: "",
       classId: null,
+      subject: "",
     });
 
     if (type === "approve") {
@@ -141,6 +147,7 @@ export default function NotificationsPage() {
       studentName: "",
       studentID: "",
       classId: null,
+      subject: "",
     });
   };
 
@@ -177,7 +184,7 @@ export default function NotificationsPage() {
                 <p>
                   <span className="font-bold">{notification.studentName}</span>{" "}
                   is trying to join the{" "}
-                  <span className="font-bold">{notification.classname}</span>{" "}
+                  <span className="font-bold">{notification.classname} {notification.subject}</span>{" "}
                   Classroom
                 </p>
               </div>

@@ -225,6 +225,7 @@ const fetchNotification = async (req, res) => {
       message: "Notifications fetched successfully.",
       notifications: notifications.map((notification) => {
         return {
+          subject: notification.subject,
           id: notification._id.toString(),
           studentName: notification.studentName,
           classname: notification.classname,
