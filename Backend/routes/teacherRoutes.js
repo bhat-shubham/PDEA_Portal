@@ -12,7 +12,8 @@ const {
   fetchNotification,
   approveStudent,
   denyStudent,
-  fetchStudentsInClass
+  fetchStudentsInClass,
+  markAttendance,
 } = require("../controllers/teachercontroller");
 const auth = require("../middleware/auth");
 
@@ -27,5 +28,7 @@ route.put("/approveStudent", auth, approveStudent);
 route.delete("/deleteClass/:classId", auth, deleteClass);
 route.delete("/denyStudent", auth, denyStudent);
 route.get("/class/:classId/students", auth, fetchStudentsInClass);
+
+route.post("/markAttendence", markAttendance);
 
 module.exports = route;
