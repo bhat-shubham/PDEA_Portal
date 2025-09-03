@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 const mongoose = require("mongoose");
+const { type } = require("os");
 
 const notificationSchema = new mongoose.Schema({
   classname: {
@@ -8,6 +9,9 @@ const notificationSchema = new mongoose.Schema({
   },
   studentName: {
     required: true,
+    type: String,
+  },
+  subject: {
     type: String,
   },
   status: {

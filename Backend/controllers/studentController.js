@@ -165,12 +165,14 @@ const joinClass = async (req, res) => {
   try {
     const { classCode } = req.body;
     const studentEmail = req.user.email;
+    // const subject = classResult.subject;
 
     console.log("Class code:", classCode);
     console.log("Student email:", studentEmail);
+    // console.log(req);
 
     const classResult = await Class.findOne({ class_code: classCode });
-    console.log("Class result:", classResult);
+    console.log("Class result:", classResult.subject);
     const student = await Student.findOne({ email: studentEmail });
 
     if (!classResult || !student) {
@@ -180,6 +182,7 @@ const joinClass = async (req, res) => {
     const existingNotification = await Notification.findOne({
       studentID: student._id.toString(),
       classID: classResult._id.toString(),
+      subject: classResult.subject,
       status: "pending"
     });
 
@@ -190,6 +193,7 @@ const joinClass = async (req, res) => {
     const notification = new Notification({
       studentName: `${student.firstname} ${student.lastname}`,
       classname: classResult.name,
+      subject: classResult.subject,
       teacherID: classResult.teacher.toString(),
       studentID: student._id.toString(),
       status: "pending",
@@ -200,7 +204,7 @@ const joinClass = async (req, res) => {
     await notification.save();
 
     const io = req.app.get("io");
-    console.log(classResult.teacher.toString());
+    // console.log(classResult.teacher.toString());
     io.to(classResult.teacher.toString()).emit("new_notification", {
       ...notification.toObject(),
       id: notification._id.toString(),
