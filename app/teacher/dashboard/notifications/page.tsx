@@ -80,6 +80,7 @@ export default function NotificationsPage() {
   const handleNotification = async () => {
     const data = await notificationHandler("notifications", "GET");
     setNotifications(data.notifications);
+    console.log(notifications);
   };
 
   // confirm
@@ -154,7 +155,7 @@ export default function NotificationsPage() {
   useEffect(() => {
     if (socket) {
       const handler = (notification: notifications) => {
-        console.log("New notification:", notification);
+        // console.log("New notification:", notification);
         setNotifications((prevNotifications) => [
           ...prevNotifications,
           notification,
