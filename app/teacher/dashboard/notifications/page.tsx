@@ -80,7 +80,7 @@ export default function NotificationsPage() {
   const handleNotification = async () => {
     const data = await notificationHandler("notifications", "GET");
     setNotifications(data.notifications);
-    console.log(notifications);
+    // console.log(notifications);
   };
 
   // confirm
