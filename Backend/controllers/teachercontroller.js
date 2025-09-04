@@ -10,7 +10,9 @@ const { Teacher } = require("../models/teacherSchema");
 const { Class } = require("../models/classSchema.js");
 const { Notification } = require("../models/notificationSchema");
 const { Student } = require("../models/studentSchema");
+const { Attendence } = require("../models/attendenceSchema.js");
 const { id } = require("date-fns/locale/id");
+const { default: mongoose } = require("mongoose");
 
 dotenv.config();
 
@@ -255,18 +257,23 @@ const approveStudent = async (req, res) => {
       { $addToSet: { students: studentID } },
       { new: true }
     );
-    if (!updatedClass) return res.status(404).json({ message: "Class not found." });
+    if (!updatedClass)
+      return res.status(404).json({ message: "Class not found." });
 
     const student = await Student.findById(studentID);
-    if (!student) return res.status(404).json({ message: "Student not found." });
+    if (!student)
+      return res.status(404).json({ message: "Student not found." });
 
     if (!student.classes.includes(classID)) {
       student.classes.push(classID);
       await student.save();
     }
 
-    const deletedNotification = await Notification.findByIdAndDelete(notificationID);
-    if (!deletedNotification) return res.status(404).json({ message: "Notification not found." });
+    const deletedNotification = await Notification.findByIdAndDelete(
+      notificationID
+    );
+    if (!deletedNotification)
+      return res.status(404).json({ message: "Notification not found." });
 
     return res.status(200).json({
       class: updatedClass,
@@ -279,7 +286,6 @@ const approveStudent = async (req, res) => {
     return res.status(500).json({ message: "Internal server error." });
   }
 };
-
 
 const denyStudent = async (req, res) => {
   const { studentID, notificationID, classID } = req.body;
@@ -298,7 +304,7 @@ const fetchStudentsInClass = async (req, res) => {
   try {
     const { classId } = req.params;
     const classData = await Class.findById(classId).populate("students");
-   
+
     const studentData = classData.students.map((student) => ({
       id: student._id.toString(),
       name: `${student.firstname} ${student.lastname}`,
@@ -312,6 +318,39 @@ const fetchStudentsInClass = async (req, res) => {
     res.status(500).json({ message: "Error fetching students", error });
   }
 };
+
+const markAttendance = async (req, res) => {
+  try {
+    let { records } = req.body; // frontend should send { records: [...] }
+
+    if (!Array.isArray(records)) {
+      return res.status(400).json({ message: "Records must be an array" });
+    }
+
+    const markAttendence = records.map((rec) => {
+      if (
+        !mongoose.isValidObjectId(rec.studentId) ||
+        !mongoose.isValidObjectId(rec.classId)
+      ) {
+        throw new Error("Invalid studentId or classId");
+      }
+
+      return {
+        studentId: new mongoose.Types.ObjectId(rec.studentId),
+        classId: new mongoose.Types.ObjectId(rec.classId),
+        status: rec.present ? "present" : "absent",
+      };
+    });
+
+    await Attendence.insertMany(markAttendence);
+
+    res.status(200).json({ message: "Attendance marked successfully" });
+  } catch (error) {
+    console.error("[MARK ATTENDANCE ERROR]", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+};
+
 module.exports = {
   teacherLogin,
   teacherRegisration,
@@ -324,4 +363,5 @@ module.exports = {
   approveStudent,
   denyStudent,
   fetchStudentsInClass,
+  markAttendance,
 };

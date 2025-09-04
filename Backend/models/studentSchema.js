@@ -21,14 +21,14 @@ const studentSchema = new mongoose.Schema(
       match: [/^\S+@\S+\.\S+$/, "Please enter a valid email"],
     },
     mobile: {
-      type: String,
+      type: String, 
       required: true,
       match: [/^\d{10}$/, "Mobile number must be exactly 10 digits"],
     },
     password: {
       type: String,
       required: true,
-      minlength: 6,
+      minlength: 6, 
     },
     role: {
       type: String,
@@ -46,17 +46,15 @@ const studentSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    classes:[
+    classes: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Class",
-      }
-    ]
+      },
+    ],
   },
   { timestamps: true }
 );
-
-studentSchema.index({ email: 1 });
 
 const Student = mongoose.model("Student", studentSchema);
 

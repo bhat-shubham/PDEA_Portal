@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
-import {motion} from "framer-motion";
+import { motion } from "framer-motion";
 import { Header } from "@/components/ui/teacherheader";
 // import { TestSocket } from "@/app/lib/TestSocket";
 import { SiGoogleclassroom } from "react-icons/si";
@@ -23,12 +23,7 @@ import {
   PencilLine,
   Trash2,
 } from "lucide-react";
-// import {
-//   Tooltip,
-//   TooltipContent,
-//   TooltipTrigger,
-//   TooltipProvider,
-// } from "@/components/ui/tooltip";
+
 import { teacherHandler } from "@/app/lib/teacherClass";
 import React from "react";
 import {
@@ -38,6 +33,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { attendenceHandler } from "@/app/lib/attendenceHandler";
 
 type ClassType = {
   id: string;
@@ -54,11 +50,17 @@ type students = {
   present: boolean;
 };
 
+type AttendanceRecord = {
+  studentId: string;
+  classId: string;
+  present: boolean;
+};
+
 export default function Dashboard() {
   const [classes, setClasses] = useState<ClassType[]>([]);
   const [selectedClass, setSelectedClass] = useState<string | null>(null);
 
-  const [attendance, setAttendance] = useState<{ [key: string]: boolean }>({});
+  const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
   const [presentCount, setPresentCount] = useState(0);
   const [showConfirmation, setShowConfirmation] = useState(false);
 
@@ -162,11 +164,10 @@ export default function Dashboard() {
       if (Array.isArray(data?.students)) {
         setStudents(data.students);
       } else {
-        setStudents([]); 
+        setStudents([]);
       }
       console.log(data);
     } else {
-
       setStudents([]);
     }
   };
@@ -180,25 +181,55 @@ export default function Dashboard() {
   };
 
   const handleClearAttendance = () => {
-    setAttendance({});
+    setAttendance([]);
   };
 
-  const handleAttendanceChange = (rollNo: string, value: boolean) => {
-    setAttendance((prev) => ({
-      ...prev,
-      [rollNo]: value,
-    }));
+  const showconfirmation = () => {
+    setShowConfirmation(true);
+  };
+  const handleSubmitAttendance = async () => {
+    if (attendance.length === 0) {
+      console.error("No attendance records to submit");
+      return;
+    }
+
+    console.log("Submitting attendance:", attendance);
+    const res = await attendenceHandler("markAttendence", "POST", attendance);
+    console.log(res);
+    setAttendance([]);
+
+    setShowConfirmation(false);
+  };
+
+  const handleAttendanceChange = (studentId: string, status: boolean) => {
+    if (!selectedClass) return;
+
+    setAttendance((prev) => {
+      let updated = [...prev];
+
+      if (status) {
+        const index = updated.findIndex(
+          (r) => r.studentId === studentId && r.classId === selectedClass
+        );
+
+        if (index !== -1) {
+          updated[index].present = true;
+        } else {
+          updated.push({ studentId, classId: selectedClass, present: true });
+        }
+      } else {
+        updated = updated.filter(
+          (r) => !(r.studentId === studentId && r.classId === selectedClass)
+        );
+      }
+
+      return updated;
+    });
   };
 
   useEffect(() => {
-    const count = Object.values(attendance).filter(Boolean).length;
-    setPresentCount(count);
+    setPresentCount(attendance.length);
   }, [attendance]);
-
-  const handleSubmitAttendance = () => {
-    setShowConfirmation(true);
-    console.log("Submitting attendance:", attendance);
-  };
 
   useEffect(() => {
     const fetchClasses = async () => {
@@ -241,22 +272,22 @@ export default function Dashboard() {
               Add New Class
             </Button>
           </div>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
-              {classes.map((cls) => (
-                <div
-                  key={cls.id}
-                  onClick={() => handleClassClick(cls)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      handleClassClick(cls);
-                    }
-                  }}
-                  role="button"
-                  tabIndex={0}
-                  aria-pressed={selectedClass === cls.id}
-                  aria-label={`${cls.name} class with ${cls.subject} students, ${cls.count} attendance in room ${cls.class_code}`}
-                  className={`cursor-pointer flex-col gap-3 rounded-xl flex items-center justify-center text-white text-lg font-semibold p-4 md:p-10
+            {classes.map((cls) => (
+              <div
+                key={cls.id}
+                onClick={() => handleClassClick(cls)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    handleClassClick(cls);
+                  }
+                }}
+                role="button"
+                tabIndex={0}
+                aria-pressed={selectedClass === cls.id}
+                aria-label={`${cls.name} class with ${cls.subject} students, ${cls.count} attendance in room ${cls.class_code}`}
+                className={`cursor-pointer flex-col gap-3 rounded-xl flex items-center justify-center text-white text-lg font-semibold p-4 md:p-10
                     border border-white/10 backdrop-blur-xl bg-black/20
                     transition-all duration-300 ease-out
                     hover:shadow-[0_0_25px_rgba(100,149,237,0.4)]
@@ -265,63 +296,60 @@ export default function Dashboard() {
                         ? "border-white/90 shadow-[0_0_30px_rgba(100,149,237,0.5)]"
                         : "hover:border-blue-500/30"
                     }`}
-                >
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        className="dark:bg-transparent absolute top-1 right-0 border-none"
-                        variant="outline"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <EllipsisVertical className="rounded-xl bg-white/10 " />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                      align="end"
-                      className="w-50"
+              >
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      className="dark:bg-transparent absolute top-1 right-0 border-none"
+                      variant="outline"
+                      onClick={(e) => e.stopPropagation()}
                     >
-                      <DropdownMenuItem
-                        onPointerDown={(e) => e.stopPropagation()}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEditClick(cls.id, cls.name);
-                        }}
-                      >
-                        <PencilLine className="mr-2 h-5 w-5" />
-                        <span className="text-md">Edit Class</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-900/20"
-                        onPointerDown={(e) => e.stopPropagation()}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteClick(cls.id, cls.name);
-                        }}
-                      >
-                        <Trash2 className="mr-2 h-5 w-5" />
-                        <span className="text-md">Delete Class</span>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                      <EllipsisVertical className="rounded-xl bg-white/10 " />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-50">
+                    <DropdownMenuItem
+                      onPointerDown={(e) => e.stopPropagation()}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEditClick(cls.id, cls.name);
+                      }}
+                    >
+                      <PencilLine className="mr-2 h-5 w-5" />
+                      <span className="text-md">Edit Class</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-900/20"
+                      onPointerDown={(e) => e.stopPropagation()}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteClick(cls.id, cls.name);
+                      }}
+                    >
+                      <Trash2 className="mr-2 h-5 w-5" />
+                      <span className="text-md">Delete Class</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
 
-                  <p className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                    {cls.name}
+                <p className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                  {cls.name}
+                </p>
+                <div className="space-y-2 text-center">
+                  <p className="text-sm md:text-base text-gray-300">
+                    <span className="sr-only">Subject</span>
+                    Subject: <span className="text-white">{cls.subject}</span>
                   </p>
-                  <div className="space-y-2 text-center">
-                    <p className="text-sm md:text-base text-gray-300">
-                      <span className="sr-only">Subject</span>
-                      Subject: <span className="text-white">{cls.subject}</span>
-                    </p>
 
-                    <p className="text-sm md:text-base text-gray-300">
-                      <span className="sr-only">class_code:</span>
-                      Class Code:
-                      <span className="text-white">{cls.class_code}</span>
-                    </p>
-                  </div>
+                  <p className="text-sm md:text-base text-gray-300">
+                    <span className="sr-only">class_code:</span>
+                    Class Code:
+                    <span className="text-white">{cls.class_code}</span>
+                  </p>
                 </div>
-              ))}
-              {/* <div
+              </div>
+            ))}
+            {/* <div
                 onClick={() => setShowAddClass(true)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
@@ -343,259 +371,256 @@ export default function Dashboard() {
                 </p>
                 <CiCirclePlus className="w-16 h-16 text-white cursor-pointer hover:text-green-500 transition-colors" />
               </div> */}
-            </div>
+          </div>
 
-            <Dialog open={showAddClass} onOpenChange={setShowAddClass}>
-              <DialogContent className="sm:max-w-[425px] bg-[#1a1a1a] text-white border-gray-800">
-                <DialogHeader>
-                  <DialogTitle className="text-xl font-semibold text-white">
-                    Add New Class
-                  </DialogTitle>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
+          <Dialog open={showAddClass} onOpenChange={setShowAddClass}>
+            <DialogContent className="sm:max-w-[425px] bg-[#1a1a1a] text-white border-gray-800">
+              <DialogHeader>
+                <DialogTitle className="text-xl font-semibold text-white">
+                  Add New Class
+                </DialogTitle>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="className" className="text-white">
+                    Class Name
+                  </Label>
+                  <Input
+                    id="className"
+                    placeholder="Enter class name"
+                    value={newClass.name}
+                    onChange={(e) =>
+                      setNewClass({ ...newClass, name: e.target.value })
+                    }
+                    className="bg-[#2a2a2a] border-gray-700 text-white"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="subject" className="text-white">
+                    Subject
+                  </Label>
+                  <Input
+                    id="subject"
+                    placeholder="Enter subject name"
+                    value={newClass.subject}
+                    onChange={(e) =>
+                      setNewClass({ ...newClass, subject: e.target.value })
+                    }
+                    className="bg-[#2a2a2a] border-gray-700 text-white"
+                  />
+                </div>
+
+                <div className="flex justify-between gap-3 mt-4">
+                  <button
+                    onClick={() => {
+                      setShowAddClass(false);
+                      setNewClass({ name: "", subject: "" });
+                    }}
+                    className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    onClick={handleAddClass}
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                  >
+                    Create Class
+                  </button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          <Dialog open={showConfirmation} onOpenChange={setShowConfirmation}>
+            <DialogContent className="sm:max-w-[425px] bg-[#1a1a1a] text-white border-gray-800">
+              <DialogHeader>
+                <DialogTitle className="text-xl flex justify-start align-middle items-center font-semibold text-white">
+                  <CircleAlert className="mr-2" />
+                  Submit Attendance?
+                </DialogTitle>
+              </DialogHeader>
+              <div className="py-4">
+                <p className="text-white text-lg">
+                  You have marked{" "}
+                  <span className="font-bold">{presentCount}</span> students as
+                  present.
+                </p>
+              </div>
+              <div className="flex justify-between mt-4">
+                <button
+                  onClick={() => setShowConfirmation(false)}
+                  className="px-4 py-2 flex bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                >
+                  <ChevronsLeft className="inline-block mr-1" />
+                  Close
+                </button>
+                <button
+                  onClick={handleSubmitAttendance}
+                  className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg flex transition-colors"
+                >
+                  Submit <ChevronsRight className="inline-block ml-1" />
+                </button>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          {/* Edit/Delete Confirmation Dialog */}
+          <Dialog
+            open={confirmationDialog.isOpen}
+            onOpenChange={(isOpen) =>
+              setConfirmationDialog((prev) => ({ ...prev, isOpen }))
+            }
+          >
+            <DialogContent className="sm:max-w-[425px] bg-[#1a1a1a] text-white border-gray-800">
+              <DialogHeader>
+                <DialogTitle className="text-xl flex items-center font-semibold">
+                  <CircleAlert className="mr-2 h-5 w-5" />
+                  {confirmationDialog.type === "edit"
+                    ? "Edit Class"
+                    : "Delete Class"}
+                </DialogTitle>
+              </DialogHeader>
+              <div className="py-4 space-y-4">
+                {confirmationDialog.type === "edit" ? (
                   <div className="space-y-2">
                     <Label htmlFor="className" className="text-white">
-                      Class Name
+                      New Class Name
                     </Label>
                     <Input
                       id="className"
-                      placeholder="Enter class name"
-                      value={newClass.name}
-                      onChange={(e) =>
-                        setNewClass({ ...newClass, name: e.target.value })
-                      }
+                      value={confirmationDialog.newClassName}
+                      onChange={handleInputChange}
                       className="bg-[#2a2a2a] border-gray-700 text-white"
+                      placeholder="Enter new class name"
+                      autoFocus
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="subject" className="text-white">
-                      Subject
-                    </Label>
-                    <Input
-                      id="subject"
-                      placeholder="Enter subject name"
-                      value={newClass.subject}
-                      onChange={(e) =>
-                        setNewClass({ ...newClass, subject: e.target.value })
-                      }
-                      className="bg-[#2a2a2a] border-gray-700 text-white"
-                    />
-                  </div>
-
-                  <div className="flex justify-between gap-3 mt-4">
-                    <button
-                      onClick={() => {
-                        setShowAddClass(false);
-                        setNewClass({ name: "", subject: "" });
-                      }}
-                      className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
-                    >
-                      Cancel
-                    </button>
-
-                    <button
-                      onClick={handleAddClass}
-                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-                    >
-                      Create Class
-                    </button>
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
-
-            <Dialog open={showConfirmation} onOpenChange={setShowConfirmation}>
-              <DialogContent className="sm:max-w-[425px] bg-[#1a1a1a] text-white border-gray-800">
-                <DialogHeader>
-                  <DialogTitle className="text-xl flex justify-start align-middle items-center font-semibold text-white">
-                    <CircleAlert className="mr-2" />
-                    Submit Attendance?
-                  </DialogTitle>
-                </DialogHeader>
-                <div className="py-4">
-                  <p className="text-white text-lg">
-                    You have marked{" "}
-                    <span className="font-bold">{presentCount}</span> students
-                    as present.
+                ) : (
+                  <p className="text-white">
+                    Are you sure you want to delete
+                    {confirmationDialog.className}? This action cannot be
+                    undone.
                   </p>
-                </div>
-                <div className="flex justify-between mt-4">
-                  <button
-                    onClick={() => setShowConfirmation(false)}
-                    className="px-4 py-2 flex bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-                  >
-                    <ChevronsLeft className="inline-block mr-1" />
-                    Close
-                  </button>
-                  <button
-                    onClick={handleSubmitAttendance}
-                    className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg flex transition-colors"
-                  >
-                    Submit <ChevronsRight className="inline-block ml-1" />
-                  </button>
-                </div>
-              </DialogContent>
-            </Dialog>
+                )}
+              </div>
+              <div className="flex justify-end gap-3 mt-4">
+                <Button
+                  variant="outline"
+                  onClick={() =>
+                    setConfirmationDialog((prev) => ({
+                      ...prev,
+                      isOpen: false,
+                    }))
+                  }
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant={
+                    confirmationDialog.type === "delete"
+                      ? "destructive"
+                      : "default"
+                  }
+                  onClick={handleDialogConfirm}
+                  disabled={
+                    confirmationDialog.type === "edit" &&
+                    !confirmationDialog.newClassName.trim()
+                  }
+                >
+                  {confirmationDialog.type === "edit"
+                    ? "Save Changes"
+                    : "Delete"}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
 
-            {/* Edit/Delete Confirmation Dialog */}
-            <Dialog
-              open={confirmationDialog.isOpen}
-              onOpenChange={(isOpen) =>
-                setConfirmationDialog((prev) => ({ ...prev, isOpen }))
-              }
-            >
-              <DialogContent className="sm:max-w-[425px] bg-[#1a1a1a] text-white border-gray-800">
-                <DialogHeader>
-                  <DialogTitle className="text-xl flex items-center font-semibold">
-                    <CircleAlert className="mr-2 h-5 w-5" />
-                    {confirmationDialog.type === "edit"
-                      ? "Edit Class"
-                      : "Delete Class"}
-                  </DialogTitle>
-                </DialogHeader>
-                <div className="py-4 space-y-4">
-                  {confirmationDialog.type === "edit" ? (
-                    <div className="space-y-2">
-                      <Label htmlFor="className" className="text-white">
-                        New Class Name
-                      </Label>
-                      <Input
-                        id="className"
-                        value={confirmationDialog.newClassName}
-                        onChange={handleInputChange}
-                        className="bg-[#2a2a2a] border-gray-700 text-white"
-                        placeholder="Enter new class name"
-                        autoFocus
-                      />
-                    </div>
-                  ) : (
-                    <p className="text-white">
-                      Are you sure you want to delete
-                      {confirmationDialog.className}? This action cannot be
-                      undone.
-                    </p>
-                  )}
-                </div>
-                <div className="flex justify-end gap-3 mt-4">
-                  <Button
-                    variant="outline"
-                    onClick={() =>
-                      setConfirmationDialog((prev) => ({
-                        ...prev,
-                        isOpen: false,
-                      }))
-                    }
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    variant={
-                      confirmationDialog.type === "delete"
-                        ? "destructive"
-                        : "default"
-                    }
-                    onClick={handleDialogConfirm}
-                    disabled={
-                      confirmationDialog.type === "edit" &&
-                      !confirmationDialog.newClassName.trim()
-                    }
-                  >
-                    {confirmationDialog.type === "edit"
-                      ? "Save Changes"
-                      : "Delete"}
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
-
-            <div className="lg:col-span-3 bg-black/20 backdrop-blur-lg rounded-xl border border-white/10 min-h-[300px] p-4 md:p-6 flex justify-center flex-col">
-              {selectedClass ? (
-                <div className="h-full flex flex-col">
-                  <motion.div 
+          <div className="lg:col-span-3 bg-black/20 backdrop-blur-lg rounded-xl border border-white/10 min-h-[300px] p-4 md:p-6 flex justify-center flex-col">
+            {selectedClass ? (
+              <div className="h-full flex flex-col">
+                <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5 }}
-                  className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
-                    <h2 className="text-lg md:text-xl font-semibold text-white">
-                      Today&apos;s Attendance -{" "}
-                      {classes.find((c) => c.id === selectedClass)?.name}
-                    </h2>
-                    <button
-                      onClick={handleClearAttendance}
-                      aria-label="Clear all attendance records"
-                      className="w-full sm:w-auto px-4 py-2 bg-gray-600 hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 focus:outline-none text-white rounded-lg text-sm transition-colors"
-                    >
-                      Clear All
-                    </button>
-                  </motion.div>
-                  <div className="flex-1 overflow-x-auto min-h-0">
-                    <table className="w-full text-white">
-                      <thead className="border-b border-gray-600">
-                        <tr className="text-left">
-                          <th className="pb-3 px-4">Roll No.</th>
-                          <th className="pb-3 px-4">Name</th>
-                          <th className="pb-3 px-4">Current %</th>
-                          <th className="pb-3 px-4">Status</th>
+                  className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4"
+                >
+                  <h2 className="text-lg md:text-xl font-semibold text-white">
+                    Today&apos;s Attendance -{" "}
+                    {classes.find((c) => c.id === selectedClass)?.name}
+                  </h2>
+                  <button
+                    onClick={handleClearAttendance}
+                    aria-label="Clear all attendance records"
+                    className="w-full sm:w-auto px-4 py-2 bg-gray-600 hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 focus:outline-none text-white rounded-lg text-sm transition-colors"
+                  >
+                    Clear All
+                  </button>
+                </motion.div>
+                <div className="flex-1 overflow-x-auto min-h-0">
+                  <table className="w-full text-white">
+                    <thead className="border-b border-gray-600">
+                      <tr className="text-left">
+                        <th className="pb-3 px-4">Roll No.</th>
+                        <th className="pb-3 px-4">Name</th>
+                        <th className="pb-3 px-4">Current %</th>
+                        <th className="pb-3 px-4">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {students.map((student, index) => (
+                        <tr
+                          key={student.id}
+                          className="border-b border-gray-700 hover:bg-gray-800"
+                        >
+                          <td className="py-3 px-4">{index + 1}</td>
+                          <td className="py-3 px-4">{student.name}</td>
+                          <td className="pb-3 px-4"></td>
 
-                          
+                          <td className="py-3 px-4">
+                            <label className="flex items-center space-x-2">
+                              <Checkbox
+                                onCheckedChange={(checked) =>
+                                  handleAttendanceChange(
+                                    student.id,
+                                    checked === true
+                                  )
+                                }
+                              />
+                              <span className="text-sm text-gray-300">
+                                Present
+                              </span>
+                            </label>
+                          </td>
                         </tr>
-                      </thead>
-                      <tbody>
-                        {students.map((student, index) => (
-                          <tr
-                            key={student.id}
-                            className="border-b border-gray-700 hover:bg-gray-800"
-                          >
-                            <td className="py-3 px-4">{index + 1}</td>
-                            <td className="py-3 px-4">{student.name}</td>
-                            <td className="pb-3 px-4"></td>
-
-                            <td className="py-3 px-4">
-                              <label className="flex items-center space-x-2">
-                                <Checkbox
-                                  checked={attendance[student.id] || false}
-                                  onCheckedChange={(checked) =>
-                                    handleAttendanceChange(
-                                      student.id,
-                                      checked === true
-                                    )
-                                  }
-                                />
-                                <span className="text-sm text-gray-300">
-                                  Present
-                                </span>
-                              </label>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                    <div className="mt-6 flex justify-end">
-                      <button
-                        onClick={handleSubmitAttendance}
-                        className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
-                      >
-                        Submit Attendance
-                      </button>
-                    </div>
+                      ))}
+                    </tbody>
+                  </table>
+                  <div className="mt-6 flex justify-end">
+                    <button
+                      onClick={showconfirmation}
+                      className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
+                    >
+                      Submit Attendance
+                    </button>
                   </div>
                 </div>
-              ) : (
-                <motion.div
+              </div>
+            ) : (
+              <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5 }}
-                 className="flex items-center align-middle h-full justify-center">
-                  <p className="text-gray-100 text-lg text-center" role="alert">
-                    Select a class to mark students attendance
-                  </p>
-                </motion.div>
-              )}
-            </div>
+                className="flex items-center align-middle h-full justify-center"
+              >
+                <p className="text-gray-100 text-lg text-center" role="alert">
+                  Select a class to mark students attendance
+                </p>
+              </motion.div>
+            )}
           </div>
-
+        </div>
       </main>
-
     </div>
   );
 }

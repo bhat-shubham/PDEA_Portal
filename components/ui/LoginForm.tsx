@@ -28,23 +28,24 @@ export default function StudentLoginForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const res = await studentHandler("login", "POST", formData);
+    console.log(res);
     if (res.message === "Login successful") {
-      console.log(res)
+      console.log(res);
       localStorage.setItem("token", res.token);
       toast.success("Logged In Successfully!", {
         description: "Checking Information...",
-        richColors:true
+        richColors: true,
       });
-      if(res.student.classes.length===0){
-        Router.push("/student/noclass")
+      if (res.student.classes.length === 0) {
+        Router.push("/student/noclass");
+        console.log(res);
         return;
       }
       Router.push("/student/dashboard");
-    }
-    else {
+    } else {
       toast.error("Login Failed", {
         description: res.message || "Please try again later.",
-        richColors: true
+        richColors: true,
       });
     }
   };
