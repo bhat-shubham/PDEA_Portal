@@ -193,7 +193,6 @@ export default function Dashboard() {
       return;
     }
 
-    
     console.log("Submitting attendance:", attendance);
     const res = await attendenceHandler("markAttendence", "POST", attendance);
     console.log(res);
@@ -206,19 +205,31 @@ export default function Dashboard() {
     if (!selectedClass) return;
 
     setAttendance((prev) => {
-      const updated = [...prev];
-      const index = updated.findIndex(
-        (r) => r.studentId === studentId && r.classId === selectedClass
-      );
+      let updated = [...prev];
 
-      if (index !== -1) {
-        updated[index].present = status;
+      if (status) {
+        const index = updated.findIndex(
+          (r) => r.studentId === studentId && r.classId === selectedClass
+        );
+
+        if (index !== -1) {
+          updated[index].present = true;
+        } else {
+          updated.push({ studentId, classId: selectedClass, present: true });
+        }
       } else {
-        updated.push({ studentId, classId: selectedClass, present: status });
+        updated = updated.filter(
+          (r) => !(r.studentId === studentId && r.classId === selectedClass)
+        );
       }
+
       return updated;
     });
   };
+
+  useEffect(() => {
+    setPresentCount(attendance.length);
+  }, [attendance]);
 
   useEffect(() => {
     const fetchClasses = async () => {
