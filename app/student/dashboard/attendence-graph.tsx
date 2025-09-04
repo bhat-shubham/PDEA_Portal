@@ -128,7 +128,7 @@ export function AttendanceGraph() {
   const getAttendanceColor = (attendance: number) => {
     if (attendance < 50) return "red";
     if (attendance < 75) return "yellow";
-    return "green";
+    return "#22C55E";
   };
 
   const rateFromRisk = (pct: number) => {
@@ -149,7 +149,7 @@ export function AttendanceGraph() {
 
   const neededAtRate = (a: number, t: number, p: number, r: number) => {
     if (t <= 0) return 0;
-    if (r <= p) return undefined; // not feasible at current consistency
+    if (r <= p) return undefined; 
     const x = (p * t - a) / (r - p);
     return ceilNonNeg(x);
   };
@@ -350,8 +350,9 @@ ${compact}
                               <tspan
                                 x={viewBox.cx}
                                 y={viewBox.cy}
-                                fill={attendanceColor}
+                                // text-color={attendanceColor}
                                 className="text-4xl font-bold"
+                                style={{ fill: attendanceColor }}
                               >
                                 {totalAttendance}%
                               </tspan>
