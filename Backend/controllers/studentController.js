@@ -9,6 +9,8 @@ dotenv.config();
 const { Student } = require("../models/studentSchema");
 const { Class } = require("../models/classSchema");
 const { Notification } = require("../models/notificationSchema");
+const { Attendence } = require("../models/attendenceSchema");
+const mongoose = require("mongoose");
 
 const studentRegistration = async (req, res) => {
   const { firstname, lastname, email, mobile, password, parentPhone, branch } =
@@ -53,6 +55,59 @@ const studentRegistration = async (req, res) => {
       parentPhone: parentPhone,
     },
   });
+};
+
+const studentAttendance = async (req, res) => {
+  try {
+    const studentId = req.user.id;
+
+    const result = await Attendence.aggregate([
+      {
+        $match: { studentId: new mongoose.Types.ObjectId(studentId) },
+      },
+      {
+        $group: {
+          _id: "$classId",
+          total: { $sum: 1 },
+          attended: {
+            $sum: {
+              $cond: [{ $eq: ["$status", "present"] }, 1, 0],
+            },
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: "classes",
+          localField: "_id",
+          foreignField: "_id",
+          as: "class",
+        },
+      },
+      { $unwind: "$class" },
+      {
+        $project: {
+          classId: "$_id",
+          name: "$class.subject",
+          className: "$class.name",
+          total: 1,
+          attended: 1,
+        },
+      },
+    ]);
+
+    return res.status(200).json({
+      message: "Attendance fetched successfully",
+      subjects: result.map((r) => ({
+        name: r.name,
+        attended: r.attended,
+        total: r.total,
+      })),
+    });
+  } catch (error) {
+    console.error("[STUDENT ATTENDANCE ERROR]", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
 };
 
 const studentLogin = async (req, res) => {
@@ -229,4 +284,5 @@ module.exports = {
   studentLogout,
   studentProfile,
   joinClass,
+  studentAttendance,
 };

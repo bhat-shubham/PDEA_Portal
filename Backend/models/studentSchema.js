@@ -21,14 +21,14 @@ const studentSchema = new mongoose.Schema(
       match: [/^\S+@\S+\.\S+$/, "Please enter a valid email"],
     },
     mobile: {
-      type: String, // changed to String to allow leading zeros
+      type: String, 
       required: true,
       match: [/^\d{10}$/, "Mobile number must be exactly 10 digits"],
     },
     password: {
       type: String,
       required: true,
-      minlength: 6, // security: enforce minimum length
+      minlength: 6, 
     },
     role: {
       type: String,
@@ -55,9 +55,6 @@ const studentSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
-// Indexing for faster lookups
-// studentSchema.index({ email: 1 });
 
 const Student = mongoose.model("Student", studentSchema);
 

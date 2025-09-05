@@ -19,52 +19,31 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "../../../components/ui/chart";
-import { subjects } from "./subject-attendence";
+import { profileHandler } from "@/app/lib/studentHandler";
 import Groq from "groq-sdk";
 
 
-// ---- Types ----
 type Subject = {
   name: string;
-  attendance: number; // percentage snapshot used for the chart
-  attended?: number; // total attended sessions
-  total?: number; // total conducted sessions
+  attendance: number;
+  attended?: number; 
+  total?: number; 
 };
 
 type SubjectPlan = {
   subject: string;
-  currentAttendancePct: number; // 0-100
+  currentAttendancePct: number; 
   risk: "HIGH" | "MEDIUM" | "LOW";
-  rateAssumption: number; // r in [0..1]
-  neededAt75IfAttendAll: number; // number of lectures needed if r=1
-  neededAt75AtRate?: number; // number at rate r (if feasible), else undefined
+  rateAssumption: number; 
+  neededAt75IfAttendAll: number;
+  neededAt75AtRate?: number;
   feasibleAtRate: boolean;
 };
 
-// ---- Chart prep (unchanged palette) ----
-const subjectAttendance = subjects.map((subject) => ({
-  subject: subject.name,
-  attendance: subject.attendance,
-  fill:
-    subject.name === "TOC"
-      ? "hsl(214, 84%, 56%)"
-      : subject.name === "BCN"
-      ? "hsl(142, 11%, 45%)"
-      : subject.name === "Internship"
-      ? "hsl(0, 84%, 70%)"
-      : subject.name === "CyberSecurity"
-      ? "hsl(270, 67%, 58%)"
-      : "hsl(35, 91%, 59%)",
-}));
-
-const chartConfig = {
-  attendance: { label: "Attendance" },
-  toc: { label: "TOC", color: "hsl(214, 84%, 56%)" },
-  bcn: { label: "BCN", color: "hsl(142, 71%, 45%)" },
-  internship: { label: "Internship", color: "hsl(0, 84%, 60%)" },
-  cybersecurity: { label: "CyberSecurity", color: "hsl(270, 67%, 58%)" },
-  wad: { label: "WAD", color: "hsl(35, 91%, 59%)" },
-} satisfies ChartConfig;
+const colorFor = (name: string) => {
+  let Palette = ["hsl(214, 84%, 56%)","hsl(142, 71%, 45%)","hsl(0, 84%, 60%)","hsl(270, 67%, 58%)","hsl(35, 91%, 59%)" ]
+  return Palette[Math.floor(Math.random() * Palette.length)];
+};
 
 const groq = new Groq({
   apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY!,
@@ -76,42 +55,91 @@ export function AttendanceGraph() {
   const [output, setOutput] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
   const [showAISummary, setShowAISummary] = React.useState(false);
+  const [subjects, setSubjects] = React.useState<Subject[]>([]);
+
+  React.useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await profileHandler("attendance", "GET");
+        if (mounted && res && Array.isArray(res.subjects)) {
+          const mapped: Subject[] = res.subjects.map((s: any) => ({
+            name: s.name,
+            attended: Number(s.attended) || 0,
+            total: Number(s.total) || 0,
+            attendance:
+              Number(s.total) > 0
+                ? Math.round(((Number(s.attended) || 0) / Number(s.total)) * 100)
+                : 0,
+          }));
+          setSubjects(mapped);
+        } else if (mounted) {
+          setSubjects([]);
+        }
+      } catch (e) {
+        if (mounted) setSubjects([]);
+        console.error("Failed to load attendance graph data", e);
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const subjectAttendance = React.useMemo(
+    () =>
+      subjects.map((subject) => ({
+        subject: subject.name,
+        attendance: subject.attendance,
+        fill: colorFor(subject.name),
+      })),
+    [subjects]
+  );
+
+  const chartConfig = React.useMemo(() => {
+    const cfg: Record<string, { label: string; color?: string }> = {
+      attendance: { label: "Attendance" },
+    };
+    subjects.forEach((s) => {
+      const key = s.name.toLowerCase().replace(/\s+/g, "_");
+      cfg[key] = { label: s.name, color: colorFor(s.name) };
+    });
+    return cfg as ChartConfig;
+  }, [subjects]);
 
   const totalAttendance = React.useMemo(() => {
+    if (subjectAttendance.length === 0) return 0;
     return Math.round(
       subjectAttendance.reduce((acc, curr) => acc + curr.attendance, 0) /
         subjectAttendance.length
     );
-  }, []);
+  }, [subjectAttendance]);
 
   const getAttendanceColor = (attendance: number) => {
     if (attendance < 50) return "red";
     if (attendance < 75) return "yellow";
-    return "green";
+    return "#22C55E";
   };
 
   const rateFromRisk = (pct: number) => {
-    if (pct < 60) return 0.6; // high risk
-    if (pct < 75) return 0.8; // medium risk
-    return 0.95; // low risk
+    if (pct < 60) return 0.6;
+    if (pct < 75) return 0.8;
+    return 0.95;
   };
 
   const ceilNonNeg = (x: number) => Math.max(0, Math.ceil(x));
 
-  // Minimum x such that (a + x)/(t + x) >= p  -> x >= (p*t - a) / (1 - p)
   const neededIfAttendAll = (a: number, t: number, p: number) => {
     if (t <= 0) return 0;
     const num = p * t - a;
     const den = 1 - p;
     if (den <= 0) return 0;
     return ceilNonNeg(num / den);
-    // If already at/above p, this returns <=0, which we clamp to 0
   };
 
-  // Minimum x such that (a + r*x)/(t + x) >= p  -> x >= (p*t - a) / (r - p), requires r>p
   const neededAtRate = (a: number, t: number, p: number, r: number) => {
     if (t <= 0) return 0;
-    if (r <= p) return undefined; // not feasible at current consistency
+    if (r <= p) return undefined; 
     const x = (p * t - a) / (r - p);
     return ceilNonNeg(x);
   };
@@ -121,7 +149,6 @@ export function AttendanceGraph() {
     setIsLoading(true);
     setOutput("");
 
-    // If already showing summary, just toggle back to graph
     if (showAISummary) {
       setShowAISummary(false);
       setLoading(false);
@@ -133,7 +160,6 @@ export function AttendanceGraph() {
       const thresholdPct = 75;
       const p = thresholdPct / 100;
 
-      //subject plan
       const plans: SubjectPlan[] = subjects.map((s) => {
         const t = s.total ?? 0;
         const a = s.attended ?? 0;
@@ -281,7 +307,7 @@ ${compact}
             <div className="flex flex-1 items-center justify-center h-full w-full p-4">
               <ChartContainer
                 config={chartConfig}
-                className="w-full h-full flex items-center justify-center"
+                className="w-full [&_.recharts-pie-label-text]:fill-foreground h-full flex items-center justify-center"
               >
                 <PieChart width={400} height={400}>
                   <ChartTooltip
@@ -289,6 +315,7 @@ ${compact}
                     content={<ChartTooltipContent hideLabel />}
                   />
                   <Pie
+                    label
                     data={subjectAttendance}
                     dataKey="attendance"
                     nameKey="subject"
@@ -314,8 +341,9 @@ ${compact}
                               <tspan
                                 x={viewBox.cx}
                                 y={viewBox.cy}
-                                fill={attendanceColor}
+                                // text-color={attendanceColor}
                                 className="text-4xl font-bold"
+                                style={{ fill: attendanceColor }}
                               >
                                 {totalAttendance}%
                               </tspan>
