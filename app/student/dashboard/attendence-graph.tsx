@@ -41,30 +41,9 @@ type SubjectPlan = {
 };
 
 const colorFor = (name: string) => {
-  switch (name.toLowerCase()) {
-    case "toc":
-      return "hsl(214, 84%, 56%)";
-    case "bcn":
-      return "hsl(142, 71%, 45%)";
-    case "internship":
-      return "hsl(0, 84%, 60%)";
-    case "cybersecurity":
-      return "hsl(270, 67%, 58%)";
-    case "wad":
-      return "hsl(35, 91%, 59%)";
-    default:
-      return "hsl(214, 10%, 55%)";
-  }
+  let Palette = ["hsl(214, 84%, 56%)","hsl(142, 71%, 45%)","hsl(0, 84%, 60%)","hsl(270, 67%, 58%)","hsl(35, 91%, 59%)" ]
+  return Palette[Math.floor(Math.random() * Palette.length)];
 };
-
-const chartConfig = {
-  attendance: { label: "Attendance" },
-  toc: { label: "TOC", color: "hsl(214, 84%, 56%)" },
-  bcn: { label: "BCN", color: "hsl(142, 71%, 45%)" },
-  internship: { label: "Internship", color: "hsl(0, 84%, 60%)" },
-  cybersecurity: { label: "CyberSecurity", color: "hsl(270, 67%, 58%)" },
-  wad: { label: "WAD", color: "hsl(35, 91%, 59%)" },
-} satisfies ChartConfig;
 
 const groq = new Groq({
   apiKey: process.env.NEXT_PUBLIC_GROQ_API_KEY!,
@@ -116,6 +95,17 @@ export function AttendanceGraph() {
       })),
     [subjects]
   );
+
+  const chartConfig = React.useMemo(() => {
+    const cfg: Record<string, { label: string; color?: string }> = {
+      attendance: { label: "Attendance" },
+    };
+    subjects.forEach((s) => {
+      const key = s.name.toLowerCase().replace(/\s+/g, "_");
+      cfg[key] = { label: s.name, color: colorFor(s.name) };
+    });
+    return cfg as ChartConfig;
+  }, [subjects]);
 
   const totalAttendance = React.useMemo(() => {
     if (subjectAttendance.length === 0) return 0;
@@ -317,7 +307,7 @@ ${compact}
             <div className="flex flex-1 items-center justify-center h-full w-full p-4">
               <ChartContainer
                 config={chartConfig}
-                className="w-full h-full flex items-center justify-center"
+                className="w-full [&_.recharts-pie-label-text]:fill-foreground h-full flex items-center justify-center"
               >
                 <PieChart width={400} height={400}>
                   <ChartTooltip
@@ -325,6 +315,7 @@ ${compact}
                     content={<ChartTooltipContent hideLabel />}
                   />
                   <Pie
+                    label
                     data={subjectAttendance}
                     dataKey="attendance"
                     nameKey="subject"
