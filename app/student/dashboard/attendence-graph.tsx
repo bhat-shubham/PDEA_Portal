@@ -116,7 +116,7 @@ export function AttendanceGraph() {
   }, [subjectAttendance]);
 
   const getAttendanceColor = (attendance: number) => {
-    if (attendance < 50) return "red";
+    if (attendance < 50) return "#FFF";
     if (attendance < 75) return "yellow";
     return "#22C55E";
   };

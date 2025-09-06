@@ -70,6 +70,9 @@ export function SubjectAttendance() {
           richColors: true,
         });
         setIsSuccess(true);
+        setOpen(false);
+        setClassCode("");
+        setIsSuccess(prev=>!prev);
       } else if (
         response.message ===
         "You have already sent a join request for this class"
@@ -99,13 +102,17 @@ export function SubjectAttendance() {
     (async () => {
       try {
         const res = await profileHandler("attendance", "GET");
+        console.log("api:",res)
         if (mounted && res && Array.isArray(res.subjects)) {
-          const mapped: SubjectItem[] = res.subjects.map((s: any) => ({
+          const mapped: SubjectItem[] = res.subjects.map((s: any) => {
+            console.log("Processing subject:",s);
+            return{
             name: s.name,
             attended: Number(s.attended) || 0,
             total: Number(s.total) || 0,
             attendance: s.total ? calculateAttendance(Number(s.attended) || 0, Number(s.total) || 0) : 0,
-          }));
+            }
+          });
           setSubjects(mapped);
         } else if (mounted) {
           setSubjects([]);
@@ -120,7 +127,7 @@ export function SubjectAttendance() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [isSuccess]);
 
   return (
     <Suspense fallback={<div className="h-48 w-full animate-pulse rounded-md bg-muted" />}>
