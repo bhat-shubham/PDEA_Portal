@@ -55,6 +55,8 @@ export function SubjectAttendance() {
   const [subjects, setSubjects] = useState<SubjectItem[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
+  const [isValidCode, setIsValidCode] = useState(true);
+
     const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -137,17 +139,39 @@ export function SubjectAttendance() {
               </Button>
             </PopoverTrigger>
             <PopoverContent>
+              <div className="bg-gray-600 mt-2 p-5 rounded-lg flex gap-4">
               <form onSubmit={handleSubmit}>
+                <div className="flex flex-col gap-4">
                 <Input
+                className={`h-10 bg-black/100 ${
+                          !isValidCode
+                            ? "border-red-500"
+                            : "border-purple-500/30"
+                        } focus:border-purple-500/50 
+                  focus:ring-purple-500/20 placeholder:text-gray-500`}
                   value={classCode}
-                  onChange={(e) => setClassCode(e.target.value)}
+                  onChange={(e) => {
+                          const value = e.target.value;
+                          setClassCode(value);
+                          setIsValidCode(!value || /^\d{6}$/.test(value));
+                        }}
                   placeholder="Enter class code"
                 />
-                <Button type="submit" disabled={isSubmitting}>
+                <Button className="bg-green-500" type="submit" 
+                disabled={
+                          !classCode ||
+                          isSubmitting ||
+                          isSuccess ||
+                          !isValidCode ||
+                          classCode.length !== 6
+                        }>
                   {isSubmitting ? "Joining..." : "Join Class"}
                 </Button>
+                </div>
               </form>
+              </div>
             </PopoverContent>
+            
           </Popover>
         </div>
 
