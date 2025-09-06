@@ -21,6 +21,7 @@ import {
 } from "../../../components/ui/chart";
 import { profileHandler } from "@/app/lib/studentHandler";
 import Groq from "groq-sdk";
+import { Skeleton } from "@/components/ui/skeleton";
 
 
 type Subject = {
@@ -54,6 +55,7 @@ export function AttendanceGraph() {
   const [loading, setLoading] = React.useState(false);
   const [output, setOutput] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
+  const [isAttendanceLoading, setIsAttendanceLoading] = React.useState(true);
   const [showAISummary, setShowAISummary] = React.useState(false);
   const [subjects, setSubjects] = React.useState<Subject[]>([]);
 
@@ -61,6 +63,7 @@ export function AttendanceGraph() {
     let mounted = true;
     (async () => {
       try {
+        if (mounted) setIsAttendanceLoading(true);
         const res = await profileHandler("attendance", "GET");
         if (mounted && res && Array.isArray(res.subjects)) {
           const mapped: Subject[] = res.subjects.map((s: any) => ({
@@ -79,6 +82,8 @@ export function AttendanceGraph() {
       } catch (e) {
         if (mounted) setSubjects([]);
         console.error("Failed to load attendance graph data", e);
+      } finally {
+        if (mounted) setIsAttendanceLoading(false);
       }
     })();
     return () => {
@@ -116,7 +121,7 @@ export function AttendanceGraph() {
   }, [subjectAttendance]);
 
   const getAttendanceColor = (attendance: number) => {
-    if (attendance < 50) return "red";
+    if (attendance < 50) return "#FFF";
     if (attendance < 75) return "yellow";
     return "#22C55E";
   };
@@ -304,66 +309,72 @@ ${compact}
               )}
             </div>
           ) : (
-            <div className="flex flex-1 items-center justify-center h-full w-full p-4">
-              <ChartContainer
-                config={chartConfig}
-                className="w-full [&_.recharts-pie-label-text]:fill-foreground h-full flex items-center justify-center"
-              >
-                <PieChart width={400} height={400}>
-                  <ChartTooltip
-                    cursor={true}
-                    content={<ChartTooltipContent hideLabel />}
-                  />
-                  <Pie
-                    label
-                    data={subjectAttendance}
-                    dataKey="attendance"
-                    nameKey="subject"
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={120}
-                    paddingAngle={1}
-                    strokeWidth={1}
-                  >
-                    <Label
-                      content={({ viewBox }) => {
-                        if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                          const attendanceColor =
-                            getAttendanceColor(totalAttendance);
-                          return (
-                            <text
-                              x={viewBox.cx}
-                              y={viewBox.cy}
-                              textAnchor="middle"
-                              dominantBaseline="middle"
-                            >
-                              <tspan
+            isAttendanceLoading ? (
+              <div className="flex items-center justify-center h-full">
+                <Skeleton className="border-[60px] border-accent bg-transparent h-72 w-72 rounded-full" />
+              </div>
+            ) : (
+              <div className="flex flex-1 items-center justify-center h-full w-full p-4">
+                <ChartContainer
+                  config={chartConfig}
+                  className="w-full [&_.recharts-pie-label-text]:fill-foreground h-full flex items-center justify-center"
+                >
+                  <PieChart width={400} height={400}>
+                    <ChartTooltip
+                      cursor={true}
+                      content={<ChartTooltipContent hideLabel />}
+                    />
+                    <Pie
+                      label
+                      data={subjectAttendance}
+                      dataKey="attendance"
+                      nameKey="subject"
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={120}
+                      paddingAngle={1}
+                      strokeWidth={1}
+                    >
+                      <Label
+                        content={({ viewBox }) => {
+                          if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                            const attendanceColor =
+                              getAttendanceColor(totalAttendance);
+                            return (
+                              <text
                                 x={viewBox.cx}
                                 y={viewBox.cy}
-                                // text-color={attendanceColor}
-                                className="text-4xl font-bold"
-                                style={{ fill: attendanceColor }}
+                                textAnchor="middle"
+                                dominantBaseline="middle"
                               >
-                                {totalAttendance}%
-                              </tspan>
-                              <tspan
-                                x={viewBox.cx}
-                                y={(viewBox.cy || 0) + 24}
-                                className="fill-muted-foreground"
-                              >
-                                Average
-                              </tspan>
-                            </text>
-                          );
-                        }
-                      }}
-                    />
-                  </Pie>
-                </PieChart>
-              </ChartContainer>
-            </div>
-          )}
+                                <tspan
+                                  x={viewBox.cx}
+                                  y={viewBox.cy}
+                                  className="text-4xl font-bold"
+                                  style={{ fill: attendanceColor }}
+                                >
+                                  {totalAttendance}%
+                                </tspan>
+                                <tspan
+                                  x={viewBox.cx}
+                                  y={(viewBox.cy || 0) + 24}
+                                  className="fill-muted-foreground"
+                                >
+                                  Average
+                                </tspan>
+                              </text>
+                            );
+                          }
+                        }}
+                      />
+                    </Pie>
+                  </PieChart>
+                </ChartContainer>
+              </div>
+
+            ))}
+        
         </CardContent>
 
         {!showAISummary && (
