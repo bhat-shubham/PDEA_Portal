@@ -37,6 +37,7 @@ export default function Home() {
       if (result.message === "Login successful.") {
         toast.success("Logged In Successfully!", {
           description: "Redirecting to Dashboard...",
+          richColors: true,
         });
 
         router.push("/teacher/dashboard");

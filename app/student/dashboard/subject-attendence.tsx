@@ -83,7 +83,7 @@ export function SubjectAttendance() {
         });
       } else {
         toast.error("Couldn't join class", {
-          description: data.message || "Please check the class code",
+          description: "Invalid class code",
           richColors: true,
         });
       }
@@ -140,7 +140,7 @@ export function SubjectAttendance() {
         <div>
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger>
-              <Button className="bg-green-600/20 hover:bg-green-600 text-green-500 hover:text-white justify-start transition-all duration-300" variant="secondary">
+              <Button className="bg-gray-600/80 hover:bg-green-600 hover:text-white justify-start transition-all duration-300" variant="secondary">
                 <BookmarkPlus className="h-4 w-4" />
                 Join New Subject
               </Button>
@@ -185,7 +185,7 @@ export function SubjectAttendance() {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
+        <div className="space-y-3">
           {loading && (
             <>
               <Skeleton className="h-6 w-1/3" />
