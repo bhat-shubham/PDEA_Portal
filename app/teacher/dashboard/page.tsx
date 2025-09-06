@@ -38,7 +38,7 @@ import { attendenceHandler } from "@/app/lib/attendenceHandler";
 type ClassType = {
   id: string;
   name: string;
-  subject: number;
+  subject: string;
   count: string;
   class_code: string;
 };
@@ -73,6 +73,7 @@ export default function Dashboard() {
     classId: null as string | null,
     className: "",
     newClassName: "",
+    subject:""
   });
 
   const [students, setStudents] = useState<students[]>([]);
@@ -121,16 +122,18 @@ export default function Dashboard() {
       classId,
       className,
       newClassName: className,
+      subject:confirmationDialog.subject
     });
   };
 
-  const handleDeleteClick = (classId: string, className: string) => {
+  const handleDeleteClick = (classId: string, className: string, subject: string) => {
     setConfirmationDialog({
       isOpen: true,
       type: "delete",
       classId,
       className,
       newClassName: "",
+      subject
     });
   };
 
@@ -145,6 +148,7 @@ export default function Dashboard() {
       classId: null,
       className: "",
       newClassName: "",
+      subject:""
     });
   };
 
@@ -323,7 +327,7 @@ export default function Dashboard() {
                       onPointerDown={(e) => e.stopPropagation()}
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleDeleteClick(cls.id, cls.name);
+                        handleDeleteClick(cls.id, cls.name, cls.subject);
                       }}
                     >
                       <Trash2 className="mr-2 h-5 w-5" />
@@ -498,9 +502,9 @@ export default function Dashboard() {
                   </div>
                 ) : (
                   <p className="text-white">
-                    Are you sure you want to delete
-                    {confirmationDialog.className}? This action cannot be
-                    undone.
+                    Are you sure you want to delete <span className="font-bold flex">{confirmationDialog.className}
+                    {confirmationDialog.subject ? ` (${confirmationDialog.subject})` : ""}?</span> This action
+                    cannot be undone.
                   </p>
                 )}
               </div>
