@@ -7,6 +7,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { profileHandler } from "@/app/lib/studentHandler";
 import { Button } from "@/components/ui/button";
 import { BookmarkPlus } from "lucide-react";
+import { studentHandler } from "@/app/lib/studentHandler";
+import { toast } from "sonner";
+import { Popover,PopoverContent,PopoverTrigger} from "@radix-ui/react-popover";
+import { Input } from "@/components/ui/input";
+
 export const calculateAttendance = (attended: number, total: number) => {
   return Math.round((attended / total) * 100)
 }
@@ -44,8 +49,48 @@ function CustomProgressBar({ value, attended, total }: { value: number; attended
 }
 
 export function SubjectAttendance() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess,setIsSuccess]= useState(false);
+  const [classCode, setClassCode] = useState("");
   const [subjects, setSubjects] = useState<SubjectItem[] | null>(null);
   const [loading, setLoading] = useState(true);
+  const [open, setOpen] = useState(false);
+    const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      const response = await studentHandler("class", "POST", { classCode });
+      const data = response;
+      console.log(response);
+      if (response.message == "Join request sent successfully") {
+        toast.success("Class join request sent successfully!", {
+          description: "Kindly wait while teacher admits you to the class",
+          richColors: true,
+        });
+        setIsSuccess(true);
+      } else if (
+        response.message ===
+        "You have already sent a join request for this class"
+      ) {
+        toast.error("Join request already sent", {
+          description: "Kindly wait while the teacher accepts your request",
+          richColors: true,
+        });
+      } else {
+        toast.error("Couldn't join class", {
+          description: data.message || "Please check the class code",
+          richColors: true,
+        });
+      }
+    } catch (error) {
+      toast.error("Failed to send request", {
+        description: "Please try again later",
+        richColors: true,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   useEffect(() => {
     let mounted = true;
@@ -84,10 +129,26 @@ export function SubjectAttendance() {
         <CardTitle>Subject-wise Attendance</CardTitle>
         </div>
         <div>
-          <Button className="bg-green-600/20 hover:bg-green-600 text-green-500 hover:text-white justify-start transition-all duration-300" variant="secondary">
-          <BookmarkPlus className="h-4 w-4" />
-          Join New Subject
-          </Button>
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger>
+              <Button className="bg-green-600/20 hover:bg-green-600 text-green-500 hover:text-white justify-start transition-all duration-300" variant="secondary">
+                <BookmarkPlus className="h-4 w-4" />
+                Join New Subject
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent>
+              <form onSubmit={handleSubmit}>
+                <Input
+                  value={classCode}
+                  onChange={(e) => setClassCode(e.target.value)}
+                  placeholder="Enter class code"
+                />
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? "Joining..." : "Join Class"}
+                </Button>
+              </form>
+            </PopoverContent>
+          </Popover>
         </div>
 
         </div>

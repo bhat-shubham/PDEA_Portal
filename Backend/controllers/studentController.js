@@ -227,7 +227,7 @@ const joinClass = async (req, res) => {
     // console.log(req);
 
     const classResult = await Class.findOne({ class_code: classCode });
-    console.log("Class result:", classResult.subject);
+    // console.log("Class result:", classResult.subject);
     const student = await Student.findOne({ email: studentEmail });
 
     if (!classResult || !student) {
