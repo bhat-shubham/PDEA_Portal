@@ -5,6 +5,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { motion } from "framer-motion";
 import { Skeleton } from "@/components/ui/skeleton";
 import { profileHandler } from "@/app/lib/studentHandler";
+import { Button } from "@/components/ui/button";
+import { BookmarkPlus } from "lucide-react";
 export const calculateAttendance = (attended: number, total: number) => {
   return Math.round((attended / total) * 100)
 }
@@ -77,7 +79,18 @@ export function SubjectAttendance() {
     <Suspense fallback={<div className="h-48 w-full animate-pulse rounded-md bg-muted" />}>
     <Card className="h-full w-full border border-none relative dark:bg-white/10">
       <CardHeader>
+        <div className="flex justify-between align-center items-center">
+          <div>
         <CardTitle>Subject-wise Attendance</CardTitle>
+        </div>
+        <div>
+          <Button className="bg-green-600/20 hover:bg-green-600 text-green-500 hover:text-white justify-start transition-all duration-300" variant="secondary">
+          <BookmarkPlus className="h-4 w-4" />
+          Join New Subject
+          </Button>
+        </div>
+
+        </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
