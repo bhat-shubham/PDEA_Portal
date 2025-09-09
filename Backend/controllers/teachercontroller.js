@@ -142,7 +142,7 @@ const teacherDetails = async (req, res) => {
 const createClass = async (req, res) => {
   const { name, subject } = req.body;
   const teacherId = req.user.id;
-  console.log("Creating class with data:", name, subject, teacherId);
+
 
   const codeLength = 6;
   var codeString = "";
