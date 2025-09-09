@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 const mongoose = require("mongoose");
-const { type } = require("os");
+
 
 const notificationSchema = new mongoose.Schema({
   classname: {

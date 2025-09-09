@@ -142,7 +142,6 @@ const teacherDetails = async (req, res) => {
 const createClass = async (req, res) => {
   const { name, subject } = req.body;
   const teacherId = req.user.id;
-  console.log("Creating class with data:", name, subject, teacherId);
 
   const codeLength = 6;
   var codeString = "";
@@ -321,7 +320,7 @@ const fetchStudentsInClass = async (req, res) => {
 
 const markAttendance = async (req, res) => {
   try {
-    let { records } = req.body; // frontend should send { records: [...] }
+    let { records } = req.body;
 
     if (!Array.isArray(records)) {
       return res.status(400).json({ message: "Records must be an array" });
@@ -340,6 +339,9 @@ const markAttendance = async (req, res) => {
         classId: new mongoose.Types.ObjectId(rec.classId),
         status: rec.present ? "present" : "absent",
       };
+    });
+    await Class.findByIdAndUpdate(markAttendence[0].classId, {
+      $inc: { totalLectures: 1 },
     });
 
     await Attendence.insertMany(markAttendence);

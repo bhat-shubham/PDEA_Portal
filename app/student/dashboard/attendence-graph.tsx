@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
@@ -23,26 +24,31 @@ import { profileHandler } from "@/app/lib/studentHandler";
 import Groq from "groq-sdk";
 import { Skeleton } from "@/components/ui/skeleton";
 
-
 type Subject = {
   name: string;
   attendance: number;
-  attended?: number; 
-  total?: number; 
+  attended?: number;
+  total?: number;
 };
 
 type SubjectPlan = {
   subject: string;
-  currentAttendancePct: number; 
+  currentAttendancePct: number;
   risk: "HIGH" | "MEDIUM" | "LOW";
-  rateAssumption: number; 
+  rateAssumption: number;
   neededAt75IfAttendAll: number;
   neededAt75AtRate?: number;
   feasibleAtRate: boolean;
 };
 
 const colorFor = (name: string) => {
-  let Palette = ["hsl(214, 84%, 56%)","hsl(142, 71%, 45%)","hsl(0, 84%, 60%)","hsl(270, 67%, 58%)","hsl(35, 91%, 59%)" ]
+  const Palette = [
+    "hsl(214, 84%, 56%)",
+    "hsl(142, 71%, 45%)",
+    "hsl(0, 84%, 60%)",
+    "hsl(270, 67%, 58%)",
+    "hsl(35, 91%, 59%)",
+  ];
   return Palette[Math.floor(Math.random() * Palette.length)];
 };
 
@@ -72,7 +78,9 @@ export function AttendanceGraph() {
             total: Number(s.total) || 0,
             attendance:
               Number(s.total) > 0
-                ? Math.round(((Number(s.attended) || 0) / Number(s.total)) * 100)
+                ? Math.round(
+                    ((Number(s.attended) || 0) / Number(s.total)) * 100
+                  )
                 : 0,
           }));
           setSubjects(mapped);
@@ -144,7 +152,7 @@ export function AttendanceGraph() {
 
   const neededAtRate = (a: number, t: number, p: number, r: number) => {
     if (t <= 0) return 0;
-    if (r <= p) return undefined; 
+    if (r <= p) return undefined;
     const x = (p * t - a) / (r - p);
     return ceilNonNeg(x);
   };

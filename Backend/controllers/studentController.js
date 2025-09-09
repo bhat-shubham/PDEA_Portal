@@ -60,45 +60,46 @@ const studentRegistration = async (req, res) => {
 const studentAttendance = async (req, res) => {
   try {
     const studentId = req.user.id;
-    const student = await Student.findById(studentId).populate('classes');
+    const student = await Student.findById(studentId).populate("classes");
     if (!student) {
       return res.status(404).json({ message: "Student not found" });
     }
     const attendanceData = await Attendence.aggregate([
       {
-        $match: { 
+        $match: {
           studentId: new mongoose.Types.ObjectId(studentId),
-          classId: { $in: student.classes.map(c => c._id) }
-        }
+          classId: { $in: student.classes.map((c) => c._id) },
+        },
       },
       {
         $group: {
           _id: "$classId",
           total: { $sum: 1 },
           attended: {
-            $sum: { $cond: [{ $eq: ["$status", "present"] }, 1, 0] }
-          }
-        }
-      }
+            $sum: { $cond: [{ $eq: ["$status", "present"] }, 1, 0] },
+          },
+        },
+      },
     ]);
 
     const attendanceMap = new Map();
-    attendanceData.forEach(item => {
+    attendanceData.forEach((item) => {
       attendanceMap.set(item._id.toString(), item);
     });
 
-    const result = student.classes.map(cls => {
+    const result = student.classes.map((cls) => {
       const attendance = attendanceMap.get(cls._id.toString());
       return {
         name: cls.subject || cls.name,
-        total: attendance ? attendance.total : 0,
-        attended: attendance ? attendance.attended : 0
+        total: cls.totalLectures,
+        attended: attendance ? attendance.attended : 0,
       };
     });
+  
 
     return res.status(200).json({
       message: "Attendance fetched successfully",
-      subjects: result
+      subjects: result,
     });
   } catch (error) {
     console.error("Error in studentAttendance:", error);
@@ -111,7 +112,7 @@ const studentLogin = async (req, res) => {
     const { email, password } = req.body;
 
     const student = await Student.findOne({ email });
-    console.log("student",student)
+    console.log("student", student);
     if (!student) {
       return res
         .status(404)
@@ -165,16 +166,16 @@ const studentProfile = async (req, res) => {
   try {
     const email = req.user.email;
     console.log("Fetching student details for email:", email);
-    const student = await Student.findOne({ email: email }).select("-password")
-    .populate({
-      path:"classes",
-      select: "name subject class_code",
-      populate:{
-        path:"teacher",
-        select:"firstname lastname email branch"
-      }
-    })
-    ;
+    const student = await Student.findOne({ email: email })
+      .select("-password")
+      .populate({
+        path: "classes",
+        select: "name subject class_code",
+        populate: {
+          path: "teacher",
+          select: "firstname lastname email branch",
+        },
+      });
     // console.log(teacher);
     if (!student) {
       return res.status(404).json({ message: "Student not found." });
@@ -203,7 +204,7 @@ const studentProfile = async (req, res) => {
         email: student.email,
         branch: student.branch,
         phone: student.mobile,
-        classes
+        classes,
       },
     });
   } catch (error) {
@@ -229,16 +230,18 @@ const joinClass = async (req, res) => {
     if (!classResult || !student) {
       return res.status(404).json({ message: "Class or student not found" });
     }
-    
+
     const existingNotification = await Notification.findOne({
       studentID: student._id.toString(),
       classID: classResult._id.toString(),
       subject: classResult.subject,
-      status: "pending"
+      status: "pending",
     });
 
     if (existingNotification) {
-      return res.status(400).json({ message: "You have already sent a join request for this class" });
+      return res.status(400).json({
+        message: "You have already sent a join request for this class",
+      });
     }
 
     const notification = new Notification({

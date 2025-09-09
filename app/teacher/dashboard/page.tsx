@@ -81,11 +81,11 @@ export default function Dashboard() {
     try {
       const data = await teacherHandler("POST", "class", newClass);
 
-      if (data?.message === "Class creat" && data?.class) {
+      if (data?.message === "Class created successfully." && data?.class) {
         setClasses((prev) => [...prev, data.class]);
 
-        setShowAddClass(false);
         setNewClass({ name: "", subject: "" });
+        setShowAddClass(false);
 
         console.log("Class created successfully:", data.class);
       } else {
