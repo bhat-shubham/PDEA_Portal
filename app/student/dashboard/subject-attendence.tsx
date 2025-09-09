@@ -5,6 +5,13 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { motion } from "framer-motion";
 import { Skeleton } from "@/components/ui/skeleton";
 import { profileHandler } from "@/app/lib/studentHandler";
+import { Button } from "@/components/ui/button";
+import { BookmarkPlus } from "lucide-react";
+import { studentHandler } from "@/app/lib/studentHandler";
+import { toast } from "sonner";
+import { Popover,PopoverContent,PopoverTrigger} from "@radix-ui/react-popover";
+import { Input } from "@/components/ui/input";
+
 export const calculateAttendance = (attended: number, total: number) => {
   return Math.round((attended / total) * 100)
 }
@@ -42,21 +49,70 @@ function CustomProgressBar({ value, attended, total }: { value: number; attended
 }
 
 export function SubjectAttendance() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess,setIsSuccess]= useState(false);
+  const [classCode, setClassCode] = useState("");
   const [subjects, setSubjects] = useState<SubjectItem[] | null>(null);
   const [loading, setLoading] = useState(true);
+  const [open, setOpen] = useState(false);
+  const [isValidCode, setIsValidCode] = useState(true);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      const response = await studentHandler("class", "POST", { classCode });
+      const data = response;
+      console.log(response);
+      if (response.message == "Join request sent successfully") {
+        toast.success("Class join request sent successfully!", {
+          description: "Kindly wait while teacher admits you to the class",
+          richColors: true,
+        });
+        setIsSuccess(true);
+        setOpen(false);
+        setClassCode("");
+        setIsSuccess(prev=>!prev);
+      } else if (
+        response.message ===
+        "You have already sent a join request for this class"
+      ) {
+        toast.error("Join request already sent", {
+          description: "Kindly wait while the teacher accepts your request",
+          richColors: true,
+        });
+      } else {
+        toast.error("Couldn't join class", {
+          description: data.message || "Please check the class code",
+          richColors: true,
+        });
+      }
+    } catch (error) {
+      toast.error("Failed to send request", {
+        description: "Please try again later",
+        richColors: true,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   useEffect(() => {
     let mounted = true;
     (async () => {
       try {
         const res = await profileHandler("attendance", "GET");
+        console.log("api:",res)
         if (mounted && res && Array.isArray(res.subjects)) {
-          const mapped: SubjectItem[] = res.subjects.map((s: any) => ({
+          const mapped: SubjectItem[] = res.subjects.map((s: any) => {
+            console.log("Processing subject:",s);
+            return{
             name: s.name,
             attended: Number(s.attended) || 0,
             total: Number(s.total) || 0,
             attendance: s.total ? calculateAttendance(Number(s.attended) || 0, Number(s.total) || 0) : 0,
-          }));
+            }
+          });
           setSubjects(mapped);
         } else if (mounted) {
           setSubjects([]);
@@ -71,13 +127,62 @@ export function SubjectAttendance() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [isSuccess]);
 
   return (
     <Suspense fallback={<div className="h-48 w-full animate-pulse rounded-md bg-muted" />}>
     <Card className="h-full w-full border border-none relative dark:bg-white/10">
       <CardHeader>
+        <div className="flex justify-between align-center items-center">
+          <div>
         <CardTitle>Subject-wise Attendance</CardTitle>
+        </div>
+        <div>
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger>
+              <Button className="bg-green-600/20 hover:bg-green-600 text-green-500 hover:text-white justify-start transition-all duration-300" variant="secondary">
+                <BookmarkPlus className="h-4 w-4" />
+                Join New Subject
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent>
+              <div className="bg-gray-600 mt-2 p-5 rounded-lg flex gap-4">
+              <form onSubmit={handleSubmit}>
+                <div className="flex flex-col gap-4">
+                <Input
+                className={`h-10 bg-black/100 ${
+                          !isValidCode
+                            ? "border-red-500"
+                            : "border-purple-500/30"
+                        } focus:border-purple-500/50 
+                  focus:ring-purple-500/20 placeholder:text-gray-500`}
+                  value={classCode}
+                  onChange={(e) => {
+                          const value = e.target.value;
+                          setClassCode(value);
+                          setIsValidCode(!value || /^\d{6}$/.test(value));
+                        }}
+                  placeholder="Enter class code"
+                />
+                <Button className="bg-green-500" type="submit" 
+                disabled={
+                          !classCode ||
+                          isSubmitting ||
+                          isSuccess ||
+                          !isValidCode ||
+                          classCode.length !== 6
+                        }>
+                  {isSubmitting ? "Joining..." : "Join Class"}
+                </Button>
+                </div>
+              </form>
+              </div>
+            </PopoverContent>
+            
+          </Popover>
+        </div>
+
+        </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">

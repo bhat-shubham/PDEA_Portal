@@ -60,52 +60,48 @@ const studentRegistration = async (req, res) => {
 const studentAttendance = async (req, res) => {
   try {
     const studentId = req.user.id;
-
-    const result = await Attendence.aggregate([
+    const student = await Student.findById(studentId).populate('classes');
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+    const attendanceData = await Attendence.aggregate([
       {
-        $match: { studentId: new mongoose.Types.ObjectId(studentId) },
+        $match: { 
+          studentId: new mongoose.Types.ObjectId(studentId),
+          classId: { $in: student.classes.map(c => c._id) }
+        }
       },
       {
         $group: {
           _id: "$classId",
           total: { $sum: 1 },
           attended: {
-            $sum: {
-              $cond: [{ $eq: ["$status", "present"] }, 1, 0],
-            },
-          },
-        },
-      },
-      {
-        $lookup: {
-          from: "classes",
-          localField: "_id",
-          foreignField: "_id",
-          as: "class",
-        },
-      },
-      { $unwind: "$class" },
-      {
-        $project: {
-          classId: "$_id",
-          name: "$class.subject",
-          className: "$class.name",
-          total: 1,
-          attended: 1,
-        },
-      },
+            $sum: { $cond: [{ $eq: ["$status", "present"] }, 1, 0] }
+          }
+        }
+      }
     ]);
+
+    const attendanceMap = new Map();
+    attendanceData.forEach(item => {
+      attendanceMap.set(item._id.toString(), item);
+    });
+
+    const result = student.classes.map(cls => {
+      const attendance = attendanceMap.get(cls._id.toString());
+      return {
+        name: cls.subject || cls.name,
+        total: attendance ? attendance.total : 0,
+        attended: attendance ? attendance.attended : 0
+      };
+    });
 
     return res.status(200).json({
       message: "Attendance fetched successfully",
-      subjects: result.map((r) => ({
-        name: r.name,
-        attended: r.attended,
-        total: r.total,
-      })),
+      subjects: result
     });
   } catch (error) {
-    console.error("[STUDENT ATTENDANCE ERROR]", error);
+    console.error("Error in studentAttendance:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -227,7 +223,7 @@ const joinClass = async (req, res) => {
     // console.log(req);
 
     const classResult = await Class.findOne({ class_code: classCode });
-    console.log("Class result:", classResult.subject);
+    // console.log("Class result:", classResult.subject);
     const student = await Student.findOne({ email: studentEmail });
 
     if (!classResult || !student) {
